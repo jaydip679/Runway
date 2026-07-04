@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  app:
+    build: { context: ./server, dockerfile: Dockerfile }
+    command: node src/server.js
+    ports: ["4000:4000"]
+    volumes: ["./server:/app", "/app/node_modules"]
+    env_file: .env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  worker:
+    build: { context: ./server, dockerfile: Dockerfile }
+    command: node src/worker.js
+    volumes: ["./server:/app", "/app/node_modules"]
+    env_file: .env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: runway
+      POSTGRES_USER: runway
+      POSTGRES_PASSWORD: runway
+    ports: ["5432:5432"]
+    volumes: ["pg_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U runway"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    ports: ["6379:6379"]
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes: ["redis_data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    build: { context: ./client, dockerfile: ../docker/Dockerfile.nginx }
+    ports: ["80:80"]
+    volumes: ["./docker/nginx.conf:/etc/nginx/nginx.conf:ro"]
+    depends_on: [app]
+
+volumes:
+  pg_data:
+  redis_data:
