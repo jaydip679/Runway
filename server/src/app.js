@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const env = require('./config/env');
 const logger = require('./config/logger');
 const prisma = require('./config/db');
@@ -12,6 +14,9 @@ const createRateLimiter = require('./common/middlewares/rateLimiter');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
+
+const authRoutes = require('./modules/auth/auth.routes');
+const userRoutes = require('./modules/users/user.routes');
 
 const app = express();
 
@@ -28,12 +33,19 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
 
+// Serve uploads folder statically
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Global Rate Limiter
 const globalLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: 1000, 
 });
 app.use('/api', globalLimiter);
+
+// Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {
