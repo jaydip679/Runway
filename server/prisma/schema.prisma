@@ -6,3 +6,65 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  passwordHash     String?
+  name             String
+  avatarUrl        String?
+  role             Role      @default(USER)
+  authProvider     AuthProvider
+  googleId         String?   @unique
+  isEmailVerified  Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  lastLoginAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  refreshTokens    RefreshToken[]
+  auditLogs        AuditLog[]
+
+  @@index([email])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+model RefreshToken {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  tokenHash     String
+  familyId      String
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  createdByIp   String?
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([tokenHash])
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+}
