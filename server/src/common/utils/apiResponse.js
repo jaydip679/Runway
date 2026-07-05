@@ -1,17 +1,18 @@
-const sendSuccess = (res, statusCode, message, data = null) => {
+const sendSuccess = (res, data, meta = undefined, statusCode = 200) => {
   res.status(statusCode).json({
-    status: 'success',
-    message,
-    ...(data && { data }),
+    success: true,
+    ...(data !== undefined && { data }),
+    ...(meta !== undefined && { meta }),
   });
 };
 
-const sendError = (res, statusCode, errorCode, message) => {
+const sendError = (res, statusCode, errorCode, message, details = undefined) => {
   res.status(statusCode).json({
-    status: 'error',
+    success: false,
     error: {
       code: errorCode,
       message,
+      ...(details && { details }),
     }
   });
 };
