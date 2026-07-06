@@ -8,6 +8,8 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import Profile from '../pages/dashboard/Profile';
 import { useAuth } from '../context/AuthContext';
+import AccountsPage from '../features/accounts/AccountsPage';
+import CategoriesManager from '../features/categories/CategoriesManager';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -40,6 +42,8 @@ const AppRoutes = () => {
       <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route index element={<div style={{ padding: '24px' }}>Dashboard (Protected)</div>} />
         <Route path="profile" element={<Profile />} />
+        <Route path="accounts" element={<AccountsPage />} />
+        <Route path="categories" element={<CategoriesManager />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />
