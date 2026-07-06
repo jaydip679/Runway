@@ -17,6 +17,8 @@ const swaggerSpecs = require('./config/swagger');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/user.routes');
+const accountRoutes = require('./modules/accounts/account.routes');
+const categoryRoutes = require('./modules/categories/category.routes');
 
 const app = express();
 
@@ -46,6 +48,8 @@ app.use('/api', globalLimiter);
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/accounts', accountRoutes);
+app.use('/api/v1/categories', categoryRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {
