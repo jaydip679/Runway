@@ -24,6 +24,8 @@ model User {
 
   refreshTokens    RefreshToken[]
   auditLogs        AuditLog[]
+  accounts         Account[]
+  categories       Category[]
 
   @@index([email])
 }
@@ -67,4 +69,46 @@ model AuditLog {
 
   @@index([userId, createdAt])
   @@index([entityType, entityId])
+}
+
+model Account {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  name            String
+  type            AccountType
+  currentBalance  Decimal     @db.Decimal(14, 2)
+  currency        String      @default("INR")
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  @@index([userId, deletedAt])
+}
+
+enum AccountType { 
+  BANK 
+  CASH 
+  WALLET 
+  CREDIT_CARD 
+}
+
+model Category {
+  id        String        @id @default(uuid())
+  userId    String?       // null = system-defined global category
+  user      User?         @relation(fields: [userId], references: [id])
+  name      String
+  type      CategoryType
+  icon      String?
+  isSystem  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([userId, name, type])
+}
+
+enum CategoryType { 
+  INCOME 
+  EXPENSE 
 }
