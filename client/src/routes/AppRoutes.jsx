@@ -10,6 +10,7 @@ import Profile from '../pages/dashboard/Profile';
 import { useAuth } from '../context/AuthContext';
 import AccountsPage from '../features/accounts/AccountsPage';
 import CategoriesManager from '../features/categories/CategoriesManager';
+import TransactionsPage from '../features/transactions/TransactionsPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -44,6 +45,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="accounts" element={<AccountsPage />} />
         <Route path="categories" element={<CategoriesManager />} />
+        <Route path="transactions" element={<TransactionsPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />

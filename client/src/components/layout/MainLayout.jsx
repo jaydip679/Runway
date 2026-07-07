@@ -37,6 +37,14 @@ const MainLayout = () => {
         </div>
       </header>
 
+      {/* Navigation */}
+      <nav style={{ padding: '0 32px 16px 32px', display: 'flex', gap: '24px' }}>
+        <a href="/" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
+        <a href="/accounts" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Accounts</a>
+        <a href="/categories" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Categories</a>
+        <a href="/transactions" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Transactions</a>
+      </nav>
+
       {/* Main Content Area */}
       <main style={{ padding: '0 16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Outlet />
