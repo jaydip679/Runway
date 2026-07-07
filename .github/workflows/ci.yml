@@ -52,6 +52,12 @@ jobs:
         working-directory: ./server
         run: npx prisma generate
         
+      - name: Push DB Schema
+        working-directory: ./server
+        env:
+          DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
+        run: npx prisma db push
+        
       - name: Run Linter
         working-directory: ./server
         run: npm run lint
