@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 2 (Accounts & Categories)
+**Current Phase Completed:** Phase 3 (Transactions & Imports)
 
 ### Features Implemented & Phase Progress
 
@@ -30,7 +30,14 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Integration Tests**: Supertest integration suites verifying core backend security and logic constraints for Accounts and Categories.
 - **API Documentation**: Detailed Swagger/OpenAPI documentation configured dynamically via JSDoc annotations.
 
-#### [ ] Phase 3: Transactions Module
+#### [x] Phase 3: Transactions & Imports
+- **Transaction Engine**: Built a highly efficient CRUD system optimized with compound cursor pagination (`transactionDate`, `id`) for robust infinite-scrolling. 
+- **Type Validation**: Enforced strict financial rules to prevent future-dated transactions and matching category types.
+- **Receipts**: Added image upload integration for individual receipts via `multer`.
+- **CSV Import System**: Constructed an asynchronous ingestion pipeline utilizing `BullMQ` and `Redis`. Users can upload large CSV files, and the background worker chunks and persists data while providing real-time polling updates.
+- **Frontend Views**: Implemented `@tanstack/react-query` powered data tables and form modals for robust UX.
+
+#### [ ] Phase 4: Forecast Engine & Analytics
 *(Pending Implementation)*
 
 ## Local Development
