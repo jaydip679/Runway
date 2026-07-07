@@ -26,6 +26,8 @@ model User {
   auditLogs        AuditLog[]
   accounts         Account[]
   categories       Category[]
+  transactions     Transaction[]
+  csvImportJobs    CsvImportJob[]
 
   @@index([email])
 }
@@ -84,6 +86,9 @@ model Account {
   updatedAt       DateTime    @updatedAt
   deletedAt       DateTime?
 
+  transactions    Transaction[]
+  csvImportJobs   CsvImportJob[]
+
   @@index([userId, deletedAt])
 }
 
@@ -105,10 +110,71 @@ model Category {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
+  transactions Transaction[]
+
   @@unique([userId, name, type])
 }
 
 enum CategoryType { 
   INCOME 
   EXPENSE 
+}
+
+model Transaction {
+  id                String              @id @default(uuid())
+  userId            String
+  user              User                @relation(fields: [userId], references: [id])
+  accountId         String
+  account           Account             @relation(fields: [accountId], references: [id])
+  categoryId        String?
+  category          Category?           @relation(fields: [categoryId], references: [id])
+  amount            Decimal             @db.Decimal(14, 2)
+  type              TransactionType
+  description       String
+  transactionDate   DateTime            @db.Date
+  source            TransactionSource   @default(MANUAL)
+  receiptImageUrl   String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
+
+  @@index([userId, transactionDate])
+  @@index([accountId, transactionDate])
+  @@index([userId, categoryId])
+  @@index([userId, deletedAt])
+}
+
+enum TransactionType { 
+  INCOME 
+  EXPENSE 
+}
+
+enum TransactionSource { 
+  MANUAL 
+  CSV_IMPORT 
+}
+
+model CsvImportJob {
+  id           String            @id @default(uuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id])
+  accountId    String
+  account      Account           @relation(fields: [accountId], references: [id])
+  status       CsvImportStatus   @default(PENDING)
+  totalRows    Int
+  successRows  Int               @default(0)
+  failedRows   Int               @default(0)
+  errorLog     Json?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([userId, status])
+  @@index([status])
+}
+
+enum CsvImportStatus { 
+  PENDING 
+  PROCESSING 
+  COMPLETED 
+  FAILED 
 }

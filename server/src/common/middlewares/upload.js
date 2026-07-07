@@ -6,7 +6,10 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../../../uploads/avatars');
+    let folder = 'avatars';
+    if (file.fieldname === 'receipt') folder = 'receipts';
+    
+    const uploadPath = path.join(__dirname, `../../../uploads/${folder}`);
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -15,7 +18,8 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `avatar-${req.user.sub}-${uniqueSuffix}${ext}`);
+    const prefix = file.fieldname === 'receipt' ? 'receipt' : 'avatar';
+    cb(null, `${prefix}-${req.user.sub || req.user.id}-${uniqueSuffix}${ext}`);
   }
 });
 
