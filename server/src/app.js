@@ -20,6 +20,7 @@ const userRoutes = require('./modules/users/user.routes');
 const accountRoutes = require('./modules/accounts/account.routes');
 const categoryRoutes = require('./modules/categories/category.routes');
 const transactionRoutes = require('./modules/transactions/transaction.routes');
+const recurringRoutes = require('./modules/recurring/recurring.routes');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/accounts', accountRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/recurring', recurringRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

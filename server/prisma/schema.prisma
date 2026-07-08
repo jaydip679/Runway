@@ -22,12 +22,13 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  refreshTokens    RefreshToken[]
-  auditLogs        AuditLog[]
-  accounts         Account[]
-  categories       Category[]
-  transactions     Transaction[]
-  csvImportJobs    CsvImportJob[]
+  refreshTokens        RefreshToken[]
+  auditLogs            AuditLog[]
+  accounts             Account[]
+  categories           Category[]
+  transactions         Transaction[]
+  csvImportJobs        CsvImportJob[]
+  recurringCommitments RecurringCommitment[]
 
   @@index([email])
 }
@@ -86,8 +87,9 @@ model Account {
   updatedAt       DateTime    @updatedAt
   deletedAt       DateTime?
 
-  transactions    Transaction[]
-  csvImportJobs   CsvImportJob[]
+  transactions          Transaction[]
+  csvImportJobs         CsvImportJob[]
+  recurringCommitments  RecurringCommitment[]
 
   @@index([userId, deletedAt])
 }
@@ -177,4 +179,48 @@ enum CsvImportStatus {
   PROCESSING 
   COMPLETED 
   FAILED 
+}
+
+model RecurringCommitment {
+  id                  String            @id @default(uuid())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id])
+  accountId           String
+  account             Account           @relation(fields: [accountId], references: [id])
+  name                String
+  amount              Decimal           @db.Decimal(14, 2)
+  type                TransactionType
+  intervalUnit        IntervalUnit
+  intervalCount       Int               @default(1)
+  nextOccurrenceDate  DateTime          @db.Date
+  detectionSource     DetectionSource
+  confidenceScore     Float?            
+  groupSignature      String?           
+  status              RecurringStatus   @default(PENDING_CONFIRMATION)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+
+  @@index([userId, status])
+  @@index([userId, nextOccurrenceDate])
+  @@index([groupSignature])
+}
+
+enum IntervalUnit {
+  DAILY 
+  WEEKLY 
+  MONTHLY 
+  YEARLY 
+}
+
+enum DetectionSource {
+  AUTO_DETECTED 
+  MANUAL 
+}
+
+enum RecurringStatus {
+  PENDING_CONFIRMATION 
+  CONFIRMED 
+  DISMISSED 
+  ARCHIVED 
 }
