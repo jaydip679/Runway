@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import AccountsPage from '../features/accounts/AccountsPage';
 import CategoriesManager from '../features/categories/CategoriesManager';
 import TransactionsPage from '../features/transactions/TransactionsPage';
+import RecurringPage from '../features/recurring/RecurringPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -46,6 +47,7 @@ const AppRoutes = () => {
         <Route path="accounts" element={<AccountsPage />} />
         <Route path="categories" element={<CategoriesManager />} />
         <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="recurring" element={<RecurringPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />
