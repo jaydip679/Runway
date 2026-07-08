@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 3 (Transactions & Imports)
+**Current Phase Completed:** Phase 4 (Recurring Commitments & Detection Engine)
 
 ### Features Implemented & Phase Progress
 
@@ -37,7 +37,12 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **CSV Import System**: Constructed an asynchronous ingestion pipeline utilizing `BullMQ` and `Redis`. Users can upload large CSV files, and the background worker chunks and persists data while providing real-time polling updates.
 - **Frontend Views**: Implemented `@tanstack/react-query` powered data tables and form modals for robust UX.
 
-#### [ ] Phase 4: Forecast Engine & Analytics
+#### [x] Phase 4: Recurring Commitments & Detection Engine
+- **Detection Algorithm**: A powerful pure-function algorithm that analyzes trailing 90 days of transaction history to automatically spot recurring trends.
+- **Background Scanner**: A daily `BullMQ` scheduled worker that evaluates groups and suppresses historically dismissed items.
+- **Optimistic UI**: A React Query-powered frontend hub allowing users to confidently Confirm, Edit, or Dismiss predicted recurring expenses instantly.
+
+#### [ ] Phase 5: Forecast Engine
 *(Pending Implementation)*
 
 ## Local Development
