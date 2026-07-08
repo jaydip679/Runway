@@ -1,0 +1,15 @@
+const express = require('express');
+const authenticate = require('../../common/middlewares/authenticate');
+const rateLimiter = require('../../common/middlewares/rateLimiter');
+const forecastController = require('./forecast.controller');
+
+const router = express.Router();
+
+router.use(authenticate);
+
+const forecastLimit = rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, keyBy: 'user' });
+
+router.get('/', forecastLimit, forecastController.getForecast);
+router.get('/summary', forecastLimit, forecastController.getForecastSummary);
+
+module.exports = router;
