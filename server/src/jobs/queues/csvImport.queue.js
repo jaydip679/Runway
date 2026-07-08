@@ -4,6 +4,7 @@ const prisma = require('../../config/db');
 const fs = require('fs');
 const readline = require('readline');
 const { z } = require('zod');
+const { enqueueForecastRecompute } = require('./forecast.queue');
 
 const csvImportQueue = new Queue('csvImportQueue', { connection: redis });
 
@@ -94,6 +95,10 @@ const processCsvImport = async (job) => {
         errorLog: errorLog.length > 0 ? errorLog : null
       }
     });
+
+    if (successRows > 0) {
+      await enqueueForecastRecompute(userId);
+    }
 
   } catch (error) {
     await prisma.csvImportJob.update({

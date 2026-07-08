@@ -29,6 +29,7 @@ model User {
   transactions         Transaction[]
   csvImportJobs        CsvImportJob[]
   recurringCommitments RecurringCommitment[]
+  forecastSnapshots    ForecastSnapshot[]
 
   @@index([email])
 }
@@ -223,4 +224,22 @@ enum RecurringStatus {
   CONFIRMED 
   DISMISSED 
   ARCHIVED 
+}
+
+model ForecastSnapshot {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id])
+  forecastDate      DateTime          @db.Date
+  projectedBalance  Decimal           @db.Decimal(14, 2)
+  confidenceLevel   ConfidenceLevel
+  generatedAt       DateTime          
+
+  @@unique([userId, forecastDate])    
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
 }

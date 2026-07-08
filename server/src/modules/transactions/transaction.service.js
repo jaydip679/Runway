@@ -3,10 +3,7 @@ const AppError = require('../../common/errors/AppError');
 const errorCodes = require('../../common/errors/errorCodes');
 const { encodeCursor, decodeCursor } = require('../../common/utils/pagination');
 
-// Stub for forecast queue which doesn't exist until Phase 5
-const enqueueForecastRecompute = (userId) => {
-  console.log(`[STUB] Enqueue forecast recompute for user: ${userId}`);
-};
+const { enqueueForecastRecompute } = require('../../jobs/queues/forecast.queue');
 
 const validateAccountAndCategory = async (userId, accountId, categoryId, transactionType) => {
   if (accountId) {

@@ -21,6 +21,7 @@ const accountRoutes = require('./modules/accounts/account.routes');
 const categoryRoutes = require('./modules/categories/category.routes');
 const transactionRoutes = require('./modules/transactions/transaction.routes');
 const recurringRoutes = require('./modules/recurring/recurring.routes');
+const forecastRoutes = require('./modules/forecast/forecast.routes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/v1/accounts', accountRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/recurring', recurringRoutes);
+app.use('/api/v1/forecast', forecastRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

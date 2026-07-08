@@ -1,5 +1,5 @@
 const express = require('express');
-const { authenticate } = require('../../common/middlewares/authenticate');
+const authenticate = require('../../common/middlewares/authenticate');
 const validate = require('../../common/middlewares/validate');
 const { createRecurringSchema, updateRecurringSchema, confirmDismissSchema } = require('./recurring.schema');
 const recurringController = require('./recurring.controller');
