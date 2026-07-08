@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 4 (Recurring Commitments & Detection Engine)
+**Current Phase Completed:** Phase 5 (Forecast Engine)
 
 ### Features Implemented & Phase Progress
 
@@ -42,8 +42,11 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Background Scanner**: A daily `BullMQ` scheduled worker that evaluates groups and suppresses historically dismissed items.
 - **Optimistic UI**: A React Query-powered frontend hub allowing users to confidently Confirm, Edit, or Dismiss predicted recurring expenses instantly.
 
-#### [ ] Phase 5: Forecast Engine
-*(Pending Implementation)*
+#### [x] Phase 5: Forecast Engine
+- **Projection Algorithm**: Developed a pure-function engine that calculates future cash flow trajectories based on confirmed transactions and detected recurring commitments.
+- **Confidence Modeling**: Implemented high/medium/low confidence bracketing to help users visualize projection uncertainty.
+- **Event Debouncing**: Integrated `BullMQ` debounce triggers to ensure forecasts recalculate only when relevant financial data changes, optimizing system resources.
+- **Visualization**: Built interactive dashboards using `Recharts` to display 60-day cash flow predictions and balance trend lines.
 
 ## Local Development
 
