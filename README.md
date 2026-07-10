@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 5 (Forecast Engine)
+**Current Phase Completed:** Phase 6 (Alerts & Notifications)
 
 ### Features Implemented & Phase Progress
 
@@ -35,7 +35,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Type Validation**: Enforced strict financial rules to prevent future-dated transactions and matching category types.
 - **Receipts**: Added image upload integration for individual receipts via `multer`.
 - **CSV Import System**: Constructed an asynchronous ingestion pipeline utilizing `BullMQ` and `Redis`. Users can upload large CSV files, and the background worker chunks and persists data while providing real-time polling updates.
-- **Frontend Views**: Implemented `@tanstack/react-query` powered data tables and form modals for robust UX.
+- **Frontend UI Interfaces**: Implemented `@tanstack/react-query` powered data tables and form modals for robust UX.
 
 #### [x] Phase 4: Recurring Commitments & Detection Engine
 - **Detection Algorithm**: A powerful pure-function algorithm that analyzes trailing 90 days of transaction history to automatically spot recurring trends.
@@ -47,6 +47,12 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Confidence Modeling**: Implemented high/medium/low confidence bracketing to help users visualize projection uncertainty.
 - **Event Debouncing**: Integrated `BullMQ` debounce triggers to ensure forecasts recalculate only when relevant financial data changes, optimizing system resources.
 - **Visualization**: Built interactive dashboards using `Recharts` to display 60-day cash flow predictions and balance trend lines.
+
+#### [x] Phase 6: Alerts & Notifications
+- **Notification Infrastructure**: Built an event-driven system to push alerts based on forecast anomalies and recurring schedule events.
+- **Smart Alert Engine**: Logic to monitor for low balance thresholds, upcoming recurring renewals (3-day notice), and subscription price shifts.
+- **Notification Hub**: Integrated a centralized read/unread UI notification center.
+- **Idempotency**: Implemented unique alert keys to ensure the system does not spam users with duplicate notifications for the same event.
 
 ## Local Development
 
