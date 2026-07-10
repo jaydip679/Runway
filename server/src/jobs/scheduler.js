@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const logger = require('../config/logger');
 const prisma = require('../config/db');
 const { forecastQueue } = require('./queues/forecast.queue');
+const { processRenewalSweep } = require('./processors/renewalSweep.processor');
 
 /**
  * Initializes all cron jobs.
@@ -37,6 +38,17 @@ function initScheduler() {
     }
   }, {
     timezone: 'UTC'
+  });
+
+  // Daily Renewal Sweep Cron - 6:00 AM UTC
+  cron.schedule('0 6 * * *', async () => {
+    logger.info('Starting daily recurring renewal sweep cron job');
+    try {
+      await processRenewalSweep();
+      logger.info('Completed daily recurring renewal sweep cron job');
+    } catch (error) {
+      logger.error('Error running daily recurring renewal sweep cron job:', error);
+    }
   });
 }
 

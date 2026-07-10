@@ -30,6 +30,7 @@ model User {
   csvImportJobs        CsvImportJob[]
   recurringCommitments RecurringCommitment[]
   forecastSnapshots    ForecastSnapshot[]
+  alerts               Alert[]
 
   @@index([email])
 }
@@ -242,4 +243,33 @@ enum ConfidenceLevel {
   HIGH
   MEDIUM
   LOW
+}
+
+model Alert {
+  id                 String        @id @default(uuid())
+  userId             String
+  user               User          @relation(fields: [userId], references: [id])
+  type               AlertType
+  relatedEntityType  String?       // 'FORECAST' | 'RECURRING_COMMITMENT'
+  relatedEntityId    String?
+  relevantDate       DateTime?     @db.Date
+  message            String
+  severity           AlertSeverity
+  isRead             Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+
+  @@index([userId, isRead, createdAt])
+  @@unique([userId, type, relatedEntityId, relevantDate])
+}
+
+enum AlertType {
+  LOW_BALANCE_PREDICTED
+  RECURRING_RENEWAL_UPCOMING
+  RECURRING_DETECTED_PENDING_CONFIRMATION
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
 }

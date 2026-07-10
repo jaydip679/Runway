@@ -3,6 +3,7 @@ const redis = require('../../config/redis');
 const prisma = require('../../config/db');
 const { detect } = require('../../modules/recurring/detectionAlgorithm');
 const { subDays } = require('date-fns');
+const alertsService = require('../../modules/alerts/alerts.service');
 
 const recurringDetectionQueue = new Queue('recurringDetectionQueue', { connection: redis });
 
@@ -78,7 +79,7 @@ const processRecurringDetection = async (job) => {
         }
       });
     } else {
-      await prisma.recurringCommitment.create({
+      const newCommitment = await prisma.recurringCommitment.create({
         data: {
           userId,
           accountId: candidate.accountId,
@@ -93,6 +94,17 @@ const processRecurringDetection = async (job) => {
           groupSignature: candidate.groupSignature,
           status: 'PENDING_CONFIRMATION'
         }
+      });
+
+      // Create an alert for the newly detected commitment
+      await alertsService.createAlertIfNotDuplicate({
+        userId,
+        type: 'RECURRING_DETECTED_PENDING_CONFIRMATION',
+        relatedEntityType: 'RECURRING_COMMITMENT',
+        relatedEntityId: newCommitment.id,
+        relevantDate: newCommitment.nextOccurrenceDate,
+        message: `We noticed a new recurring pattern for "${newCommitment.name}". Please review to include it in your forecast.`,
+        severity: 'INFO',
       });
     }
   }

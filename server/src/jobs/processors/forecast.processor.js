@@ -5,6 +5,7 @@ const { computeForecast } = require('../../modules/forecast/forecastEngine');
 const { computeSignature } = require('../../modules/recurring/detectionAlgorithm');
 const { Decimal } = require('@prisma/client/runtime/library');
 const env = require('../../config/env');
+const alertsService = require('../../modules/alerts/alerts.service');
 
 async function processForecastJob(job) {
   const { userId } = job.data;
@@ -80,9 +81,23 @@ async function processForecastJob(job) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const generatedAt = new Date();
+  const lowBalanceThreshold = env.LOW_BALANCE_THRESHOLD ? new Decimal(env.LOW_BALANCE_THRESHOLD) : new Decimal('0');
 
   await prisma.$transaction(async (tx) => {
     for (const day of days) {
+      // Check for low balance alert
+      if (day.projectedBalance.lessThan(lowBalanceThreshold)) {
+        await alertsService.createAlertIfNotDuplicate({
+          userId,
+          type: 'LOW_BALANCE_PREDICTED',
+          relatedEntityType: 'FORECAST',
+          relatedEntityId: null,
+          relevantDate: day.forecastDate,
+          message: `Your balance is predicted to drop below your threshold of $${lowBalanceThreshold.toFixed(2)} on ${day.forecastDate.toLocaleDateString()}. Projected: $${day.projectedBalance.toFixed(2)}`,
+          severity: 'WARNING',
+        });
+      }
+
       await tx.forecastSnapshot.upsert({
         where: {
           userId_forecastDate: {
