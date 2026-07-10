@@ -13,6 +13,7 @@ import CategoriesManager from '../features/categories/CategoriesManager';
 import TransactionsPage from '../features/transactions/TransactionsPage';
 import RecurringPage from '../features/recurring/RecurringPage';
 import ForecastPage from '../features/forecast/ForecastPage';
+import AlertsPage from '../features/alerts/AlertsPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -50,6 +51,7 @@ const AppRoutes = () => {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="recurring" element={<RecurringPage />} />
         <Route path="forecast" element={<ForecastPage />} />
+        <Route path="alerts" element={<AlertsPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />

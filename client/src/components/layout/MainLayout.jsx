@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AlertsBell from './AlertsBell';
 import Button from '../ui/Button/Button';
 
 const MainLayout = () => {
@@ -22,9 +23,10 @@ const MainLayout = () => {
           <span style={{ color: 'var(--primary)' }}>▲</span> Runway
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-            Welcome, {user?.name || user?.email || 'User'}
+        <div className="flex items-center gap-4">
+          <AlertsBell />
+          <span className="text-slate-300 text-sm hidden md:inline-block">
+            {user?.name || user?.email}
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
             <Button variant="secondary" size="sm" onClick={() => window.location.href = '/profile'}>
