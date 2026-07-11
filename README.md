@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 6 (Alerts & Notifications)
+**Current Phase Completed:** Phase 7 (AI Affordability Feature)
 
 ### Features Implemented & Phase Progress
 
@@ -53,6 +53,12 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Smart Alert Engine**: Logic to monitor for low balance thresholds, upcoming recurring renewals (3-day notice), and subscription price shifts.
 - **Notification Hub**: Integrated a centralized read/unread UI notification center.
 - **Idempotency**: Implemented unique alert keys to ensure the system does not spam users with duplicate notifications for the same event.
+
+#### [x] Phase 7: AI Affordability Feature
+- **Context-Aware Prompting**: Inject real-time 30-day forecast and recurring commitment data into a strict LLM prompt.
+- **Provider Abstractions**: Interchangeable support for OpenAI and Gemini models, currently running on a mock instance for local testing.
+- **Robust Guardrails**: Detailed tracking of all queries via `AiQueryLog` and strict 24-hour rate limiters (10/day) preventing abuse.
+- **Chat UI**: Interactive assistant page to ask natural-language questions about financial health and view structured reasoning with confidence intervals.
 
 ## Local Development
 
