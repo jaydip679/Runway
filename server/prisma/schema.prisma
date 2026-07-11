@@ -31,6 +31,7 @@ model User {
   recurringCommitments RecurringCommitment[]
   forecastSnapshots    ForecastSnapshot[]
   alerts               Alert[]
+  aiQueryLogs          AiQueryLog[]
 
   @@index([email])
 }
@@ -272,4 +273,16 @@ enum AlertSeverity {
   INFO
   WARNING
   CRITICAL
+}
+
+model AiQueryLog {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  question   String    @db.Text
+  answer     String?   @db.Text
+  succeeded  Boolean
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
