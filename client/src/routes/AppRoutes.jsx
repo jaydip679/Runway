@@ -14,6 +14,7 @@ import TransactionsPage from '../features/transactions/TransactionsPage';
 import RecurringPage from '../features/recurring/RecurringPage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import AlertsPage from '../features/alerts/AlertsPage';
+import AiAssistantPage from '../features/ai/AiAssistantPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -52,6 +53,7 @@ const AppRoutes = () => {
         <Route path="recurring" element={<RecurringPage />} />
         <Route path="forecast" element={<ForecastPage />} />
         <Route path="alerts" element={<AlertsPage />} />
+        <Route path="ai" element={<AiAssistantPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />

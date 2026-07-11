@@ -47,6 +47,7 @@ const MainLayout = () => {
         <a href="/transactions" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Transactions</a>
         <a href="/recurring" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Recurring</a>
         <a href="/forecast" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Forecast</a>
+        <a href="/ai" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>AI Assistant</a>
       </nav>
 
       {/* Main Content Area */}
