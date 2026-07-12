@@ -4,7 +4,7 @@ Runway — A production-grade personal finance forecasting platform that predict
 
 ## Project Status
 
-**Current Phase Completed:** Phase 7 (AI Affordability Feature)
+**Current Phase Completed:** Phase 8 (GraphQL Dashboard API)
 
 ### Features Implemented & Phase Progress
 
@@ -59,6 +59,12 @@ Runway — A production-grade personal finance forecasting platform that predict
 - **Provider Abstractions**: Interchangeable support for OpenAI and Gemini models, currently running on a mock instance for local testing.
 - **Robust Guardrails**: Detailed tracking of all queries via `AiQueryLog` and strict 24-hour rate limiters (10/day) preventing abuse.
 - **Chat UI**: Interactive assistant page to ask natural-language questions about financial health and view structured reasoning with confidence intervals.
+
+#### [x] Phase 8: GraphQL Dashboard API
+- **Unified Graph**: Mounted `graphql-http` at `/api/v1/graphql` combining Accounts, Forecasts, Alerts, and Recurring Commitments into a single schema.
+- **Strict Composition**: The `dashboard` resolver delegates 100% of its data-fetching directly to existing REST service layers, ensuring zero duplicated business logic.
+- **React Query & Axios**: The Dashboard UI consumes the entire graph in a single network request using standard `axios`, maintaining a tiny client footprint without Apollo.
+- **Component Reuse**: Dashboard seamlessly embeds the existing `ForecastChart` and `AccountCard` UI elements, proving the GraphQL shape parity with REST.
 
 ## Local Development
 
