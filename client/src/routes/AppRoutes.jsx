@@ -15,6 +15,7 @@ import RecurringPage from '../features/recurring/RecurringPage';
 import ForecastPage from '../features/forecast/ForecastPage';
 import AlertsPage from '../features/alerts/AlertsPage';
 import AiAssistantPage from '../features/ai/AiAssistantPage';
+import DashboardPage from '../features/dashboard/DashboardPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -45,7 +46,7 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
       <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route index element={<div style={{ padding: '24px' }}>Dashboard (Protected)</div>} />
+        <Route index element={<DashboardPage />} />
         <Route path="profile" element={<Profile />} />
         <Route path="accounts" element={<AccountsPage />} />
         <Route path="categories" element={<CategoriesManager />} />
