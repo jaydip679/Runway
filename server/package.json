@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "seed:admin": "node src/scripts/seedAdmin.js",
     "test": "jest",
     "lint": "eslint ."
   },

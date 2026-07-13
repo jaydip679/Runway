@@ -25,6 +25,7 @@ const forecastRoutes = require('./modules/forecast/forecast.routes');
 const alertsRoutes = require('./modules/alerts/alerts.routes');
 const aiRoutes = require('./modules/ai/ai.routes');
 const graphqlRoutes = require('./graphql/graphql.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/v1/forecast', forecastRoutes);
 app.use('/api/v1/alerts', alertsRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/graphql', graphqlRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

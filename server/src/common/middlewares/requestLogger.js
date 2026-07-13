@@ -1,6 +1,8 @@
 const logger = require('../../config/logger');
+const metrics = require('../utils/metrics');
 
 const requestLogger = (req, res, next) => {
+  metrics.recordRequest();
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
