@@ -16,6 +16,9 @@ import ForecastPage from '../features/forecast/ForecastPage';
 import AlertsPage from '../features/alerts/AlertsPage';
 import AiAssistantPage from '../features/ai/AiAssistantPage';
 import DashboardPage from '../features/dashboard/DashboardPage';
+import AdminUsersPage from '../features/admin/AdminUsersPage';
+import AdminCsvImportsPage from '../features/admin/AdminCsvImportsPage';
+import AdminMetricsPage from '../features/admin/AdminMetricsPage';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -55,6 +58,11 @@ const AppRoutes = () => {
         <Route path="forecast" element={<ForecastPage />} />
         <Route path="alerts" element={<AlertsPage />} />
         <Route path="ai" element={<AiAssistantPage />} />
+        
+        {/* Admin Routes */}
+        <Route path="admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+        <Route path="admin/csv-imports" element={<AdminRoute><AdminCsvImportsPage /></AdminRoute>} />
+        <Route path="admin/metrics" element={<AdminRoute><AdminMetricsPage /></AdminRoute>} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />

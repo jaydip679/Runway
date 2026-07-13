@@ -40,7 +40,7 @@ const MainLayout = () => {
       </header>
 
       {/* Navigation */}
-      <nav style={{ padding: '0 32px 16px 32px', display: 'flex', gap: '24px' }}>
+      <nav style={{ padding: '0 32px 16px 32px', display: 'flex', gap: '24px', alignItems: 'center' }}>
         <a href="/" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
         <a href="/accounts" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Accounts</a>
         <a href="/categories" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Categories</a>
@@ -48,6 +48,14 @@ const MainLayout = () => {
         <a href="/recurring" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Recurring</a>
         <a href="/forecast" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Forecast</a>
         <a href="/ai" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>AI Assistant</a>
+        {user?.role === 'ADMIN' && (
+          <>
+            <span style={{ color: 'var(--text-secondary)' }}>|</span>
+            <a href="/admin/users" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Users</a>
+            <a href="/admin/csv-imports" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>CSV Imports</a>
+            <a href="/admin/metrics" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Metrics</a>
+          </>
+        )}
       </nav>
 
       {/* Main Content Area */}
