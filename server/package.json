@@ -12,6 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.14.0",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.7.8",

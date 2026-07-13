@@ -49,9 +49,17 @@ const queryAffordability = async (userId, question) => {
     let parsedResponse;
     try {
       parsedResponse = JSON.parse(response.raw);
+      
+      // Clean up markdown code blocks if the LLM wraps the response in ```json
+      if (typeof parsedResponse === 'string') {
+        parsedResponse = JSON.parse(parsedResponse);
+      }
+
       if (!parsedResponse.answer || !parsedResponse.reasoning || !parsedResponse.confidence) {
         throw new Error('Missing required fields in AI response');
       }
+      
+      parsedResponse.isMock = response.isMock;
     } catch (parseError) {
       throw new AppError('Failed to parse AI response', 502, 'AI_RESPONSE_PARSE_FAILED');
     }

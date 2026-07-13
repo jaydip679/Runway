@@ -22,7 +22,8 @@ const AiAssistantPage = () => {
         type: 'ai',
         text: data.answer,
         reasoning: data.reasoning,
-        confidence: data.confidence
+        confidence: data.confidence,
+        isMock: data.isMock
       }]);
     },
     onError: (err) => {
@@ -110,6 +111,11 @@ const AiAssistantPage = () => {
                   {msg.confidence && (
                     <div className="mt-3 flex items-center justify-between">
                       {getConfidenceBadge(msg.confidence)}
+                      {msg.isMock !== undefined && (
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${msg.isMock ? 'bg-amber-900/50 text-amber-400 border border-amber-500/30' : 'bg-emerald-900/50 text-emerald-400 border border-emerald-500/30'}`} title={msg.isMock ? "Using fallback mock data because GEMINI_API_KEY is not set." : "Connected to Google Gemini API"}>
+                          {msg.isMock ? 'MOCK MODE' : 'LIVE API'}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

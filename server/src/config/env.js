@@ -31,9 +31,6 @@ const envSchema = z.object({
 }).refine(
   (data) => data.AI_PROVIDER !== 'openai' || !!data.OPENAI_API_KEY,
   { message: 'OPENAI_API_KEY is required when AI_PROVIDER=openai' }
-).refine(
-  (data) => data.AI_PROVIDER !== 'gemini' || !!data.GEMINI_API_KEY,
-  { message: 'GEMINI_API_KEY is required when AI_PROVIDER=gemini' }
 );
 
 const parsed = envSchema.safeParse(process.env);
