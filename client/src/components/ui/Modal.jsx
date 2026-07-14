@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { X } from 'lucide-react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   useEffect(() => {
@@ -18,24 +19,23 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{
-        backgroundColor: 'var(--bg-card)', padding: '24px', borderRadius: '8px',
-        width: '100%', maxWidth: '500px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        position: 'relative'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-primary)' }}>{title}</h2>
-          <button onClick={onClose} style={{ 
-            background: 'none', border: 'none', cursor: 'pointer', 
-            fontSize: '1.5rem', color: 'var(--text-secondary)' 
-          }}>&times;</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-opacity duration-300" onClick={onClose}>
+      <div 
+        className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-lg shadow-xl border border-gray-100 dark:border-gray-800" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-heading font-semibold text-gray-900 dark:text-white">{title}</h2>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        {children}
+        <div>
+          {children}
+        </div>
       </div>
     </div>
   );

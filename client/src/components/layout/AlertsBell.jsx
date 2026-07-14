@@ -70,7 +70,7 @@ const AlertsBell = () => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-400 hover:text-white relative rounded-full hover:bg-slate-800 transition-colors"
+        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -86,19 +86,19 @@ const AlertsBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden z-50">
-          <div className="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-            <h3 className="font-semibold text-white text-sm">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50">
+          <div className="p-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h3>
             {alerts.length > 0 && (
-              <span className="text-xs text-gray-400">{alerts.length} unread</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{alerts.length} unread</span>
             )}
           </div>
           
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
-              <div className="p-4 text-center text-sm text-gray-400">Loading...</div>
+              <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">Loading...</div>
             ) : alerts.length === 0 ? (
-              <div className="p-6 text-center text-sm text-gray-400">
+              <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
                 You're all caught up!
               </div>
             ) : (
@@ -106,12 +106,12 @@ const AlertsBell = () => {
                 <div 
                   key={alert.id}
                   onClick={() => handleAlertClick(alert)}
-                  className="p-3 border-b border-slate-700 hover:bg-slate-800 cursor-pointer transition-colors flex gap-3"
+                  className="p-3 border-b border-gray-100 dark:border-gray-800 hover:bg-brand-50/50 dark:hover:bg-brand-900/10 cursor-pointer transition-colors flex gap-3"
                 >
                   <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${getSeverityColor(alert.severity)}`} />
                   <div>
-                    <p className="text-sm text-gray-300 leading-snug">{alert.message}</p>
-                    <span className="text-xs text-gray-500 mt-1 block">
+                    <p className="text-sm text-gray-800 dark:text-gray-300 leading-snug">{alert.message}</p>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
                       {new Date(alert.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -120,13 +120,13 @@ const AlertsBell = () => {
             )}
           </div>
           
-          <div className="p-2 border-t border-slate-700 bg-slate-800/30">
+          <div className="p-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
             <button 
               onClick={() => {
                 setIsOpen(false);
                 navigate('/alerts');
               }}
-              className="w-full text-center text-xs text-emerald-400 hover:text-emerald-300 py-1"
+              className="w-full text-center text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 py-1.5 transition-colors"
             >
               View all alerts
             </button>

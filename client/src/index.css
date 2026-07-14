@@ -1,109 +1,66 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-:root {
+@theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
 
-  /* Premium Dark Theme (Default) */
-  --bg-base: #0a0a0b;
-  --bg-surface: #141417;
-  --bg-surface-hover: #1c1c21;
-  --bg-glass: rgba(20, 20, 23, 0.7);
-  
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(139, 92, 246, 0.5);
+  /* Premium Finance Colors */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6; /* Main Blue */
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
 
-  /* Primary Brand - Vibrant Purple/Indigo Gradient */
-  --primary: #8b5cf6;
-  --primary-hover: #7c3aed;
-  --primary-light: rgba(139, 92, 246, 0.15);
-  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
-  
-  /* Semantic */
-  --error: #ef4444;
-  --error-bg: rgba(239, 68, 68, 0.1);
-  --success: #10b981;
-  --success-bg: rgba(16, 185, 129, 0.1);
+  --color-finance-50: #ecfdf5;
+  --color-finance-100: #d1fae5;
+  --color-finance-200: #a7f3d0;
+  --color-finance-300: #6ee7b7;
+  --color-finance-400: #34d399;
+  --color-finance-500: #10b981; /* Main Emerald */
+  --color-finance-600: #059669;
+  --color-finance-700: #047857;
+  --color-finance-800: #065f46;
+  --color-finance-900: #064e3b;
 
   --radius-sm: 6px;
   --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-full: 9999px;
-
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
-  
-  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* Manual Dark Mode Configuration for Tailwind v4 */
+@custom-variant dark (&:is(.dark *));
 
-body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-base);
-  color: var(--text-main);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+/* Base Reset & Application Setup */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-[#0a0a0b] dark:text-gray-100 antialiased min-h-screen flex flex-col;
+    font-family: var(--font-sans);
+  }
 
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-}
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    @apply font-semibold;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--text-main);
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-a:hover {
-  color: var(--primary-hover);
-}
-
-/* Base Utility Classes for Glassmorphism */
-.glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-glass);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-base);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--bg-surface-hover);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-600;
+  }
 }
