@@ -1,5 +1,6 @@
 const Redis = require('ioredis');
 const env = require('./env');
+const logger = require('./logger');
 
 const redis = new Redis(env.REDIS_URL, {
   retryStrategy: (times) => {
@@ -12,11 +13,11 @@ const redis = new Redis(env.REDIS_URL, {
 });
 
 redis.on('error', (err) => {
-  console.error('Redis connection error:', err.message);
+  logger.error(`Redis connection error: ${err.message}`);
 });
 
 redis.on('ready', () => {
-  console.log('Redis connected and ready');
+  logger.info('Redis connected and ready');
 });
 
 module.exports = redis;

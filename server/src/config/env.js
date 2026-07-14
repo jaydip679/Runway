@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { z } = require('zod');
 
 const envSchema = z.object({
@@ -22,7 +23,7 @@ const envSchema = z.object({
   SMTP_PORT: z.coerce.number(),
   SMTP_USER: z.string().min(1),
   SMTP_PASS: z.string().min(1),
-  EMAIL_FROM: z.string().email(),
+  EMAIL_FROM: z.string().min(1),
   ADMIN_SEED_EMAIL: z.string().email(),
   ADMIN_SEED_PASSWORD: z.string().min(8),
   LOG_LEVEL: z.string().default('info'),
@@ -35,8 +36,8 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
-  console.error('❌ Environment variable validation failed:');
-  console.error(parsed.error.format());
+  const errorPaths = parsed.error.issues.map(issue => issue.path.join('.'));
+  console.error(`\x1b[31m❌ Missing or invalid environment variables:\x1b[0m ${errorPaths.join(', ')}`);
   process.exit(1);
 }
 

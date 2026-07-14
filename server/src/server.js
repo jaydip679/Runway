@@ -5,16 +5,31 @@ const redis = require('./config/redis');
 const app = require('./app');
 
 const server = app.listen(env.PORT, () => {
-  logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+  logger.info(`Runway server running on port ${env.PORT} [${env.NODE_ENV}]`);
+  logger.info(`Health check: http://localhost:${env.PORT}/health`);
+  logger.info(`Swagger UI:   http://localhost:${env.PORT}/api-docs`);
 });
 
 // Graceful shutdown
 const shutdown = async () => {
-  logger.info('Shutting down gracefully...');
+  logger.info('SIGINT/SIGTERM received — starting graceful shutdown...');
   server.close(async () => {
-    logger.info('HTTP server closed.');
-    await prisma.$disconnect();
-    await redis.quit();
+    logger.info('HTTP server closed — no more new connections accepted');
+    try {
+      await prisma.$disconnect();
+      logger.info('PostgreSQL connection closed');
+    } catch (err) {
+      logger.error('Error disconnecting PostgreSQL', err);
+    }
+    
+    try {
+      await redis.quit();
+      logger.info('Redis connection closed');
+    } catch (err) {
+      logger.error('Error disconnecting Redis', err);
+    }
+    
+    logger.info('Graceful shutdown complete');
     process.exit(0);
   });
 };
