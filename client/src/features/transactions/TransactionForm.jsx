@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from '../../components/ui/Modal';
-import Input from '../../components/ui/Input/Input';
-import Button from '../../components/ui/Button/Button';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 import { getAccounts } from '../../api/accountsApi';
 import { getCategories } from '../../api/categoriesApi';
 import { uploadReceipt } from '../../api/transactionsApi';
@@ -85,20 +85,22 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, isSubmitting 
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={initialData ? 'Edit Transaction' : 'Add Transaction'}>
-      <form onSubmit={handleSubmit(handleFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 mt-2">
         
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <div className="input-wrapper" style={{ flex: 1 }}>
-            <label className="input-label">Type</label>
-            <select className={`input-field ${errors.type ? 'input-error' : ''}`} {...register('type')} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)' }}>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Type</label>
+            <select 
+              className={`w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border ${errors.type ? 'border-red-500 focus:ring-red-500/20' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500 focus:ring-brand-500/20'} rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:ring-4`} 
+              {...register('type')}
+            >
               <option value="EXPENSE">Expense</option>
               <option value="INCOME">Income</option>
             </select>
           </div>
 
-          <div className="input-wrapper" style={{ flex: 1 }}>
-            <label className="input-label">Date</label>
-            <Input type="date" {...register('transactionDate')} error={errors.transactionDate?.message} />
+          <div className="flex-1">
+            <Input label="Date" type="date" {...register('transactionDate')} error={errors.transactionDate?.message} />
           </div>
         </div>
 
@@ -106,35 +108,46 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, isSubmitting 
         
         <Input label="Description" {...register('description')} error={errors.description?.message} placeholder="e.g. Netflix Subscription" />
 
-        <div className="input-wrapper">
-          <label className="input-label">Account</label>
-          <select className={`input-field ${errors.accountId ? 'input-error' : ''}`} {...register('accountId')} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)' }}>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Account</label>
+          <select 
+            className={`w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border ${errors.accountId ? 'border-red-500 focus:ring-red-500/20' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500 focus:ring-brand-500/20'} rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:ring-4`} 
+            {...register('accountId')}
+          >
             <option value="">Select Account</option>
             {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
           </select>
-          {errors.accountId && <span className="error-text">{errors.accountId.message}</span>}
+          {errors.accountId && <span className="text-red-500 text-xs mt-1 block font-medium">{errors.accountId.message}</span>}
         </div>
 
-        <div className="input-wrapper">
-          <label className="input-label">Category</label>
-          <select className="input-field" {...register('categoryId')} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)' }}>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Category</label>
+          <select 
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-500 focus:ring-brand-500/20 rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:ring-4" 
+            {...register('categoryId')}
+          >
             <option value="">None</option>
             {filteredCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
         </div>
 
-        <div className="input-wrapper">
-          <label className="input-label">Receipt Image (Optional)</label>
-          <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)' }} />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Receipt Image (Optional)</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={e => setReceiptFile(e.target.files[0])} 
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900/30 dark:file:text-brand-400" 
+          />
           {initialData?.receiptImageUrl && !receiptFile && (
-            <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Current receipt: <a href={initialData.receiptImageUrl} target="_blank" rel="noreferrer">View</a>
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Current receipt: <a href={initialData.receiptImageUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:text-brand-500 dark:text-brand-400">View</a>
             </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
           <Button type="submit" isLoading={isSubmitting}>
             {initialData ? 'Save Changes' : 'Create Transaction'}
           </Button>

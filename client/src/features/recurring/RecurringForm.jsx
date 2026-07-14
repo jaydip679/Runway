@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Modal from '../../components/ui/Modal';
-import Button from '../../components/ui/Button/Button';
+import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import { createRecurring, updateRecurring } from '../../api/recurringApi';
@@ -85,7 +85,7 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? 'Edit Commitment' : 'Add Commitment'}>
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
         <Input 
           label="Name" 
           {...register('name')} 
@@ -99,8 +99,8 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
           error={errors.accountId?.message} 
         />
         
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ flex: 1 }}>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
             <Input 
               label="Amount" 
               type="number" 
@@ -109,7 +109,7 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
               error={errors.amount?.message} 
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <Select 
               label="Type" 
               options={[{value: 'EXPENSE', label: 'Expense'}, {value: 'INCOME', label: 'Income'}]} 
@@ -119,8 +119,8 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ flex: 1 }}>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
             <Select 
               label="Frequency" 
               options={[
@@ -133,9 +133,9 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
               error={errors.intervalUnit?.message} 
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <Input 
-              label="Interval Count (e.g., 1 for every month)" 
+              label="Interval (e.g. 1)" 
               type="number" 
               min="1"
               {...register('intervalCount')} 
@@ -151,8 +151,8 @@ const RecurringForm = ({ isOpen, onClose, initialData }) => {
           error={errors.nextOccurrenceDate?.message} 
         />
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-          <Button variant="secondary" onClick={onClose} type="button">Cancel</Button>
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <Button variant="ghost" onClick={onClose} type="button">Cancel</Button>
           <Button variant="primary" type="submit" isLoading={mutation.isPending}>
             {isEditing ? 'Save Changes' : 'Add Commitment'}
           </Button>

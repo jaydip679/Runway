@@ -4,19 +4,16 @@ const SummaryCard = ({ title, amount, isLoading, timeframe }) => {
   const isNegative = amount < 0;
   
   return (
-    <div className="glass-panel p-6 rounded-xl flex flex-col justify-between h-full relative overflow-hidden group">
-      {/* Subtle glow effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/5 group-hover:via-transparent group-hover:to-transparent transition-all duration-500" />
-      
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl flex flex-col justify-between h-full shadow-sm hover:shadow-md transition-shadow">
       <div className="z-10">
-        <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">{title}</h3>
-        <p className="text-xs text-gray-500 mb-4">{timeframe}</p>
+        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">{title}</h3>
+        <p className="text-xs font-medium text-brand-600 dark:text-brand-400 mb-4 bg-brand-50 dark:bg-brand-900/30 inline-block px-2 py-0.5 rounded-full">{timeframe}</p>
         
         {isLoading ? (
-          <div className="h-10 w-32 bg-slate-800 animate-pulse rounded mt-2"></div>
+          <div className="h-10 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded mt-2"></div>
         ) : (
           <div className="flex items-baseline gap-2">
-            <span className={`text-3xl font-bold ${isNegative ? 'text-red-400' : 'text-white'}`}>
+            <span className={`text-3xl font-bold tracking-tight ${isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
               {amount !== undefined && amount !== null 
                 ? `$${Math.abs(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
                 : '---'}

@@ -1,47 +1,38 @@
 import React from 'react';
+import { formatCurrency } from '../../utils/format';
+import { Edit2, Trash2 } from 'lucide-react';
 
 const AccountCard = ({ account, onEdit, onDelete }) => {
-  const formatCurrency = (amount, currency = 'INR') => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
-
   return (
-    <div className="account-card" style={{
-      padding: '20px',
-      borderRadius: '12px',
-      backgroundColor: 'var(--bg-card)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '12px'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div className="bg-white dark:bg-gray-900 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-4 transition-all hover:shadow-md">
+      <div className="flex justify-between items-start">
         <div>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{account.name}</h3>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>
+          <h3 className="m-0 text-lg font-semibold text-gray-900 dark:text-white">{account.name}</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">
             {account.type.replace('_', ' ')}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => onEdit(account)} style={{
-            background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.9rem'
-          }}>Edit</button>
-          <button onClick={() => onDelete(account)} style={{
-            background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '0.9rem'
-          }}>Delete</button>
+        <div className="flex gap-2">
+          <button 
+            onClick={(e) => { e.preventDefault(); onEdit(account); }} 
+            className="text-brand-600 hover:text-brand-500 dark:text-brand-400 dark:hover:text-brand-300 p-1 rounded-md hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors"
+            title="Edit"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={(e) => { e.preventDefault(); onDelete(account); }} 
+            className="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
       
       <div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Current Balance</div>
-        <div style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '600', 
-          color: account.currentBalance < 0 ? 'var(--error)' : 'var(--success)' 
-        }}>
+        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Balance</div>
+        <div className={`text-2xl font-bold ${account.currentBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-finance-600 dark:text-finance-400'}`}>
           {formatCurrency(account.currentBalance, account.currency)}
         </div>
       </div>

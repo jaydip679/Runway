@@ -13,17 +13,17 @@ import {
 const ForecastChart = ({ data, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[400px] w-full rounded-xl glass-panel">
-        <div className="animate-pulse text-gray-400">Loading forecast...</div>
+      <div className="flex items-center justify-center h-[400px] w-full rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!data || !data.ready || !data.days || data.days.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] w-full rounded-xl glass-panel text-center p-8">
-        <h3 className="text-xl font-bold mb-2">No Forecast Available</h3>
-        <p className="text-gray-400 text-sm">
+      <div className="flex flex-col items-center justify-center h-[400px] w-full rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 border-dashed text-center p-8 mt-6">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Forecast Available</h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm">
           We need more transaction history or recurring commitments to generate a reliable forecast.
         </p>
       </div>
@@ -68,9 +68,9 @@ const ForecastChart = ({ data, isLoading }) => {
       const isNegative = dataPoint.value < 0;
       
       return (
-        <div className="bg-slate-900 border border-slate-700 p-3 rounded shadow-xl">
-          <p className="text-sm text-gray-300 mb-1">{label}</p>
-          <p className={`font-bold text-lg ${isNegative ? 'text-red-400' : 'text-emerald-400'}`}>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3 rounded-lg shadow-xl">
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">{label}</p>
+          <p className={`font-bold text-lg tracking-tight ${isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
             ${dataPoint.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
@@ -80,35 +80,41 @@ const ForecastChart = ({ data, isLoading }) => {
   };
 
   return (
-    <div className="w-full h-[450px] p-4 glass-panel rounded-xl">
-      <h2 className="text-lg font-bold mb-4">60-Day Cash Flow Projection</h2>
-      <ResponsiveContainer width="100%" height="90%">
+    <div className="w-full h-[450px] p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+      <h2 className="text-lg font-bold font-heading text-gray-900 dark:text-white mb-6">60-Day Cash Flow Projection</h2>
+      <ResponsiveContainer width="100%" height="85%">
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-200 dark:text-gray-800" vertical={false} />
           <XAxis 
             dataKey="date" 
-            stroke="#94a3b8" 
-            tick={{ fill: '#94a3b8', fontSize: 12 }} 
-            tickMargin={10} 
+            stroke="currentColor" 
+            className="text-gray-400 dark:text-gray-500"
+            tick={{ fill: 'currentColor', fontSize: 12 }} 
+            tickMargin={12} 
             minTickGap={30}
+            axisLine={false}
+            tickLine={false}
           />
           <YAxis 
-            stroke="#94a3b8" 
-            tick={{ fill: '#94a3b8', fontSize: 12 }}
+            stroke="currentColor" 
+            className="text-gray-400 dark:text-gray-500"
+            tick={{ fill: 'currentColor', fontSize: 12 }}
             tickFormatter={(value) => `$${value}`}
             width={70}
+            axisLine={false}
+            tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
+          <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '13px', fontWeight: '500' }} />
           
           <Line 
             type="monotone" 
             dataKey="high" 
             name="High Confidence (0-14 days)"
-            stroke="#10b981" 
+            stroke="#0ea5e9" 
             strokeWidth={3} 
             dot={false}
-            activeDot={{ r: 6, fill: '#10b981', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 6, fill: '#0ea5e9', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
           <Line 
@@ -117,20 +123,20 @@ const ForecastChart = ({ data, isLoading }) => {
             name="Medium Confidence (15-30 days)"
             stroke="#f59e0b" 
             strokeWidth={3} 
-            strokeDasharray="5 5" 
+            strokeDasharray="6 6" 
             dot={false}
-            activeDot={{ r: 6, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 6, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
           <Line 
             type="monotone" 
             dataKey="low" 
             name="Low Confidence (31-60 days)"
-            stroke="#ef4444" 
+            stroke="#94a3b8" 
             strokeWidth={3} 
-            strokeDasharray="2 4" 
+            strokeDasharray="3 4" 
             dot={false}
-            activeDot={{ r: 6, fill: '#ef4444', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 6, fill: '#94a3b8', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
         </LineChart>

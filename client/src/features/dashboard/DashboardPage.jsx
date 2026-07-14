@@ -66,8 +66,8 @@ const DashboardPage = () => {
     return (
       <div className="p-6 max-w-7xl mx-auto flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-400">Loading your runway...</p>
+          <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">Loading your runway...</p>
         </div>
       </div>
     );
@@ -76,9 +76,9 @@ const DashboardPage = () => {
   if (error) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6 text-center">
-          <h2 className="text-xl font-bold text-red-400 mb-2">Error loading dashboard</h2>
-          <p className="text-red-300">{error.message}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-2xl p-6 text-center">
+          <h2 className="text-xl font-bold text-red-700 dark:text-red-400 mb-2">Error loading dashboard</h2>
+          <p className="text-red-600 dark:text-red-300">{error.message}</p>
         </div>
       </div>
     );
@@ -92,20 +92,20 @@ const DashboardPage = () => {
       {/* Header with alerts snippet */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
             Command Center
           </h1>
-          <p className="text-gray-400 mt-2">Your unified financial overview</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Your unified financial overview</p>
         </div>
         
         {unreadAlerts && unreadAlerts.length > 0 && (
-          <Link to="/alerts" className="glass-panel p-4 rounded-xl flex items-center gap-4 border border-amber-500/30 hover:border-amber-500/50 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+          <Link to="/alerts" className="bg-white dark:bg-gray-900 p-4 rounded-2xl flex items-center gap-4 border border-amber-200 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50 transition-colors shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg">
               🔔
             </div>
             <div>
-              <p className="text-white font-medium">{unreadAlerts.length} Unread Alerts</p>
-              <p className="text-sm text-gray-400 truncate max-w-xs">{unreadAlerts[0].message}</p>
+              <p className="text-gray-900 dark:text-white font-medium">{unreadAlerts.length} Unread Alerts</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{unreadAlerts[0].message}</p>
             </div>
           </Link>
         )}
@@ -114,23 +114,23 @@ const DashboardPage = () => {
       {/* Forecast Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <span className="text-emerald-400">📈</span> Forecast
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="text-brand-500">📈</span> Forecast
           </h2>
-          <Link to="/forecast" className="text-sm text-emerald-400 hover:text-emerald-300">View Details →</Link>
+          <Link to="/forecast" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">View Details →</Link>
         </div>
         
         {forecastSummary.ready ? (
           <>
             <ForecastSummaryCards summary={forecastSummary} />
-            <div className="glass-panel p-6 rounded-xl">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl shadow-sm">
               <ForecastChart days={forecastSummary.fullSeries || []} />
             </div>
           </>
         ) : (
-          <div className="glass-panel p-8 rounded-xl text-center">
-            <h3 className="text-lg font-medium text-white mb-2">Calculating Your Future...</h3>
-            <p className="text-gray-400 max-w-md mx-auto">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-8 rounded-2xl text-center shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Calculating Your Future...</h3>
+            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               We're analyzing your accounts and recurring commitments to build your 60-day forecast. This happens in the background.
             </p>
           </div>
@@ -143,10 +143,10 @@ const DashboardPage = () => {
         {/* Accounts Strip */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <span className="text-blue-400">🏦</span> Active Accounts
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="text-finance-500">🏦</span> Active Accounts
             </h2>
-            <Link to="/accounts" className="text-sm text-blue-400 hover:text-blue-300">Manage →</Link>
+            <Link to="/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
           
           {accounts.length > 0 ? (
@@ -156,14 +156,14 @@ const DashboardPage = () => {
               ))}
               {accounts.length > 3 && (
                 <div className="text-center pt-2">
-                  <span className="text-sm text-gray-500">+{accounts.length - 3} more accounts</span>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">+{accounts.length - 3} more accounts</span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="glass-panel p-6 rounded-xl text-center border-dashed border-2 border-slate-700">
-              <p className="text-gray-400">No active accounts</p>
-              <Link to="/accounts" className="text-emerald-400 text-sm mt-2 block hover:underline">Add one now</Link>
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl text-center border-dashed border-2 border-gray-200 dark:border-gray-800">
+              <p className="text-gray-500 dark:text-gray-400">No active accounts</p>
+              <Link to="/accounts" className="text-brand-600 dark:text-brand-400 font-medium text-sm mt-2 block hover:underline">Add one now</Link>
             </div>
           )}
         </div>
@@ -171,10 +171,10 @@ const DashboardPage = () => {
         {/* Upcoming Recurring */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <span className="text-purple-400">📅</span> Upcoming Commitments
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="text-purple-500">📅</span> Upcoming Commitments
             </h2>
-            <Link to="/recurring" className="text-sm text-purple-400 hover:text-purple-300">Manage →</Link>
+            <Link to="/recurring" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
 
           {upcomingRecurringCommitments.length > 0 ? (
@@ -182,7 +182,7 @@ const DashboardPage = () => {
               {upcomingRecurringCommitments.map(commitment => (
                 <RecurringCard 
                   key={commitment.id} 
-                  commitment={commitment} 
+                  item={commitment} 
                   onEdit={() => {}} 
                   onConfirm={() => {}} 
                   onDismiss={() => {}} 
@@ -190,8 +190,8 @@ const DashboardPage = () => {
               ))}
             </div>
           ) : (
-            <div className="glass-panel p-6 rounded-xl text-center border-dashed border-2 border-slate-700">
-              <p className="text-gray-400">No upcoming commitments</p>
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl text-center border-dashed border-2 border-gray-200 dark:border-gray-800">
+              <p className="text-gray-500 dark:text-gray-400">No upcoming commitments</p>
             </div>
           )}
         </div>

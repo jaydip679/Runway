@@ -9,23 +9,16 @@ const tabs = [
 
 const RecurringStatusTabs = ({ activeTab, onChange, counts }) => {
   return (
-    <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+    <div className="flex gap-4 border-b border-gray-100 dark:border-gray-800 pb-3 overflow-x-auto no-scrollbar">
       {tabs.map(tab => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: activeTab === tab.id ? '600' : '400',
-            color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-secondary)',
-            padding: '4px 8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
+            activeTab === tab.id 
+              ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 font-semibold' 
+              : 'text-gray-500 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'
+          }`}
         >
           {tab.label}
           <Badge variant={activeTab === tab.id ? 'primary' : 'secondary'}>

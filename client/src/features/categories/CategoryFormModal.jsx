@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from '../../components/ui/Modal';
-import Input from '../../components/ui/Input/Input';
-import Button from '../../components/ui/Button/Button';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters'),
@@ -38,7 +38,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData, isSubmittin
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={initialData ? 'Edit Category' : 'Add Category'}>
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
         <Input 
           label="Category Name" 
           {...register('name')} 
@@ -46,17 +46,16 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData, isSubmittin
           placeholder="e.g. Groceries"
         />
         
-        <div className="input-wrapper">
-          <label className="input-label">Type</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Type</label>
           <select 
-            className={`input-field ${errors.type ? 'input-error' : ''}`} 
+            className={`w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border ${errors.type ? 'border-red-500 focus:ring-red-500/20' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500 focus:ring-brand-500/20'} rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:ring-4`} 
             {...register('type')}
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
           >
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
           </select>
-          {errors.type && <span className="error-text">{errors.type.message}</span>}
+          {errors.type && <span className="text-red-500 text-xs mt-1 block font-medium">{errors.type.message}</span>}
         </div>
 
         <Input 
@@ -66,8 +65,8 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData, isSubmittin
           placeholder="e.g. 🛒"
         />
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
           <Button type="submit" isLoading={isSubmitting}>
             {initialData ? 'Save Changes' : 'Create Category'}
           </Button>

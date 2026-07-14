@@ -34,19 +34,19 @@ const ForecastPage = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto animate-fade-in pb-24">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-6 max-w-7xl mx-auto pb-24">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
             Cash Flow Forecast
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-gray-500 dark:text-gray-400 mt-2">
             AI-driven projections based on your recurring commitments and spending habits.
           </p>
         </div>
         <button 
           onClick={generateMockForecast}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5"
+          className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium shadow-md shadow-brand-500/20 transition-all hover:-translate-y-0.5 shrink-0"
         >
           Update Data
         </button>
@@ -57,20 +57,20 @@ const ForecastPage = () => {
       <ForecastChart data={forecastData} isLoading={isLoadingForecast} />
       
       {/* Information Panel */}
-      <div className="mt-8 glass-panel p-6 rounded-xl">
-        <h3 className="text-lg font-bold mb-3 text-emerald-400">How this works</h3>
-        <ul className="list-disc pl-5 text-gray-300 space-y-2 text-sm leading-relaxed">
+      <div className="mt-8 bg-brand-50 dark:bg-brand-900/10 border border-brand-100 dark:border-brand-900/30 p-6 rounded-2xl">
+        <h3 className="text-lg font-bold mb-3 text-brand-700 dark:text-brand-400">How this works</h3>
+        <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-2 text-sm leading-relaxed">
           <li>
-            <strong className="text-white">Day Zero Balance:</strong> Starts with your current total balance across all active accounts.
+            <strong className="text-gray-900 dark:text-white">Day Zero Balance:</strong> Starts with your current total balance across all active accounts.
           </li>
           <li>
-            <strong className="text-white">Recurring Commitments:</strong> Only <em>Confirmed</em> recurring income and expenses are projected on their exact due dates.
+            <strong className="text-gray-900 dark:text-white">Recurring Commitments:</strong> Only <em>Confirmed</em> recurring income and expenses are projected on their exact due dates.
           </li>
           <li>
-            <strong className="text-white">Discretionary Spending:</strong> Your average daily spend (excluding recurring items) over the last 30 days is subtracted daily.
+            <strong className="text-gray-900 dark:text-white">Discretionary Spending:</strong> Your average daily spend (excluding recurring items) over the last 30 days is subtracted daily.
           </li>
           <li>
-            <strong className="text-white">Confidence Levels:</strong> Accuracy decreases over time. The next 14 days are High Confidence, 15-30 days are Medium, and 31-60 days are Low.
+            <strong className="text-gray-900 dark:text-white">Confidence Levels:</strong> Accuracy decreases over time. The next 14 days are High Confidence, 15-30 days are Medium, and 31-60 days are Low.
           </li>
         </ul>
       </div>

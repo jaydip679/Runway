@@ -1,42 +1,45 @@
 import React from 'react';
+import { Edit2, Trash2 } from 'lucide-react';
 
 const CategoryItem = ({ category, onEdit, onDelete }) => {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '12px 16px',
-      borderBottom: '1px solid var(--border)',
-      backgroundColor: 'var(--bg-card)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ 
-          width: '40px', height: '40px', borderRadius: '8px', 
-          backgroundColor: 'var(--bg-input)', display: 'flex', 
-          alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' 
-        }}>
+    <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xl border border-gray-200 dark:border-gray-700">
           {category.icon || '📁'}
         </div>
         <div>
-          <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{category.name}</div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
-            <span style={{ color: category.type === 'INCOME' ? 'var(--success)' : 'var(--error)' }}>
+          <div className="font-medium text-gray-900 dark:text-white mb-0.5">{category.name}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+            <span className={`font-medium ${category.type === 'INCOME' ? 'text-finance-600 dark:text-finance-400' : 'text-red-600 dark:text-red-400'}`}>
               {category.type}
             </span>
-            {category.isSystem && <span style={{ color: 'var(--primary)' }}>• System</span>}
+            {category.isSystem && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                <span className="text-brand-600 dark:text-brand-400 font-medium">System</span>
+              </>
+            )}
           </div>
         </div>
       </div>
       
       {!category.isSystem && (
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => onEdit(category)} style={{
-            background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.9rem'
-          }}>Edit</button>
-          <button onClick={() => onDelete(category)} style={{
-            background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '0.9rem'
-          }}>Delete</button>
+        <div className="flex gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            onClick={() => onEdit(category)} 
+            className="p-2 text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/30 rounded-lg transition-colors"
+            title="Edit"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => onDelete(category)} 
+            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

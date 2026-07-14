@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/categoriesApi';
 import CategoryItem from './CategoryItem';
 import CategoryFormModal from './CategoryFormModal';
-import Button from '../../components/ui/Button/Button';
+import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import { Plus, Tags, AlertCircle } from 'lucide-react';
 
 const CategoriesManager = () => {
   const [categories, setCategories] = useState([]);
@@ -15,7 +16,6 @@ const CategoriesManager = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [deleteTarget, setDeleteTarget] = useState(null);
-
   const [filterType, setFilterType] = useState('ALL');
 
   const fetchCategories = async () => {
@@ -80,37 +80,54 @@ const CategoriesManager = () => {
 
   const filteredCategories = categories.filter(c => filterType === 'ALL' || c.type === filterType);
 
-  if (isLoading && categories.length === 0) return <div>Loading categories...</div>;
+  if (isLoading && categories.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-500 dark:text-gray-400">Loading categories...</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '1.75rem', color: 'var(--text-primary)' }}>Categories</h1>
-        <Button onClick={handleOpenCreate}>+ Add Category</Button>
+    <div className="pb-12 max-w-4xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold font-heading text-gray-900 dark:text-white flex items-center gap-2">
+            <Tags className="w-6 h-6 text-brand-500" />
+            Categories
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage tags for your transactions.</p>
+        </div>
+        <Button onClick={handleOpenCreate}>
+          <Plus className="w-4 h-4 mr-2" /> Add Category
+        </Button>
       </div>
 
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '8px' }}>
+      <div className="flex flex-wrap gap-2 mb-6">
         {['ALL', 'EXPENSE', 'INCOME'].map(type => (
           <button
             key={type}
             onClick={() => setFilterType(type)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '20px',
-              border: '1px solid var(--border)',
-              backgroundColor: filterType === type ? 'var(--primary)' : 'transparent',
-              color: filterType === type ? 'white' : 'var(--text-secondary)',
-              cursor: 'pointer'
-            }}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              filterType === type 
+                ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20' 
+                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
           >
             {type === 'ALL' ? 'All Types' : type}
           </button>
         ))}
       </div>
 
-      {error && <div style={{ color: 'var(--error)', marginBottom: '16px' }}>{error}</div>}
+      {error && (
+        <div className="flex items-center p-4 mb-6 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800/50">
+          <AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
 
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
         {filteredCategories.map(cat => (
           <CategoryItem 
             key={cat.id} 
@@ -120,8 +137,12 @@ const CategoriesManager = () => {
           />
         ))}
         {filteredCategories.length === 0 && !isLoading && (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            No categories found.
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <Tags className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No categories found</h3>
+            <p className="text-gray-500 dark:text-gray-400">Add a custom category to organize your spending.</p>
           </div>
         )}
       </div>
@@ -139,14 +160,14 @@ const CategoriesManager = () => {
         onClose={() => setDeleteTarget(null)} 
         title="Delete Category"
       >
-        <div style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-          Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?
+        <div className="text-gray-600 dark:text-gray-400 mb-6 mt-2">
+          Are you sure you want to delete <strong className="text-gray-900 dark:text-white">{deleteTarget?.name}</strong>?
           This action cannot be undone and will fail if transactions reference this category.
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-          <Button variant="secondary" onClick={() => setDeleteTarget(null)} disabled={isSubmitting}>Cancel</Button>
-          <Button variant="danger" onClick={handleDeleteConfirm} isLoading={isSubmitting} style={{ backgroundColor: 'var(--error)', color: 'white' }}>
-            Delete
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <Button variant="ghost" onClick={() => setDeleteTarget(null)} disabled={isSubmitting}>Cancel</Button>
+          <Button variant="danger" onClick={handleDeleteConfirm} isLoading={isSubmitting}>
+            Delete Category
           </Button>
         </div>
       </Modal>

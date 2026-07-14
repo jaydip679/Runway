@@ -48,19 +48,19 @@ const AdminUsersPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-100">User Management</h1>
+        <h1 className="text-2xl font-bold font-heading text-gray-900 dark:text-white">User Management</h1>
       </div>
 
-      <div className="glass p-4 rounded-xl flex gap-4">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex gap-4">
         <input 
           type="text" 
           placeholder="Search name or email..." 
-          className="input-field max-w-sm"
+          className="flex-1 max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         />
         <select 
-          className="input-field max-w-xs"
+          className="max-w-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           value={isActiveFilter}
           onChange={(e) => { setIsActiveFilter(e.target.value); setPage(1); }}
         >
@@ -70,50 +70,50 @@ const AdminUsersPage = () => {
         </select>
       </div>
 
-      <div className="glass rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="p-4 font-semibold text-gray-300">Name</th>
-                <th className="p-4 font-semibold text-gray-300">Email</th>
-                <th className="p-4 font-semibold text-gray-300">Role</th>
-                <th className="p-4 font-semibold text-gray-300">Status</th>
-                <th className="p-4 font-semibold text-gray-300">Joined</th>
-                <th className="p-4 font-semibold text-gray-300">Actions</th>
+              <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Name</th>
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Role</th>
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Joined</th>
+                <th className="p-4 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="p-8 text-center text-gray-400">Loading users...</td>
+                  <td colSpan="6" className="p-8 text-center text-gray-500 dark:text-gray-400">Loading users...</td>
                 </tr>
               ) : data?.users?.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="p-8 text-center text-gray-400">No users found.</td>
+                  <td colSpan="6" className="p-8 text-center text-gray-500 dark:text-gray-400">No users found.</td>
                 </tr>
               ) : (
                 data?.users?.map(user => (
-                  <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-medium">{user.name}</td>
-                    <td className="p-4 text-gray-300">{user.email}</td>
+                  <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td className="p-4 font-medium text-gray-900 dark:text-white">{user.name}</td>
+                    <td className="p-4 text-gray-600 dark:text-gray-300">{user.email}</td>
                     <td className="p-4">
-                      <span className={`px-2 py-1 text-xs rounded-full ${user.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' : 'bg-brand-100 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300'}`}>
                         {user.role}
                       </span>
                     </td>
                     <td className="p-4">
                       {user.isActive ? (
-                        <span className="text-emerald-400 text-sm flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Active</span>
+                        <span className="text-finance-600 dark:text-finance-400 text-sm font-medium flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-finance-500"></span> Active</span>
                       ) : (
-                        <span className="text-rose-400 text-sm flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400"></span> Deactivated</span>
+                        <span className="text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500"></span> Deactivated</span>
                       )}
                     </td>
-                    <td className="p-4 text-gray-400 text-sm">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-gray-500 dark:text-gray-400 text-sm">{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td className="p-4">
                       {user.id !== currentUser.id && user.isActive && (
                         <button 
-                          className="btn-danger text-xs px-3 py-1"
+                          className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition-colors"
                           onClick={() => handleDeactivate(user.id)}
                           disabled={deactivateMutation.isLoading}
                         >
@@ -133,15 +133,15 @@ const AdminUsersPage = () => {
       {data?.totalPages > 1 && (
         <div className="flex gap-2 justify-center mt-4">
           <button 
-            className="btn-secondary px-3 py-1 text-sm" 
+            className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors" 
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
           >
             Prev
           </button>
-          <span className="px-3 py-1 text-gray-400 text-sm">Page {page} of {data.totalPages}</span>
+          <span className="px-3 py-1.5 font-medium text-gray-500 dark:text-gray-400 text-sm">Page {page} of {data.totalPages}</span>
           <button 
-            className="btn-secondary px-3 py-1 text-sm" 
+            className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors" 
             disabled={page === data.totalPages}
             onClick={() => setPage(p => p + 1)}
           >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/ui/Modal';
-import Button from '../../components/ui/Button/Button';
+import Button from '../../components/ui/Button';
 import { importCsv, getImportStatus } from '../../api/transactionsApi';
 import { getAccounts } from '../../api/accountsApi';
 
@@ -75,14 +75,13 @@ const CsvImportModal = ({ isOpen, onClose, onImportComplete }) => {
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Import Transactions (CSV)">
       {!jobId ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="flex flex-col gap-4 mt-2">
           <div>
-            <label className="input-label">Target Account</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Target Account</label>
             <select 
-              className="input-field" 
               value={accountId} 
               onChange={e => setAccountId(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)' }}
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20"
             >
               {accounts.map(acc => (
                 <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -90,40 +89,40 @@ const CsvImportModal = ({ isOpen, onClose, onImportComplete }) => {
             </select>
           </div>
           <div>
-            <label className="input-label">CSV File</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">CSV File</label>
             <input 
               type="file" 
               accept=".csv" 
               onChange={e => setFile(e.target.files[0])}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)' }}
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900/30 dark:file:text-brand-400"
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-            <Button variant="secondary" onClick={handleClose} disabled={isUploading}>Cancel</Button>
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <Button variant="ghost" onClick={handleClose} disabled={isUploading}>Cancel</Button>
             <Button onClick={handleUpload} isLoading={isUploading} disabled={!file || !accountId}>Upload & Import</Button>
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3>Import Status: {jobStatus?.status || 'PENDING'}</h3>
+        <div className="flex flex-col gap-4 mt-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Import Status: <span className="text-brand-500">{jobStatus?.status || 'PENDING'}</span></h3>
           {jobStatus?.totalRows !== undefined && (
-            <div>
+            <div className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
               <p>Total Rows: {jobStatus.totalRows}</p>
-              <p style={{ color: 'var(--success)' }}>Success: {jobStatus.successRows}</p>
-              <p style={{ color: 'var(--error)' }}>Failed: {jobStatus.failedRows}</p>
+              <p className="text-finance-600 dark:text-finance-400 font-medium">Success: {jobStatus.successRows}</p>
+              <p className="text-red-600 dark:text-red-400 font-medium">Failed: {jobStatus.failedRows}</p>
             </div>
           )}
           
           {jobStatus?.status === 'FAILED' && (
-            <div style={{ color: 'var(--error)', padding: '12px', backgroundColor: '#fee2e2', borderRadius: '6px' }}>
+            <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 rounded-lg text-sm text-red-600 dark:text-red-400">
               Import failed. {jobStatus.errorLog?.[0]?.reason}
             </div>
           )}
           
-          {jobStatus?.status === 'COMPLETED' && jobStatus?.errorLog && (
-            <div style={{ marginTop: '12px', maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', padding: '8px', borderRadius: '6px' }}>
-              <h4 style={{ margin: '0 0 8px 0', color: 'var(--error)' }}>Row Errors</h4>
-              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem' }}>
+          {jobStatus?.status === 'COMPLETED' && jobStatus?.errorLog && jobStatus.errorLog.length > 0 && (
+            <div className="mt-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-800 rounded-lg p-3">
+              <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Row Errors</h4>
+              <ul className="list-disc pl-5 text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 {jobStatus.errorLog.map((err, i) => (
                   <li key={i}>Row {err.rowNumber}: {err.reason}</li>
                 ))}
@@ -131,7 +130,7 @@ const CsvImportModal = ({ isOpen, onClose, onImportComplete }) => {
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
             <Button onClick={handleClose} disabled={jobStatus?.status === 'PROCESSING'}>
               {jobStatus?.status === 'COMPLETED' ? 'Done' : 'Close'}
             </Button>
