@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout/AuthLayout';
-import Input from '../../components/ui/Input/Input';
-import Button from '../../components/ui/Button/Button';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { AlertCircle, Mail } from 'lucide-react';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { forgotPassword } = useAuth();
-  const [email, setEmail] = useState('');
+  const initialEmail = location.state?.email || '';
+  const [email, setEmail] = useState(initialEmail);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSent, setIsSent] = useState(false);
@@ -35,12 +38,18 @@ const ForgotPassword = () => {
         footerLinkText="Sign in"
         footerLinkTo="/login"
       >
-        <Button 
-          fullWidth 
-          onClick={() => navigate('/reset-password', { state: { email } })}
-        >
-          Enter Reset Code
-        </Button>
+        <div className="flex flex-col items-center justify-center py-4">
+          <div className="w-16 h-16 bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mb-6">
+            <Mail className="w-8 h-8" />
+          </div>
+          <Button 
+            fullWidth 
+            onClick={() => navigate('/reset-password', { state: { email } })}
+            className="mt-2"
+          >
+            Enter Reset Code
+          </Button>
+        </div>
       </AuthLayout>
     );
   }
@@ -53,7 +62,7 @@ const ForgotPassword = () => {
       footerLinkText="Sign in"
       footerLinkTo="/login"
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Input
           label="Email address"
           name="email"
@@ -62,11 +71,18 @@ const ForgotPassword = () => {
           onChange={(e) => { setEmail(e.target.value); setError(''); }}
           placeholder="you@example.com"
           required
+          readOnly={!!initialEmail}
+          className={initialEmail ? 'opacity-75 cursor-not-allowed' : ''}
         />
         
-        {error && <div className="error-text" style={{ fontSize: '14px' }}>{error}</div>}
+        {error && (
+          <div className="flex items-center p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800/50">
+            <AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+        )}
 
-        <Button type="submit" fullWidth isLoading={isLoading} style={{ marginTop: '8px' }}>
+        <Button type="submit" fullWidth isLoading={isLoading} className="mt-2">
           Send Reset Code
         </Button>
       </form>

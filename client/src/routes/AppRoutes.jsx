@@ -7,6 +7,7 @@ import VerifyOtp from '../pages/auth/VerifyOtp';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import Profile from '../pages/dashboard/Profile';
+import LandingPage from '../pages/public/LandingPage';
 import { useAuth } from '../context/AuthContext';
 import AccountsPage from '../features/accounts/AccountsPage';
 import CategoriesManager from '../features/categories/CategoriesManager';
@@ -19,13 +20,14 @@ import DashboardPage from '../features/dashboard/DashboardPage';
 import AdminUsersPage from '../features/admin/AdminUsersPage';
 import AdminCsvImportsPage from '../features/admin/AdminCsvImportsPage';
 import AdminMetricsPage from '../features/admin/AdminMetricsPage';
+import AdminRoute from './AdminRoute';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
   const location = useLocation();
   if (isLoading) return <div>Loading...</div>;
   if (user && location.pathname !== '/verify-otp') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   return children;
 };
@@ -48,7 +50,9 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
       <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
-      <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+      <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+
+      <Route path="/dashboard" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route index element={<DashboardPage />} />
         <Route path="profile" element={<Profile />} />
         <Route path="accounts" element={<AccountsPage />} />

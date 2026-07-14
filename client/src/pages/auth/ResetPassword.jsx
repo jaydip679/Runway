@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout/AuthLayout';
-import Input from '../../components/ui/Input/Input';
-import Button from '../../components/ui/Button/Button';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { AlertCircle } from 'lucide-react';
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -44,7 +45,7 @@ const ResetPassword = () => {
       title="Create new password"
       subtitle="Enter your 6-digit reset code and a new secure password."
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Input
           label="Email address"
           name="email"
@@ -70,13 +71,18 @@ const ResetPassword = () => {
           value={formData.newPassword}
           onChange={handleChange}
           placeholder="••••••••"
-          helperText="Must be at least 8 characters with upper, lower, number, and symbol"
+          helperText="Must be at least 8 characters"
           required
         />
 
-        {error && <div className="error-text" style={{ fontSize: '14px' }}>{error}</div>}
+        {error && (
+          <div className="flex items-center p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800/50">
+            <AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+        )}
 
-        <Button type="submit" fullWidth isLoading={isLoading} style={{ marginTop: '8px' }}>
+        <Button type="submit" fullWidth isLoading={isLoading} className="mt-2">
           Reset Password
         </Button>
       </form>

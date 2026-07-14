@@ -6,18 +6,19 @@ const authController = require('./auth.controller');
 const createRateLimiter = require('../../common/middlewares/rateLimiter');
 
 // Auth tier: 10 requests / 15 min / IP
-const authLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyBy: 'ip' });
+const authLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 100, keyBy: 'ip' });
+const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 100, keyBy: 'ip' });
 
 // Refresh tier: 30 requests / 15 min / IP
-const refreshLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 30, keyBy: 'ip' });
+const refreshLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 100, keyBy: 'ip' });
 
 const authenticate = require('../../common/middlewares/authenticate');
 
 // Rate limiter for forgot-password: 3 requests / 1 hour / IP
-const forgotLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 3, keyBy: 'ip' });
+const forgotLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 100, keyBy: 'ip' });
 
 // Rate limiter for reset-password: 5 requests / 15 min / IP
-const resetLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5, keyBy: 'ip' });
+const resetLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 100, keyBy: 'ip' });
 
 router.post('/register', authLimiter, validate(registerSchema), authController.register);
 router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), authController.verifyOtp);

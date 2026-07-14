@@ -10,14 +10,14 @@ const registerSchema = z.object({
 
 const verifyOtpSchema = z.object({
   body: z.object({
-    userId: z.string().uuid(),
+    email: z.string().email(),
     otp: z.string().length(6),
   }),
 });
 
 const resendOtpSchema = z.object({
   body: z.object({
-    userId: z.string().uuid(),
+    email: z.string().email(),
   }),
 });
 

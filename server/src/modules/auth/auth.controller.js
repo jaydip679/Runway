@@ -27,10 +27,10 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
 };
 
 const verifyOtp = catchAsync(async (req, res) => {
-  const { userId, otp } = req.body;
+  const { email, otp } = req.body;
   const ipAddress = req.ip || req.headers['x-forwarded-for'];
 
-  const { user, accessToken, refreshToken } = await authService.verifyOtp({ userId, otp, ipAddress });
+  const { user, accessToken, refreshToken } = await authService.verifyOtp({ email, otp, ipAddress });
 
   setTokenCookies(res, accessToken, refreshToken);
   
@@ -38,9 +38,9 @@ const verifyOtp = catchAsync(async (req, res) => {
 });
 
 const resendOtp = catchAsync(async (req, res) => {
-  const { userId } = req.body;
+  const { email } = req.body;
   
-  const data = await authService.resendOtp({ userId });
+  const data = await authService.resendOtp({ email });
   
   sendSuccess(res, data, undefined, 200);
 });

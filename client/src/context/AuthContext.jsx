@@ -49,16 +49,16 @@ export const AuthProvider = ({ children }) => {
     return res.data.data; // contains userId
   };
 
-  const verifyOtp = async (userId, otp) => {
-    const res = await apiClient.post('/auth/verify-otp', { userId, otp });
+  const verifyOtp = async (email, otp) => {
+    const res = await apiClient.post('/auth/verify-otp', { email, otp });
     const userData = res.data.data.user;
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     return userData;
   };
 
-  const resendOtp = async (userId) => {
-    await apiClient.post('/auth/resend-otp', { userId });
+  const resendOtp = async (email) => {
+    await apiClient.post('/auth/resend-otp', { email });
   };
 
   const forgotPassword = async (email) => {

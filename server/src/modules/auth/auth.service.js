@@ -18,16 +18,68 @@ const register = async ({ email, password, name, ipAddress }) => {
   }
 
   const hashed = await hashPassword(password);
+  const otp = crypto.randomInt(100000, 999999).toString();
+  
+  await redis.set(
+    `otp:register:${emailLower}`,
+    JSON.stringify({
+      email: emailLower,
+      passwordHash: hashed,
+      name,
+      otp,
+      attempts: 0
+    }),
+    'EX',
+    300 // 5 minutes
+  );
+
+  await notificationQueue.add('email_otp', {
+    userId: emailLower,
+    type: 'email_otp',
+    metadata: {
+      otp,
+      expiresInMinutes: 5,
+      name,
+      email: emailLower,
+    }
+  });
+
+  return { email: emailLower, message: `OTP sent to ${emailLower}. Verify your email to activate your account.` };
+};
+
+const { generateAccessToken, generateRefreshToken, hashRefreshToken, generateOtp } = require('./auth.utils');
+
+const verifyOtp = async ({ email, otp, ipAddress }) => {
+  const emailLower = email.toLowerCase();
+  const key = `otp:register:${emailLower}`;
+  const raw = await redis.get(key);
+  
+  if (!raw) throw new AppError('OTP expired or not found. Please register again.', 400, errorCodes.AUTH_OTP_EXPIRED);
+  
+  const data = JSON.parse(raw);
+  
+  if (data.otp !== otp) {
+    data.attempts += 1;
+    if (data.attempts > 3) {
+      await redis.del(key);
+      throw new AppError('Too many failed attempts. Please register again.', 429, errorCodes.AUTH_OTP_MAX_ATTEMPTS);
+    }
+    const ttl = await redis.ttl(key);
+    if (ttl > 0) await redis.set(key, JSON.stringify(data), 'EX', ttl);
+    throw new AppError('Invalid OTP', 400, errorCodes.AUTH_OTP_INVALID);
+  }
+
+  await redis.del(key);
 
   const user = await prisma.$transaction(async (tx) => {
     const newUser = await tx.user.create({
       data: {
-        email: emailLower,
-        passwordHash: hashed,
-        name,
+        email: data.email,
+        passwordHash: data.passwordHash,
+        name: data.name,
         role: 'USER',
         authProvider: 'LOCAL',
-        isEmailVerified: false,
+        isEmailVerified: true,
         isActive: true,
       },
     });
@@ -38,101 +90,27 @@ const register = async ({ email, password, name, ipAddress }) => {
         action: 'USER_REGISTERED',
         entityType: 'User',
         entityId: newUser.id,
-        metadata: { email: newUser.email, name: newUser.name },
-        ipAddress,
-      },
-    });
-
-    return newUser;
-  });
-
-  const otp = crypto.randomInt(100000, 999999).toString();
-  
-  await redis.set(
-    `otp:verify:${user.id}`,
-    JSON.stringify({ otp, attempts: 0 }),
-    'EX',
-    600
-  );
-
-  await notificationQueue.add('email_otp', {
-    userId: user.id,
-    type: 'email_otp',
-    metadata: {
-      otp,
-      expiresInMinutes: 10,
-      name: user.name,
-      email: user.email,
-    }
-  });
-
-  return { userId: user.id, message: `OTP sent to ${user.email}. Verify your email to activate your account.` };
-};
-
-const { generateAccessToken, generateRefreshToken, hashRefreshToken, generateOtp } = require('./auth.utils');
-
-const verifyOtp = async ({ userId, otp, ipAddress }) => {
-  const key = `otp:verify:${userId}`;
-  const raw = await redis.get(key);
-  if (!raw) throw new AppError('OTP expired or not found', 400, errorCodes.AUTH_OTP_EXPIRED);
-  
-  const data = JSON.parse(raw);
-  
-  if (data.otp !== otp) {
-    data.attempts += 1;
-    if (data.attempts > 3) {
-      await redis.del(key);
-      throw new AppError('Too many failed attempts. Please request a new OTP.', 429, errorCodes.AUTH_OTP_MAX_ATTEMPTS);
-    }
-    const ttl = await redis.ttl(key);
-    if (ttl > 0) await redis.set(key, JSON.stringify(data), 'EX', ttl);
-    throw new AppError('Invalid OTP', 400, errorCodes.AUTH_OTP_INVALID);
-  }
-
-  await redis.del(key);
-
-  const accessToken = generateAccessToken({ sub: userId, role: 'USER' });
-  const refreshToken = generateRefreshToken();
-  const hashedRefresh = hashRefreshToken(refreshToken);
-  const familyId = crypto.randomUUID();
-
-  const user = await prisma.$transaction(async (tx) => {
-    const updatedUser = await tx.user.update({
-      where: { id: userId },
-      data: { isEmailVerified: true },
-    });
-
-    await tx.refreshToken.create({
-      data: {
-        userId,
-        tokenHash: hashedRefresh,
-        familyId,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        createdByIp: ipAddress,
-      },
-    });
-
-    await tx.auditLog.create({
-      data: {
-        userId,
-        action: 'EMAIL_VERIFIED',
-        entityType: 'User',
-        entityId: userId,
-        metadata: {},
+        metadata: { email: newUser.email, name: newUser.name, ipAddress },
         ipAddress,
       },
     });
     
-    return updatedUser;
+    return newUser;
   });
 
-  await notificationQueue.add('welcome', {
-    userId,
-    type: 'welcome',
-    metadata: {
-      name: user.name,
-      dashboardUrl: `${process.env.CLIENT_URL}/dashboard`
-    }
+  const accessToken = generateAccessToken({ sub: user.id, role: 'USER' });
+  const refreshToken = generateRefreshToken();
+  const hashedRefresh = hashRefreshToken(refreshToken);
+  const familyId = crypto.randomUUID();
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashedRefresh,
+      familyId,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      createdByIp: ipAddress,
+    },
   });
 
   return {
@@ -142,25 +120,33 @@ const verifyOtp = async ({ userId, otp, ipAddress }) => {
   };
 };
 
-const resendOtp = async ({ userId }) => {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new AppError('User not found', 404, errorCodes.RESOURCE_NOT_FOUND);
-  if (user.isEmailVerified) throw new AppError('Email already verified', 409, errorCodes.AUTH_ALREADY_VERIFIED);
+const resendOtp = async ({ email }) => {
+  const emailLower = email.toLowerCase();
+  const existing = await prisma.user.findUnique({ where: { email: emailLower } });
+  if (existing) throw new AppError('Email already verified', 409, errorCodes.AUTH_ALREADY_VERIFIED);
 
-  const cooldownKey = `otp:cooldown:${userId}`;
-  const verifyKey = `otp:verify:${userId}`;
+  const registerKey = `otp:register:${emailLower}`;
+  const cooldownKey = `otp:cooldown:${emailLower}`;
 
   const inCooldown = await redis.get(cooldownKey);
   if (inCooldown) throw new AppError('Please wait 60 seconds before requesting a new OTP', 429, errorCodes.AUTH_OTP_RATE_LIMITED);
 
+  const raw = await redis.get(registerKey);
+  if (!raw) throw new AppError('Registration session expired. Please register again.', 404, errorCodes.RESOURCE_NOT_FOUND);
+
+  const data = JSON.parse(raw);
   const otp = generateOtp();
-  await redis.set(verifyKey, JSON.stringify({ otp, attempts: 0 }), 'EX', 600);
+  
+  data.otp = otp;
+  data.attempts = 0;
+
+  await redis.set(registerKey, JSON.stringify(data), 'EX', 300); // 5 min TTL
   await redis.set(cooldownKey, '1', 'EX', 60);
 
   await notificationQueue.add('email_otp', {
-    userId: user.id,
+    userId: emailLower,
     type: 'email_otp',
-    metadata: { otp, name: user.name, email: user.email }
+    metadata: { otp, name: data.name, email: emailLower }
   });
 
   return { message: 'A new OTP has been sent.' };
