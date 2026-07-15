@@ -29,16 +29,31 @@ const validateAccountAndCategory = async (userId, accountId, categoryId, transac
 const createTransaction = async (userId, data) => {
   await validateAccountAndCategory(userId, data.accountId, data.categoryId, data.type);
 
-  const transaction = await prisma.transaction.create({
-    data: {
-      ...data,
-      userId,
-      transactionDate: new Date(data.transactionDate)
-    },
-    include: {
-      account: true,
-      category: true
-    }
+  const transaction = await prisma.$transaction(async (tx) => {
+    const createdTx = await tx.transaction.create({
+      data: {
+        ...data,
+        userId,
+        transactionDate: new Date(data.transactionDate)
+      },
+      include: {
+        account: true,
+        category: true
+      }
+    });
+
+    // Update account balance
+    const amountNum = Number(data.amount);
+    await tx.account.update({
+      where: { id: data.accountId },
+      data: {
+        currentBalance: {
+          ...(data.type === 'INCOME' ? { increment: amountNum } : { decrement: amountNum })
+        }
+      }
+    });
+
+    return createdTx;
   });
 
   enqueueForecastRecompute(userId);
@@ -46,7 +61,8 @@ const createTransaction = async (userId, data) => {
 };
 
 const getTransactions = async (userId, query) => {
-  const { limit = 20, cursor, accountId, categoryId, type, startDate, endDate, search } = query;
+  const { cursor, accountId, categoryId, type, startDate, endDate, search } = query;
+  const limit = parseInt(query.limit) || 20;
 
   const where = {
     userId,
@@ -86,21 +102,10 @@ const getTransactions = async (userId, query) => {
       { transactionDate: 'desc' },
       { id: 'asc' }
     ],
-    cursor: cursorObj ? {
-      userId_transactionDate: {
-        userId,
-        transactionDate: cursorObj.transactionDate
-      }
-    } : undefined, // Wait, compound cursor using transactionDate and id is tricky in Prisma unless there's a unique index on them.
-    // Let's adjust to Prisma's cursor pagination requirements.
-    // Actually, Prisma requires a unique identifier for cursor. 
-    // Since id is unique, we can use just { id: cursorObj.id } if we sort by transactionDate and id.
-    // wait, if we sort by multiple fields, prisma's cursor requires a unique constraint covering the sorted fields or just the id if it's unique.
-    // In schema, id is unique.
-    ...(cursorObj && {
+    ...(cursorObj ? {
       cursor: { id: cursorObj.id },
-      skip: 1 // skip the cursor itself
-    }),
+      skip: 1
+    } : {}),
     include: {
       account: { select: { name: true, type: true } },
       category: { select: { name: true, icon: true, type: true } }
@@ -135,16 +140,43 @@ const updateTransaction = async (userId, id, data) => {
     data.type || existing.type
   );
 
-  const transaction = await prisma.transaction.update({
-    where: { id },
-    data: {
-      ...data,
-      ...(data.transactionDate && { transactionDate: new Date(data.transactionDate) })
-    },
-    include: {
-      account: true,
-      category: true
-    }
+  const transaction = await prisma.$transaction(async (tx) => {
+    // Revert old transaction effect
+    const oldAmount = Number(existing.amount);
+    await tx.account.update({
+      where: { id: existing.accountId },
+      data: {
+        currentBalance: {
+          ...(existing.type === 'INCOME' ? { decrement: oldAmount } : { increment: oldAmount })
+        }
+      }
+    });
+
+    // Apply new transaction
+    const updatedTx = await tx.transaction.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(data.transactionDate && { transactionDate: new Date(data.transactionDate) })
+      },
+      include: {
+        account: true,
+        category: true
+      }
+    });
+
+    // Apply new transaction effect
+    const newAmount = Number(updatedTx.amount);
+    await tx.account.update({
+      where: { id: updatedTx.accountId },
+      data: {
+        currentBalance: {
+          ...(updatedTx.type === 'INCOME' ? { increment: newAmount } : { decrement: newAmount })
+        }
+      }
+    });
+
+    return updatedTx;
   });
 
   enqueueForecastRecompute(userId);
@@ -160,9 +192,21 @@ const deleteTransaction = async (userId, id) => {
     throw new AppError('Transaction not found', 404, errorCodes.RESOURCE_NOT_FOUND);
   }
 
-  await prisma.transaction.update({
-    where: { id },
-    data: { deletedAt: new Date() }
+  await prisma.$transaction(async (tx) => {
+    await tx.transaction.update({
+      where: { id },
+      data: { deletedAt: new Date() }
+    });
+
+    const oldAmount = Number(existing.amount);
+    await tx.account.update({
+      where: { id: existing.accountId },
+      data: {
+        currentBalance: {
+          ...(existing.type === 'INCOME' ? { decrement: oldAmount } : { increment: oldAmount })
+        }
+      }
+    });
   });
 
   enqueueForecastRecompute(userId);

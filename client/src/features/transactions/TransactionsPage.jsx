@@ -7,6 +7,7 @@ import TransactionForm from './TransactionForm';
 import CsvImportModal from './CsvImportModal';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import Toast from '../../components/ui/Toast';
 import { Search, Upload, Plus, Trash2, Edit2, AlertCircle, RefreshCcw, LayoutList } from 'lucide-react';
 
 // Debounce hook
@@ -33,6 +34,7 @@ const TransactionsPage = () => {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -55,9 +57,13 @@ const TransactionsPage = () => {
   } = useInfiniteQuery({
     queryKey: ['transactions', filters, debouncedSearch],
     queryFn: ({ pageParam = undefined }) => {
+      const cleanFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '')
+      );
+      
       return getTransactions({
-        ...filters,
-        search: debouncedSearch,
+        ...cleanFilters,
+        ...(debouncedSearch && { search: debouncedSearch }),
         cursor: pageParam,
         limit: 20
       });
@@ -81,9 +87,10 @@ const TransactionsPage = () => {
         await uploadReceipt(txId, file);
       }
       setIsFormOpen(false);
+      setToast({ type: 'success', message: 'Transaction saved successfully' });
       refetch();
     } catch (err) {
-      alert(err.response?.data?.error?.message || 'Action failed');
+      setToast({ type: 'error', message: err.response?.data?.error?.message || 'Action failed' });
     }
   };
 
@@ -92,9 +99,10 @@ const TransactionsPage = () => {
     try {
       await deleteTransaction(deleteTarget.id);
       setDeleteTarget(null);
+      setToast({ type: 'success', message: 'Transaction deleted' });
       refetch();
     } catch (err) {
-      alert('Delete failed');
+      setToast({ type: 'error', message: 'Delete failed' });
     }
   };
 
@@ -277,6 +285,8 @@ const TransactionsPage = () => {
           <Button variant="danger" onClick={handleDeleteConfirm}>Delete Transaction</Button>
         </div>
       </Modal>
+
+      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };
