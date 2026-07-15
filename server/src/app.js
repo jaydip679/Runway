@@ -49,6 +49,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 const globalLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: 1000, 
+  prefix: 'rl_global:',
 });
 app.use('/api', globalLimiter);
 

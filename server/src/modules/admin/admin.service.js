@@ -83,6 +83,30 @@ exports.deactivateUser = async (adminUserId, targetUserId) => {
   return updatedUser;
 };
 
+exports.reactivateUser = async (adminUserId, targetUserId) => {
+  const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!user) {
+    throw new AppError('User not found', 404, errorCodes.NOT_FOUND);
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { isActive: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+      isEmailVerified: true,
+      createdAt: true,
+      lastLoginAt: true
+    }
+  });
+
+  return updatedUser;
+};
+
 exports.getCsvImports = async (status = 'FAILED', page = 1, limit = 50) => {
   const skip = (page - 1) * limit;
 

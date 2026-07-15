@@ -18,6 +18,11 @@ const deactivateUser = async (userId) => {
   return data.data;
 };
 
+const reactivateUser = async (userId) => {
+  const { data } = await axios.patch(`/api/v1/admin/users/${userId}/reactivate`);
+  return data.data;
+};
+
 const AdminUsersPage = () => {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
@@ -39,9 +44,22 @@ const AdminUsersPage = () => {
     }
   });
 
+  const reactivateMutation = useMutation({
+    mutationFn: reactivateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+    }
+  });
+
   const handleDeactivate = (userId) => {
     if (window.confirm('Are you sure you want to deactivate this user? They will not be able to log in.')) {
       deactivateMutation.mutate(userId);
+    }
+  };
+
+  const handleReactivate = (userId) => {
+    if (window.confirm('Are you sure you want to reactivate this user?')) {
+      reactivateMutation.mutate(userId);
     }
   };
 
@@ -111,14 +129,24 @@ const AdminUsersPage = () => {
                     </td>
                     <td className="p-4 text-gray-500 dark:text-gray-400 text-sm">{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td className="p-4">
-                      {user.id !== currentUser.id && user.isActive && (
-                        <button 
-                          className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition-colors"
-                          onClick={() => handleDeactivate(user.id)}
-                          disabled={deactivateMutation.isLoading}
-                        >
-                          Deactivate
-                        </button>
+                      {user.id !== currentUser.id && (
+                        user.isActive ? (
+                          <button 
+                            className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                            onClick={() => handleDeactivate(user.id)}
+                            disabled={deactivateMutation.isLoading}
+                          >
+                            Deactivate
+                          </button>
+                        ) : (
+                          <button 
+                            className="px-3 py-1 text-xs font-medium bg-finance-50 text-finance-600 hover:bg-finance-100 dark:bg-finance-900/30 dark:text-finance-400 dark:hover:bg-finance-900/50 rounded-lg transition-colors"
+                            onClick={() => handleReactivate(user.id)}
+                            disabled={reactivateMutation.isLoading}
+                          >
+                            Reactivate
+                          </button>
+                        )
                       )}
                     </td>
                   </tr>

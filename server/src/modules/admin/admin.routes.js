@@ -11,6 +11,7 @@ router.use(authorize('ADMIN'));
 
 router.get('/users', adminController.getUsers);
 router.patch('/users/:id/deactivate', adminController.deactivateUser);
+router.patch('/users/:id/reactivate', adminController.reactivateUser);
 
 router.get('/csv-imports', adminController.getCsvImports);
 

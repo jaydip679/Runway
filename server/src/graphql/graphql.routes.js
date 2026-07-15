@@ -19,8 +19,8 @@ router.all(
       ...dashboardResolver
     },
     context: (req) => {
-      // req is passed as context by default, but we can return it to be explicit
-      return req;
+      // req is the graphql-http wrapper, req.raw is the Express Request
+      return req.raw;
     },
     formatError: (err) => {
       // If it's an AppError, preserve the status/code in extensions

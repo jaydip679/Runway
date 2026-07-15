@@ -6,7 +6,7 @@ import AlertsBell from './AlertsBell';
 import { 
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
-  ListOrdered
+  ListOrdered, FileText, BarChart2
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -17,13 +17,15 @@ const MainLayout = () => {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Accounts', path: '/accounts', icon: CreditCard },
-    { name: 'Categories', path: '/categories', icon: ListOrdered },
-    { name: 'Transactions', path: '/transactions', icon: PieChart },
+    { name: 'Accounts', path: '/dashboard/accounts', icon: CreditCard },
+    { name: 'Categories', path: '/dashboard/categories', icon: ListOrdered },
+    { name: 'Transactions', path: '/dashboard/transactions', icon: PieChart },
   ];
 
   const adminItems = user?.role === 'ADMIN' ? [
-    { name: 'Users', path: '/admin/users', icon: Users },
+    { name: 'Users', path: '/dashboard/admin/users', icon: Users },
+    { name: 'CSV Imports', path: '/dashboard/admin/csv-imports', icon: FileText },
+    { name: 'Metrics', path: '/dashboard/admin/metrics', icon: BarChart2 },
   ] : [];
 
   return (
@@ -48,7 +50,9 @@ const MainLayout = () => {
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
           {navItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.path);
+            const isActive = item.path === '/dashboard' 
+              ? location.pathname === '/dashboard' 
+              : location.pathname.startsWith(item.path);
             return (
               <Link 
                 key={item.path} 
@@ -93,10 +97,19 @@ const MainLayout = () => {
           )}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-1">
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            title={!isSidebarOpen ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          >
+            {isSidebarOpen ? <X className="w-5 h-5 shrink-0" /> : <Menu className="w-5 h-5 shrink-0" />}
+            <span className={`${!isSidebarOpen && 'hidden'} font-medium`}>Collapse</span>
+          </button>
+          
           <Link 
-            to="/profile" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            to="/dashboard/profile" 
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             title={!isSidebarOpen ? 'Settings' : ''}
           >
             <Settings className="w-5 h-5 shrink-0" />
@@ -119,12 +132,6 @@ const MainLayout = () => {
         {/* Top Header */}
         <header className="h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 z-10 shrink-0">
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
             <h1 className="text-xl font-heading font-semibold text-gray-800 dark:text-white capitalize hidden sm:block">
               {location.pathname.split('/')[1] || 'Dashboard'}
             </h1>
