@@ -40,6 +40,7 @@ async function seedAdmin() {
         passwordHash,
         role: 'ADMIN',
         isEmailVerified: true,
+        authProvider: 'LOCAL',
       }
     });
     

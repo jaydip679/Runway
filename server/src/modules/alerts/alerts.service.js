@@ -28,13 +28,6 @@ const createAlertIfNotDuplicate = async ({
       },
     });
 
-    // Enqueue a notification job for the alert
-    await notificationQueue.add('sendAlertEmail', {
-      userId,
-      type,
-      message,
-    });
-
     return alert;
   } catch (error) {
     // Prisma unique constraint violation code is P2002
