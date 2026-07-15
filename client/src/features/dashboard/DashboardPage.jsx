@@ -60,6 +60,7 @@ const DashboardPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboard,
+    refetchOnWindowFocus: false, // Prevents random errors when switching apps
   });
 
   if (isLoading) {
@@ -84,7 +85,12 @@ const DashboardPage = () => {
     );
   }
 
-  const { accounts, forecastSummary, upcomingRecurringCommitments, unreadAlerts } = data;
+  const { 
+    accounts = [], 
+    forecastSummary = {}, 
+    upcomingRecurringCommitments = [], 
+    unreadAlerts = [] 
+  } = data || {};
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 pb-24 md:pb-6">
@@ -99,7 +105,7 @@ const DashboardPage = () => {
         </div>
         
         {unreadAlerts && unreadAlerts.length > 0 && (
-          <Link to="/alerts" className="bg-white dark:bg-gray-900 p-4 rounded-2xl flex items-center gap-4 border border-amber-200 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50 transition-colors shadow-sm">
+          <Link to="/dashboard/alerts" className="bg-white dark:bg-gray-900 p-4 rounded-2xl flex items-center gap-4 border border-amber-200 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50 transition-colors shadow-sm">
             <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg">
               🔔
             </div>
@@ -117,7 +123,7 @@ const DashboardPage = () => {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <span className="text-brand-500">📈</span> Forecast
           </h2>
-          <Link to="/forecast" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">View Details →</Link>
+          <Link to="/dashboard/forecast" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">View Details →</Link>
         </div>
         
         {forecastSummary.ready ? (
@@ -146,10 +152,10 @@ const DashboardPage = () => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <span className="text-finance-500">🏦</span> Active Accounts
             </h2>
-            <Link to="/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
+            <Link to="/dashboard/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
           
-          {accounts.length > 0 ? (
+          {accounts?.length > 0 ? (
             <div className="space-y-3">
               {accounts.slice(0, 3).map(account => (
                 <AccountCard key={account.id} account={account} onEdit={() => {}} />
@@ -163,7 +169,7 @@ const DashboardPage = () => {
           ) : (
             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl text-center border-dashed border-2 border-gray-200 dark:border-gray-800">
               <p className="text-gray-500 dark:text-gray-400">No active accounts</p>
-              <Link to="/accounts" className="text-brand-600 dark:text-brand-400 font-medium text-sm mt-2 block hover:underline">Add one now</Link>
+              <Link to="/dashboard/accounts" className="text-brand-600 dark:text-brand-400 font-medium text-sm mt-2 block hover:underline">Add one now</Link>
             </div>
           )}
         </div>
@@ -174,10 +180,10 @@ const DashboardPage = () => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <span className="text-purple-500">📅</span> Upcoming Commitments
             </h2>
-            <Link to="/recurring" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
+            <Link to="/dashboard/recurring" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
 
-          {upcomingRecurringCommitments.length > 0 ? (
+          {upcomingRecurringCommitments?.length > 0 ? (
             <div className="space-y-3">
               {upcomingRecurringCommitments.map(commitment => (
                 <RecurringCard 

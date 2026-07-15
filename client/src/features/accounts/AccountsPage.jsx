@@ -4,6 +4,7 @@ import AccountCard from './AccountCard';
 import AccountFormModal from './AccountFormModal';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import Toast from '../../components/ui/Toast';
 import { Plus, CreditCard, AlertCircle } from 'lucide-react';
 
 const AccountsPage = () => {
@@ -16,6 +17,7 @@ const AccountsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const fetchAccounts = async () => {
     try {
@@ -52,10 +54,11 @@ const AccountsPage = () => {
         await createAccount(data);
       }
       setIsFormOpen(false);
+      setToast({ type: 'success', message: 'Account saved successfully' });
       fetchAccounts();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error?.message || 'Action failed');
+      setToast({ type: 'error', message: err.response?.data?.error?.message || 'Action failed' });
     } finally {
       setIsSubmitting(false);
     }
@@ -67,10 +70,11 @@ const AccountsPage = () => {
       setIsSubmitting(true);
       await deleteAccount(deleteTarget.id);
       setDeleteTarget(null);
+      setToast({ type: 'success', message: 'Account deleted' });
       fetchAccounts();
     } catch (err) {
       console.error(err);
-      alert('Delete failed');
+      setToast({ type: 'error', message: 'Delete failed' });
     } finally {
       setIsSubmitting(false);
     }
@@ -153,6 +157,8 @@ const AccountsPage = () => {
           </Button>
         </div>
       </Modal>
+
+      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 };
