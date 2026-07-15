@@ -12,11 +12,7 @@ const createRecurringSchema = z.object({
     nextOccurrenceDate: z.string().refine(val => {
       const d = new Date(val);
       return !isNaN(d.getTime());
-    }, "Invalid date format").refine(val => {
-      const today = startOfDay(new Date());
-      const selected = startOfDay(new Date(val));
-      return selected >= today;
-    }, "nextOccurrenceDate must be today or in the future")
+    }, "Invalid date format")
   })
 });
 
@@ -32,12 +28,7 @@ const updateRecurringSchema = z.object({
       if (!val) return true;
       const d = new Date(val);
       return !isNaN(d.getTime());
-    }, "Invalid date format").refine(val => {
-      if (!val) return true;
-      const today = startOfDay(new Date());
-      const selected = startOfDay(new Date(val));
-      return selected >= today;
-    }, "nextOccurrenceDate must be today or in the future").optional()
+    }, "Invalid date format").optional()
   }).refine(data => Object.keys(data).length > 0, "At least one field must be provided for update")
 });
 

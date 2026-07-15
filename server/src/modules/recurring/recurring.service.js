@@ -45,6 +45,7 @@ const createRecurring = async (userId, data) => {
   const commitment = await prisma.recurringCommitment.create({
     data: {
       ...data,
+      nextOccurrenceDate: new Date(data.nextOccurrenceDate),
       userId,
       detectionSource: 'MANUAL',
       status: 'CONFIRMED'
@@ -76,7 +77,8 @@ const updateRecurring = async (userId, id, data) => {
   const commitment = await prisma.recurringCommitment.update({
     where: { id },
     data: {
-      ...data
+      ...data,
+      ...(data.nextOccurrenceDate && { nextOccurrenceDate: new Date(data.nextOccurrenceDate) })
       // We intentionally do not touch 'status' here
     }
   });
