@@ -2,8 +2,9 @@ const prisma = require('../../config/db');
 const AppError = require('../../common/errors/AppError');
 const errorCodes = require('../../common/errors/errorCodes');
 const { encodeCursor, decodeCursor } = require('../../common/utils/pagination');
-
 const { enqueueForecastRecompute } = require('../../jobs/queues/forecast.queue');
+const { checkBudgetAlerts } = require('../budgets/budget.service');
+const logger = require('../../config/logger');
 
 const validateAccountAndCategory = async (userId, accountId, categoryId, transactionType) => {
   if (accountId) {
@@ -57,6 +58,9 @@ const createTransaction = async (userId, data) => {
   });
 
   enqueueForecastRecompute(userId);
+  if (data.type === 'EXPENSE' && data.categoryId) {
+    checkBudgetAlerts(userId, data.categoryId).catch(err => logger.error('Budget alert error', err));
+  }
   return transaction;
 };
 
@@ -180,6 +184,9 @@ const updateTransaction = async (userId, id, data) => {
   });
 
   enqueueForecastRecompute(userId);
+  if (transaction.type === 'EXPENSE' && transaction.categoryId) {
+    checkBudgetAlerts(userId, transaction.categoryId).catch(err => logger.error('Budget alert error', err));
+  }
   return transaction;
 };
 

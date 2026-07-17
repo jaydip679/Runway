@@ -17,6 +17,11 @@ import ForecastPage from '../features/forecast/ForecastPage';
 import AlertsPage from '../features/alerts/AlertsPage';
 import AiAssistantPage from '../features/ai/AiAssistantPage';
 import DashboardPage from '../features/dashboard/DashboardPage';
+import BudgetsPage from '../features/budgets/BudgetsPage';
+import GoalsPage from '../features/goals/GoalsPage';
+import ReportsPage from '../features/reports/ReportsPage';
+import ExactDatePage from '../features/forecast/ExactDatePage';
+import ScenariosPage from '../features/scenarios/ScenariosPage';
 import AdminUsersPage from '../features/admin/AdminUsersPage';
 import AdminCsvImportsPage from '../features/admin/AdminCsvImportsPage';
 import AdminMetricsPage from '../features/admin/AdminMetricsPage';
@@ -60,6 +65,11 @@ const AppRoutes = () => {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="recurring" element={<RecurringPage />} />
         <Route path="forecast" element={<ForecastPage />} />
+        <Route path="budgets" element={<BudgetsPage />} />
+        <Route path="goals" element={<GoalsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="date-evaluation" element={<ExactDatePage />} />
+        <Route path="scenarios" element={<ScenariosPage />} />
         <Route path="alerts" element={<AlertsPage />} />
         <Route path="ai" element={<AiAssistantPage />} />
         

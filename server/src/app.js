@@ -26,6 +26,10 @@ const alertsRoutes = require('./modules/alerts/alerts.routes');
 const aiRoutes = require('./modules/ai/ai.routes');
 const graphqlRoutes = require('./graphql/graphql.routes');
 const adminRoutes = require('./modules/admin/admin.routes');
+const budgetRoutes = require('./modules/budgets/budget.routes');
+const goalRoutes = require('./modules/goals/goal.routes');
+const analyticsRoutes = require('./modules/analytics/analytics.routes');
+const exportRoutes = require('./modules/export/export.routes');
 
 const app = express();
 
@@ -65,6 +69,10 @@ app.use('/api/v1/alerts', alertsRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/graphql', graphqlRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/budgets', budgetRoutes);
+app.use('/api/v1/goals', goalRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/export', exportRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

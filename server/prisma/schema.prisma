@@ -32,6 +32,10 @@ model User {
   forecastSnapshots    ForecastSnapshot[]
   alerts               Alert[]
   aiQueryLogs          AiQueryLog[]
+  budgets              Budget[]
+  savingsGoals         SavingsGoal[]
+  recurringOccurrences RecurringOccurrence[]
+  exportDocuments      ExportDocument[]
 
   @@index([email])
 }
@@ -93,6 +97,7 @@ model Account {
   transactions          Transaction[]
   csvImportJobs         CsvImportJob[]
   recurringCommitments  RecurringCommitment[]
+  savingsGoalAccounts   SavingsGoalAccount[]
 
   @@index([userId, deletedAt])
 }
@@ -116,6 +121,7 @@ model Category {
   updatedAt DateTime      @updatedAt
 
   transactions Transaction[]
+  budgets      Budget[]
 
   @@unique([userId, name, type])
 }
@@ -142,6 +148,8 @@ model Transaction {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   deletedAt         DateTime?
+
+  recurringOccurrence RecurringOccurrence?
 
   @@index([userId, transactionDate])
   @@index([accountId, transactionDate])
@@ -204,6 +212,8 @@ model RecurringCommitment {
   updatedAt           DateTime          @updatedAt
   deletedAt           DateTime?
 
+  occurrences         RecurringOccurrence[]
+
   @@index([userId, status])
   @@index([userId, nextOccurrenceDate])
   @@index([groupSignature])
@@ -226,6 +236,31 @@ enum RecurringStatus {
   CONFIRMED 
   DISMISSED 
   ARCHIVED 
+}
+
+model RecurringOccurrence {
+  id              String           @id @default(uuid())
+  commitmentId    String
+  commitment      RecurringCommitment @relation(fields: [commitmentId], references: [id])
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  expectedDate    DateTime         @db.Date
+  amount          Decimal          @db.Decimal(14, 2)
+  status          OccurrenceStatus @default(PENDING)
+  transactionId   String?          @unique
+  transaction     Transaction?     @relation(fields: [transactionId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([commitmentId, expectedDate])
+  @@index([userId, status])
+}
+
+enum OccurrenceStatus {
+  PENDING
+  COMPLETED
+  SKIPPED
+  MISSED
 }
 
 model ForecastSnapshot {
@@ -267,6 +302,7 @@ enum AlertType {
   LOW_BALANCE_PREDICTED
   RECURRING_RENEWAL_UPCOMING
   RECURRING_DETECTED_PENDING_CONFIRMATION
+  EXPORT_READY
 }
 
 enum AlertSeverity {
@@ -285,4 +321,59 @@ model AiQueryLog {
   createdAt  DateTime  @default(now())
 
   @@index([userId, createdAt])
+}
+
+model Budget {
+  id         String     @id @default(uuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  categoryId String
+  category   Category   @relation(fields: [categoryId], references: [id])
+  amount     Decimal    @db.Decimal(14, 2)
+  period     Period     @default(MONTHLY)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([userId, categoryId, period])
+}
+
+enum Period {
+  MONTHLY
+  YEARLY
+}
+
+model SavingsGoal {
+  id            String               @id @default(uuid())
+  userId        String
+  user          User                 @relation(fields: [userId], references: [id])
+  name          String
+  targetAmount  Decimal              @db.Decimal(14, 2)
+  targetDate    DateTime             @db.Date
+  currentAmount Decimal              @default(0) @db.Decimal(14, 2)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  linkedAccounts SavingsGoalAccount[]
+
+  @@index([userId, targetDate])
+}
+
+model SavingsGoalAccount {
+  goalId    String
+  goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([goalId, accountId])
+}
+
+model ExportDocument {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  cloudPublicId   String
+  secureUrl       String
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
 }
