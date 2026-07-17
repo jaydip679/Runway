@@ -6,7 +6,8 @@ import AlertsBell from './AlertsBell';
 import { 
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
-  ListOrdered, FileText, BarChart2
+  ListOrdered, FileText, BarChart2, Target, CalendarSearch,
+  Wand2, Repeat
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -20,6 +21,12 @@ const MainLayout = () => {
     { name: 'Accounts', path: '/dashboard/accounts', icon: CreditCard },
     { name: 'Categories', path: '/dashboard/categories', icon: ListOrdered },
     { name: 'Transactions', path: '/dashboard/transactions', icon: PieChart },
+    { name: 'Budgets', path: '/dashboard/budgets', icon: PieChart },
+    { name: 'Goals', path: '/dashboard/goals', icon: Target },
+    { name: 'Reports', path: '/dashboard/reports', icon: BarChart2 },
+    { name: 'Date Evaluation', path: '/dashboard/date-evaluation', icon: CalendarSearch },
+    { name: 'Scenario Planning', path: '/dashboard/scenarios', icon: Wand2 },
+    { name: 'Recurring', path: '/dashboard/recurring', icon: Repeat },
   ];
 
   const adminItems = user?.role === 'ADMIN' ? [

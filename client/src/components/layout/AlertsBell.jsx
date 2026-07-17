@@ -13,6 +13,11 @@ const markAsRead = async (id) => {
   return res.data;
 };
 
+const getExportUrl = async (documentId) => {
+  const res = await axios.get(`/api/v1/export/download/${documentId}`, { withCredentials: true });
+  return res.data.data.secureUrl;
+};
+
 const AlertsBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -43,9 +48,19 @@ const AlertsBell = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleAlertClick = (alert) => {
+  const handleAlertClick = async (alert) => {
     markReadMutation.mutate(alert.id);
     setIsOpen(false);
+
+    if (alert.type === 'EXPORT_READY' && alert.metadata?.documentId) {
+      try {
+        const url = await getExportUrl(alert.metadata.documentId);
+        window.open(url, '_blank');
+      } catch (err) {
+        console.error('Failed to get export URL', err);
+      }
+      return;
+    }
 
     // Route based on related entity
     if (alert.relatedEntityType === 'RECURRING_COMMITMENT') {

@@ -6,6 +6,7 @@ const { csvImportWorker } = require('./jobs/queues/csvImport.queue');
 const { forecastWorker } = require('./jobs/queues/forecast.queue');
 const { recurringDetectionWorker } = require('./jobs/queues/recurringDetection.queue');
 const { notificationWorker } = require('./jobs/queues/notification.queue');
+const exportWorker = require('./jobs/queues/export.worker');
 const { initScheduler } = require('./jobs/scheduler');
 
 logger.info('Runway background worker started');
@@ -13,6 +14,7 @@ logger.info('CSV Import worker initialized');
 logger.info('Forecast worker initialized');
 logger.info('Recurring Detection worker initialized');
 logger.info('Notification worker initialized');
+logger.info('Export worker initialized');
 initScheduler();
 logger.info('Scheduler initialized for recurring cron jobs');
 
@@ -28,8 +30,17 @@ const shutdown = async () => {
   await recurringDetectionWorker.close();
   logger.info('Recurring Detection worker closed');
   
-  await notificationWorker.close();
-  logger.info('Notification worker closed');
+  try {
+    await notificationWorker.close();
+  } catch (err) {
+    logger.error('Error closing notification worker', err);
+  }
+  
+  try {
+    await exportWorker.close();
+  } catch (err) {
+    logger.error('Error closing export worker', err);
+  }
   
   try {
     await prisma.$disconnect();
