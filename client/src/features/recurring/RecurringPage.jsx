@@ -4,6 +4,7 @@ import { getRecurringList, confirmRecurring, dismissRecurring, deleteRecurring }
 import RecurringStatusTabs from './RecurringStatusTabs';
 import RecurringForm from './RecurringForm';
 import RecurringCard from './RecurringCard';
+import PendingConfirmationsWidget from './components/PendingConfirmationsWidget';
 import Button from '../../components/ui/Button';
 import { Plus, Repeat, AlertCircle } from 'lucide-react';
 
@@ -126,6 +127,10 @@ const RecurringPage = () => {
         <Button onClick={handleOpenCreate} className="shrink-0 w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" /> Add Manual
         </Button>
+      </div>
+
+      <div className="mb-8">
+        <PendingConfirmationsWidget />
       </div>
 
       <div className="mb-6">

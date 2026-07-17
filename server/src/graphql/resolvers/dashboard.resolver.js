@@ -1,11 +1,14 @@
 const accountsService = require('../../modules/accounts/account.service');
 const forecastService = require('../../modules/forecast/forecast.service');
-const recurringService = require('../../modules/recurring/recurring.service');
+const { listRecurring, syncOccurrences } = require('../../modules/recurring/recurring.service');
 const alertsService = require('../../modules/alerts/alerts.service');
 
 const dashboardResolver = {
   dashboard: async (args, req) => {
     const userId = req.user.id;
+
+    // Sync occurrences first
+    await syncOccurrences(userId);
 
     // Accounts
     const accountsResult = await accountsService.getAccounts(userId, 1, 100);

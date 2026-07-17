@@ -16,4 +16,7 @@ router.delete('/:id', recurringController.deleteRecurring);
 router.post('/:id/confirm', validate(confirmDismissSchema), recurringController.confirmRecurring);
 router.post('/:id/dismiss', validate(confirmDismissSchema), recurringController.dismissRecurring);
 
+router.get('/occurrences/pending', recurringController.getPendingOccurrences);
+router.post('/occurrences/:id/resolve', recurringController.resolveOccurrence);
+
 module.exports = router;
