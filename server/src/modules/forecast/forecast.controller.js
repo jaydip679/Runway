@@ -31,7 +31,34 @@ const getForecastSummary = catchAsync(async (req, res) => {
   });
 });
 
+const evaluateDate = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const { date } = req.query;
+  if (!date) {
+    return res.status(400).json({ success: false, error: { message: 'Date is required' } });
+  }
+  const result = await forecastService.evaluateExactDate(userId, date);
+  return sendSuccess(res, result);
+});
+
+const getInsights = catchAsync(async (req, res) => {
+  const insights = await forecastService.getForecastInsights(req.user.id);
+  return sendSuccess(res, { insights });
+});
+
+const simulateScenario = catchAsync(async (req, res) => {
+  const { events } = req.body;
+  if (!Array.isArray(events)) {
+    return res.status(400).json({ success: false, error: { message: 'events must be an array' } });
+  }
+  const result = await forecastService.simulateScenario(req.user.id, events);
+  return sendSuccess(res, result);
+});
+
 module.exports = {
   getForecast,
-  getForecastSummary
+  getForecastSummary,
+  evaluateDate,
+  getInsights,
+  simulateScenario
 };

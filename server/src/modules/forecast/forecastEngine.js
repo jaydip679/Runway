@@ -8,9 +8,10 @@ const { addDays, isSameDay } = require('date-fns');
  * @param {Array} params.confirmedRecurring - Array of confirmed recurring commitments
  * @param {Decimal} params.discretionaryDaily - Average daily discretionary spend (always positive)
  * @param {number} [params.windowDays=60] - Number of days to forecast
+ * @param {Array} [params.oneTimeEvents=[]] - Array of { date, amount, type } for scenario planning
  * @returns {Array} Array of ForecastDay objects { forecastDate, projectedBalance, confidenceLevel }
  */
-function computeForecast({ dayZeroBalance, confirmedRecurring, discretionaryDaily, windowDays = 60 }) {
+function computeForecast({ dayZeroBalance, confirmedRecurring, discretionaryDaily, windowDays = 60, oneTimeEvents = [] }) {
   const days = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -34,6 +35,18 @@ function computeForecast({ dayZeroBalance, confirmedRecurring, discretionaryDail
         if (commitment.type === 'INCOME') {
           runningBalance = runningBalance.plus(amt);
         } else if (commitment.type === 'EXPENSE') {
+          runningBalance = runningBalance.minus(amt);
+        }
+      }
+    }
+
+    // Evaluate scenario one-time events for this day
+    for (const event of oneTimeEvents) {
+      if (isSameDay(currentDay, new Date(event.date))) {
+        const amt = new Decimal(event.amount);
+        if (event.type === 'ONE_TIME_INCOME') {
+          runningBalance = runningBalance.plus(amt);
+        } else if (event.type === 'ONE_TIME_EXPENSE') {
           runningBalance = runningBalance.minus(amt);
         }
       }

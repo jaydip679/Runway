@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import ForecastChart from './ForecastChart';
 import ForecastSummaryCards from './ForecastSummaryCards';
+import ForecastInsightsPanel from './components/ForecastInsightsPanel';
 
 const fetchForecast = async () => {
   const res = await axios.get('/api/v1/forecast', { withCredentials: true });
@@ -54,7 +55,14 @@ const ForecastPage = () => {
 
       <ForecastSummaryCards summary={summaryData} isLoading={isLoadingSummary} />
 
-      <ForecastChart data={forecastData} isLoading={isLoadingForecast} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <ForecastChart data={forecastData} isLoading={isLoadingForecast} />
+        </div>
+        <div className="lg:col-span-1 h-full">
+          <ForecastInsightsPanel compact={false} />
+        </div>
+      </div>
       
       {/* Information Panel */}
       <div className="mt-8 bg-brand-50 dark:bg-brand-900/10 border border-brand-100 dark:border-brand-900/30 p-6 rounded-2xl">

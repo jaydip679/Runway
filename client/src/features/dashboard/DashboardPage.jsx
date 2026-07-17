@@ -5,6 +5,8 @@ import ForecastChart from '../forecast/ForecastChart';
 import ForecastSummaryCards from '../forecast/ForecastSummaryCards';
 import AccountCard from '../accounts/AccountCard';
 import RecurringCard from '../recurring/RecurringCard';
+import ForecastInsightsPanel from '../forecast/components/ForecastInsightsPanel';
+import PendingConfirmationsWidget from '../recurring/components/PendingConfirmationsWidget';
 import { Link } from 'react-router-dom';
 
 const fetchDashboard = async () => {
@@ -143,9 +145,13 @@ const DashboardPage = () => {
         )}
       </div>
 
+      <div className="mb-8 space-y-6">
+        <PendingConfirmationsWidget />
+        <ForecastInsightsPanel compact={true} />
+      </div>
+
       {/* Two Column Layout for Accounts & Recurring */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
         {/* Accounts Strip */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -154,7 +160,6 @@ const DashboardPage = () => {
             </h2>
             <Link to="/dashboard/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
-          
           {accounts?.length > 0 ? (
             <div className="space-y-3">
               {accounts.slice(0, 3).map(account => (
