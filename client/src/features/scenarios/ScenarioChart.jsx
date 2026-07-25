@@ -23,7 +23,7 @@ const CustomTooltip = ({ active, payload, label }) => {
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-gray-400"></div> Current
               </span>
-              <span className="font-semibold text-gray-900 dark:text-white">${baseline.value.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">₹{baseline.value.toFixed(2)}</span>
             </div>
           )}
           {scenario && (
@@ -31,13 +31,13 @@ const CustomTooltip = ({ active, payload, label }) => {
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-brand-500"></div> Scenario
               </span>
-              <span className="font-semibold text-brand-600 dark:text-brand-400">${scenario.value.toFixed(2)}</span>
+              <span className="font-semibold text-brand-600 dark:text-brand-400">₹{scenario.value.toFixed(2)}</span>
             </div>
           )}
           {difference !== 0 && (
             <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-6">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Impact</span>
-              <span className={`text-sm font-bold ${difference > 0 ? 'text-finance-500' : 'text-red-500'}`}>
+              <span className={`text-sm font-bold ₹{difference > 0 ? 'text-finance-500' : 'text-red-500'}`}>
                 {difference > 0 ? '+' : ''}${difference.toFixed(2)}
               </span>
             </div>
@@ -96,7 +96,7 @@ const ScenarioChart = ({ data }) => {
             axisLine={false}
             tickLine={false}
             tick={{ fill: '#9ca3af', fontSize: 12 }}
-            tickFormatter={(val) => `$${val.toLocaleString()}`}
+            tickFormatter={(val) => `₹${val.toLocaleString()}`}
           />
           <Tooltip content={<CustomTooltip />} />
           

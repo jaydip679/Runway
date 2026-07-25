@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { Calendar, TrendingUp, TrendingDown, Info, ShieldCheck, ShieldAlert, Shield } from 'lucide-react';
 import Button from '../../components/ui/Button';
 
 const fetchExactDate = async (date) => {
-  const { data } = await axios.get('/api/v1/forecast/evaluate-date', {
+  const { data } = await apiClient.get('/forecast/evaluate-date', {
     params: { date }
   });
   return data.data;
@@ -78,7 +78,7 @@ const ExactDatePage = () => {
                 <ConfidenceBadge level={data.confidenceLevel} />
               </div>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Expected Balance</p>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">${data.projectedBalance.toFixed(2)}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">₹{data.projectedBalance.toFixed(2)}</h2>
             </div>
             
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -86,7 +86,7 @@ const ExactDatePage = () => {
                 <TrendingUp className="w-4 h-4 text-finance-500" />
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Expected Income</p>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">${data.expectedIncome.toFixed(2)}</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">₹{data.expectedIncome.toFixed(2)}</h2>
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -94,7 +94,7 @@ const ExactDatePage = () => {
                 <TrendingDown className="w-4 h-4 text-brand-500" />
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Expected Expenses</p>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">${data.expectedExpense.toFixed(2)}</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">₹{data.expectedExpense.toFixed(2)}</h2>
             </div>
           </div>
 
@@ -117,7 +117,7 @@ const ExactDatePage = () => {
                       <p className="font-medium text-gray-900 dark:text-white">{c.name}</p>
                       <p className="text-xs text-gray-500 capitalize">{c.type.toLowerCase()}</p>
                     </div>
-                    <p className={`font-semibold ${c.type === 'INCOME' ? 'text-finance-600 dark:text-finance-400' : 'text-gray-900 dark:text-white'}`}>
+                    <p className={`font-semibold ₹{c.type === 'INCOME' ? 'text-finance-600 dark:text-finance-400' : 'text-gray-900 dark:text-white'}`}>
                       {c.type === 'INCOME' ? '+' : '-'}${c.amount.toFixed(2)}
                     </p>
                   </div>

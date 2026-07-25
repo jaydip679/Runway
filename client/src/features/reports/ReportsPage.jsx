@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { BarChart3, PieChart, Download, FileText } from 'lucide-react';
 import CashFlowChart from './components/CashFlowChart';
 import CategoryBreakdown from './components/CategoryBreakdown';
 import Button from '../../components/ui/Button';
 
 const fetchAccounts = async () => {
-  const { data } = await axios.get('/api/v1/accounts', { withCredentials: true });
+  const { data } = await apiClient.get('/accounts', { withCredentials: true });
   return data.data.accounts;
 };
 
 const requestExport = async (filters) => {
-  const { data } = await axios.post('/api/v1/export/pdf', { filters }, { withCredentials: true });
+  const { data } = await apiClient.post('/export/pdf', { filters }, { withCredentials: true });
   return data;
 };
 

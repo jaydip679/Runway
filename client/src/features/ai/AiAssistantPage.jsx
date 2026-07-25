@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { useMutation } from '@tanstack/react-query';
 import Button from '../../components/ui/Button';
 
 const askAiAffordability = async (question) => {
-  const res = await axios.post('/api/v1/ai/affordability', { question }, { withCredentials: true });
+  const res = await apiClient.post('/ai/affordability', { question }, { withCredentials: true });
   return res.data.data;
 };
 
@@ -32,7 +32,7 @@ const AiAssistantPage = () => {
         setResetAt(err.response.data?.error?.details?.resetAt);
         setMessages(prev => [...prev, {
           type: 'error',
-          text: `Daily AI quota exceeded. Please try again after ${new Date(err.response.data?.error?.details?.resetAt).toLocaleString()}.`
+          text: `Daily AI quota exceeded. Please try again after ₹{new Date(err.response.data?.error?.details?.resetAt).toLocaleString()}.`
         }]);
       } else {
         setMessages(prev => [...prev, {
@@ -85,14 +85,14 @@ const AiAssistantPage = () => {
               </svg>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">How can I help?</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
-                Try asking: "Can I afford a $500 vacation next month?" or "Will I have enough for rent on the 1st?"
+                Try asking: "Can I afford a ₹500 vacation next month?" or "Will I have enough for rent on the 1st?"
               </p>
             </div>
           ) : (
             messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={idx} className={`flex ₹{msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div 
-                  className={`max-w-[85%] rounded-2xl p-4 ${
+                  className={`max-w-[85%] rounded-2xl p-4 ₹{
                     msg.type === 'user' 
                       ? 'bg-brand-600 text-white rounded-tr-sm' 
                       : msg.type === 'error'
@@ -112,7 +112,7 @@ const AiAssistantPage = () => {
                     <div className="mt-3 flex items-center justify-between">
                       {getConfidenceBadge(msg.confidence)}
                       {msg.isMock !== undefined && (
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${msg.isMock ? 'bg-amber-900/50 text-amber-400 border border-amber-500/30' : 'bg-emerald-900/50 text-emerald-400 border border-emerald-500/30'}`} title={msg.isMock ? "Using fallback mock data because GEMINI_API_KEY is not set." : "Connected to Google Gemini API"}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ₹{msg.isMock ? 'bg-amber-900/50 text-amber-400 border border-amber-500/30' : 'bg-emerald-900/50 text-emerald-400 border border-emerald-500/30'}`} title={msg.isMock ? "Using fallback mock data because GEMINI_API_KEY is not set." : "Connected to Google Gemini API"}>
                           {msg.isMock ? 'MOCK MODE' : 'LIVE API'}
                         </span>
                       )}

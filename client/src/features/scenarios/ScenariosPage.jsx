@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { Sparkles, Plus, Trash2, ArrowRight } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ScenarioChart from './ScenarioChart';
 
 const simulateScenarioApi = async (events) => {
-  const { data } = await axios.post('/api/v1/forecast/scenario', { events }, { withCredentials: true });
+  const { data } = await apiClient.post('/forecast/scenario', { events }, { withCredentials: true });
   return data.data; // { baseline, scenario }
 };
 
@@ -84,10 +84,10 @@ const ScenariosPage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         
         {/* Left Pane: Builder */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4">Simulation Events</h3>
             
@@ -124,7 +124,7 @@ const ScenariosPage = () => {
                         </div>
                         <div className="flex-1">
                           <label className="block text-xs font-medium text-gray-500 mb-1">{event.type === 'NEW_RECURRING' ? 'Start Date' : 'Date'}</label>
-                          <input type="date" value={event.date} onChange={(e) => handleChange(event.id, 'date', e.target.value)} className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg" />
+                          <input type="date" min={new Date().toISOString().split('T')[0]} value={event.date} onChange={(e) => handleChange(event.id, 'date', e.target.value)} className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg" />
                         </div>
                       </div>
                       
@@ -157,7 +157,7 @@ const ScenariosPage = () => {
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Add Event</p>
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => handleAddEvent('ONE_TIME_EXPENSE')} className="flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium transition-colors">
-                  <Plus className="w-4 h-4 text-brand-500" /> One-Time Exp.
+                  <Plus className="w-4 h-4 text-brand-500" /> One-Time Expense
                 </button>
                 <button onClick={() => handleAddEvent('NEW_RECURRING')} className="flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium transition-colors">
                   <Plus className="w-4 h-4 text-brand-500" /> Subscription
@@ -174,7 +174,7 @@ const ScenariosPage = () => {
         </div>
 
         {/* Right Pane: Chart & Results */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           {chartData ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {summary && (

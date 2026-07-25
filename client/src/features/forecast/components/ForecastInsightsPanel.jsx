@@ -1,11 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../../api/apiClient';
 import { AlertCircle, ArrowDownCircle, AlertTriangle, ArrowRight, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const fetchInsights = async () => {
-  const { data } = await axios.get('/api/v1/forecast/insights');
+  const { data } = await apiClient.get('/forecast/insights');
   return data.data.insights;
 };
 

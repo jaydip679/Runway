@@ -1,17 +1,17 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import ForecastChart from './ForecastChart';
 import ForecastSummaryCards from './ForecastSummaryCards';
 import ForecastInsightsPanel from './components/ForecastInsightsPanel';
 
 const fetchForecast = async () => {
-  const res = await axios.get('/api/v1/forecast', { withCredentials: true });
+  const res = await apiClient.get('/forecast', { withCredentials: true });
   return res.data.data;
 };
 
 const fetchForecastSummary = async () => {
-  const res = await axios.get('/api/v1/forecast/summary', { withCredentials: true });
+  const res = await apiClient.get('/forecast/summary', { withCredentials: true });
   return res.data.data;
 };
 
