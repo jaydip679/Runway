@@ -100,7 +100,13 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, isSubmitting 
           </div>
 
           <div className="flex-1">
-            <Input label="Date" type="date" {...register('transactionDate')} error={errors.transactionDate?.message} />
+            <Input 
+              label="Date" 
+              type="date" 
+              max={new Date().toISOString().split('T')[0]} 
+              {...register('transactionDate')} 
+              error={errors.transactionDate?.message} 
+            />
           </div>
         </div>
 

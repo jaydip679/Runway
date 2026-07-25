@@ -1,15 +1,15 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../../api/apiClient';
 import { Check, X, Clock, AlertCircle } from 'lucide-react';
 
 const fetchPending = async () => {
-  const { data } = await axios.get('/api/v1/recurring/occurrences/pending', { withCredentials: true });
+  const { data } = await apiClient.get('/recurring/occurrences/pending', { withCredentials: true });
   return data.data;
 };
 
 const resolveOccurrence = async ({ id, action }) => {
-  const { data } = await axios.post(`/api/v1/recurring/occurrences/${id}/resolve`, { action }, { withCredentials: true });
+  const { data } = await apiClient.post(`/api/v1/recurring/occurrences/${id}/resolve`, { action }, { withCredentials: true });
   return data.data;
 };
 

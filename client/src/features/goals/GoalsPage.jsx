@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { Target, Plus, Edit2, Trash2, Calendar, TrendingUp } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import GoalModal from './GoalModal';
 import { format } from 'date-fns';
 
 const fetchGoals = async () => {
-  const { data } = await axios.get('/api/v1/goals');
+  const { data } = await apiClient.get('/goals');
   return data.data.goals;
 };
 
 const deleteGoal = async (id) => {
-  await axios.delete(`/api/v1/goals/${id}`);
+  await apiClient.delete(`/api/v1/goals/${id}`);
 };
 
 const GoalsPage = () => {
@@ -99,11 +99,11 @@ const GoalsPage = () => {
                   <div className="flex justify-between items-end">
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Saved</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">${goal.currentAmount.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">₹{goal.currentAmount.toFixed(2)}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Target</p>
-                      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">${goal.targetAmount.toFixed(2)}</p>
+                      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">₹{goal.targetAmount.toFixed(2)}</p>
                     </div>
                   </div>
                   
@@ -115,10 +115,10 @@ const GoalsPage = () => {
                   </div>
                 </div>
                 
-                <div className={`p-4 rounded-lg flex items-start gap-3 ${goal.isAchievable ? 'bg-finance-50 dark:bg-finance-900/20 text-finance-800 dark:text-finance-300' : 'bg-brand-50 dark:bg-brand-900/20 text-brand-800 dark:text-brand-300'}`}>
-                  <TrendingUp className={`w-5 h-5 shrink-0 mt-0.5 ${goal.isAchievable ? 'text-finance-600 dark:text-finance-400' : 'text-brand-600 dark:text-brand-400'}`} />
+                <div className={`p-4 rounded-lg flex items-start gap-3 ₹{goal.isAchievable ? 'bg-finance-50 dark:bg-finance-900/20 text-finance-800 dark:text-finance-300' : 'bg-brand-50 dark:bg-brand-900/20 text-brand-800 dark:text-brand-300'}`}>
+                  <TrendingUp className={`w-5 h-5 shrink-0 mt-0.5 ₹{goal.isAchievable ? 'text-finance-600 dark:text-finance-400' : 'text-brand-600 dark:text-brand-400'}`} />
                   <div>
-                    <h4 className={`text-sm font-semibold mb-1 ${goal.isAchievable ? 'text-finance-700 dark:text-finance-400' : 'text-brand-700 dark:text-brand-400'}`}>
+                    <h4 className={`text-sm font-semibold mb-1 ₹{goal.isAchievable ? 'text-finance-700 dark:text-finance-400' : 'text-brand-700 dark:text-brand-400'}`}>
                       {goal.isAchievable ? 'On Track!' : 'Action Needed'}
                     </h4>
                     <p className="text-sm opacity-90 leading-relaxed">

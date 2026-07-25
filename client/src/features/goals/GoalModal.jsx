@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { X } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -8,15 +8,15 @@ import Button from '../../components/ui/Button';
 const saveGoal = async (data) => {
   if (data.id) {
     const { id, ...rest } = data;
-    const res = await axios.put(`/api/v1/goals/${id}`, rest);
+    const res = await apiClient.put(`/api/v1/goals/${id}`, rest);
     return res.data.data.goal;
   }
-  const res = await axios.post('/api/v1/goals', data);
+  const res = await apiClient.post('/goals', data);
   return res.data.data.goal;
 };
 
 const fetchAccounts = async () => {
-  const { data } = await axios.get('/api/v1/accounts');
+  const { data } = await apiClient.get('/accounts');
   return data.data.accounts;
 };
 
@@ -77,7 +77,8 @@ const GoalModal = ({ isOpen, onClose, goal }) => {
     mutation.mutate({
       ...formData,
       targetAmount: parseFloat(formData.targetAmount),
-      currentAmount: parseFloat(formData.currentAmount)
+      currentAmount: parseFloat(formData.currentAmount),
+      targetDate: new Date(formData.targetDate).toISOString()
     });
   };
 
@@ -127,7 +128,7 @@ const GoalModal = ({ isOpen, onClose, goal }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Target Amount ($)"
+              label="Target Amount (₹)"
               type="number"
               step="0.01"
               min="1"
@@ -139,6 +140,7 @@ const GoalModal = ({ isOpen, onClose, goal }) => {
             <Input
               label="Target Date"
               type="date"
+              min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}
               value={formData.targetDate}
               onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
               required
@@ -159,7 +161,7 @@ const GoalModal = ({ isOpen, onClose, goal }) => {
                   />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">{acc.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Balance: ${Number(acc.currentBalance).toFixed(2)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Balance: ₹{Number(acc.currentBalance).toFixed(2)}</p>
                   </div>
                 </label>
               ))}
@@ -169,7 +171,7 @@ const GoalModal = ({ isOpen, onClose, goal }) => {
           {!hasLinkedAccounts && (
             <div className="pt-2">
               <Input
-                label="Current Saved Amount ($) (Manual)"
+                label="Current Saved Amount (₹) (Manual)"
                 type="number"
                 step="0.01"
                 min="0"

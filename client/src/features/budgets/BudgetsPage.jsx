@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { Plus, Edit2, Trash2, PieChart } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import BudgetModal from './BudgetModal';
 
 const fetchBudgets = async () => {
-  const { data } = await axios.get('/api/v1/budgets');
+  const { data } = await apiClient.get('/budgets');
   return data.data.budgets;
 };
 
 const deleteBudget = async (id) => {
-  await axios.delete(`/api/v1/budgets/${id}`);
+  await apiClient.delete(`/api/v1/budgets/${id}`);
 };
 
 const BudgetsPage = () => {
@@ -96,8 +96,8 @@ const BudgetsPage = () => {
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Spent: <span className="font-medium text-gray-900 dark:text-white">${budget.amountSpent.toFixed(2)}</span></span>
-                  <span className="text-gray-600 dark:text-gray-400">Limit: <span className="font-medium text-gray-900 dark:text-white">${budget.amount.toFixed(2)}</span></span>
+                  <span className="text-gray-600 dark:text-gray-400">Spent: <span className="font-medium text-gray-900 dark:text-white">₹{budget.amountSpent.toFixed(2)}</span></span>
+                  <span className="text-gray-600 dark:text-gray-400">Limit: <span className="font-medium text-gray-900 dark:text-white">₹{budget.amount.toFixed(2)}</span></span>
                 </div>
                 
                 <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -109,9 +109,9 @@ const BudgetsPage = () => {
                 
                 <div className="text-right text-xs font-medium">
                   {budget.isExceeded ? (
-                    <span className="text-red-600 dark:text-red-400">Exceeded by ${(budget.amountSpent - budget.amount).toFixed(2)}</span>
+                    <span className="text-red-600 dark:text-red-400">Exceeded by ₹{(budget.amountSpent - budget.amount).toFixed(2)}</span>
                   ) : (
-                    <span className="text-gray-500 dark:text-gray-400">${budget.remainingAmount.toFixed(2)} remaining</span>
+                    <span className="text-gray-500 dark:text-gray-400">₹{budget.remainingAmount.toFixed(2)} remaining</span>
                   )}
                 </div>
               </div>

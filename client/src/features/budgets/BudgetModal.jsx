@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { X } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -8,16 +8,16 @@ import Button from '../../components/ui/Button';
 const saveBudget = async (data) => {
   if (data.id) {
     const { id, ...rest } = data;
-    const res = await axios.put(`/api/v1/budgets/${id}`, rest);
+    const res = await apiClient.put(`/api/v1/budgets/${id}`, rest);
     return res.data.data.budget;
   }
-  const res = await axios.post('/api/v1/budgets', data);
+  const res = await apiClient.post('/budgets', data);
   return res.data.data.budget;
 };
 
 const fetchCategories = async () => {
-  const { data } = await axios.get('/api/v1/categories?type=EXPENSE');
-  return data.data.categories;
+  const { data } = await apiClient.get('/categories?type=EXPENSE');
+  return data.data;
 };
 
 const BudgetModal = ({ isOpen, onClose, budget }) => {
@@ -113,7 +113,7 @@ const BudgetModal = ({ isOpen, onClose, budget }) => {
           </div>
 
           <Input
-            label="Monthly Limit ($)"
+            label="Monthly Limit (₹)"
             type="number"
             step="0.01"
             min="1"

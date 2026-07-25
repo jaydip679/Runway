@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { useQuery } from '@tanstack/react-query';
 import ForecastChart from '../forecast/ForecastChart';
 import ForecastSummaryCards from '../forecast/ForecastSummaryCards';
@@ -51,7 +51,7 @@ const fetchDashboard = async () => {
       }
     }
   `;
-  const res = await axios.post('/api/v1/graphql', { query }, { withCredentials: true });
+  const res = await apiClient.post('/graphql', { query }, { withCredentials: true });
   if (res.data.errors) {
     throw new Error(res.data.errors[0].message);
   }
