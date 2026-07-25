@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 
 const fetchCsvImports = async ({ queryKey }) => {
   const [_key, { page, status }] = queryKey;
-  const { data } = await axios.get('/api/v1/admin/csv-imports', { params: { page, limit: 15, status } });
+  const { data } = await apiClient.get('/admin/csv-imports', { params: { page, limit: 15, status } });
   return data.data;
 };
 

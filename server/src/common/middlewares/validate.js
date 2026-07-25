@@ -13,7 +13,8 @@ const validate = (schema) => (req, res, next) => {
     next();
   } catch (err) {
     const details = err.errors.map(e => ({ field: e.path.join('.'), message: e.message }));
-    next(new AppError('Validation failed', 400, 'VALIDATION_ERROR', details));
+    const message = err.errors.map(e => e.message).join(', ');
+    next(new AppError(message, 400, 'VALIDATION_ERROR', details));
   }
 };
 

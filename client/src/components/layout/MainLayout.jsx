@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
   ListOrdered, FileText, BarChart2, Target, CalendarSearch,
-  Wand2, Repeat
+  Wand2, Repeat, User
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -117,10 +117,10 @@ const MainLayout = () => {
           <Link 
             to="/dashboard/profile" 
             className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            title={!isSidebarOpen ? 'Settings' : ''}
+            title={!isSidebarOpen ? 'Profile' : ''}
           >
-            <Settings className="w-5 h-5 shrink-0" />
-            <span className={`${!isSidebarOpen && 'hidden'} font-medium`}>Settings</span>
+            <User className="w-5 h-5 shrink-0" />
+            <span className={`${!isSidebarOpen && 'hidden'} font-medium`}>Profile</span>
           </Link>
           <button 
             onClick={logout} 
@@ -153,14 +153,17 @@ const MainLayout = () => {
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <AlertsBell />
-            <div className="hidden md:flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
+            <Link 
+              to="/dashboard/profile" 
+              className="hidden md:flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center text-brand-700 dark:text-brand-300 font-bold text-sm">
                 {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {user?.name || user?.email}
               </span>
-            </div>
+            </Link>
           </div>
         </header>
 

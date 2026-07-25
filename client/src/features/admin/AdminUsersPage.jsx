@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 import { useAuth } from '../../context/AuthContext';
 
 const fetchUsers = async ({ queryKey }) => {
@@ -9,17 +9,17 @@ const fetchUsers = async ({ queryKey }) => {
   if (search) params.search = search;
   if (isActive !== 'all') params.isActive = isActive;
   
-  const { data } = await axios.get('/api/v1/admin/users', { params });
+  const { data } = await apiClient.get('/admin/users', { params });
   return data.data; // { users, totalCount, totalPages }
 };
 
 const deactivateUser = async (userId) => {
-  const { data } = await axios.patch(`/api/v1/admin/users/${userId}/deactivate`);
+  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/deactivate`);
   return data.data;
 };
 
 const reactivateUser = async (userId) => {
-  const { data } = await axios.patch(`/api/v1/admin/users/${userId}/reactivate`);
+  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/reactivate`);
   return data.data;
 };
 

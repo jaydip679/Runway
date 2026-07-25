@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 
 const fetchAlerts = async ({ pageParam = null, isRead }) => {
-  let url = '/api/v1/alerts?limit=20';
+  let url = '/alerts?limit=20';
   if (pageParam) url += `&cursor=${pageParam}`;
   if (isRead !== 'all') url += `&isRead=${isRead}`;
   
-  const res = await axios.get(url, { withCredentials: true });
+  const res = await apiClient.get(url, { withCredentials: true });
   return res.data.data;
 };
 
@@ -29,7 +29,7 @@ const AlertsPage = () => {
 
   const markReadMutation = useMutation({
     mutationFn: async (id) => {
-      await axios.patch(`/api/v1/alerts/${id}/read`, {}, { withCredentials: true });
+      await apiClient.patch(`/api/v1/alerts/${id}/read`, {}, { withCredentials: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alerts'] });

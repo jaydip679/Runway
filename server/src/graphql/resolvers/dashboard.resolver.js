@@ -19,7 +19,7 @@ const dashboardResolver = {
 
     // Upcoming Recurring Commitments
     // get all confirmed, slice first 5
-    const allRecurring = await recurringService.listRecurring(userId);
+    const allRecurring = await listRecurring(userId);
     const upcomingRecurringCommitments = allRecurring
       .filter(c => c.status === 'CONFIRMED')
       .slice(0, 5);

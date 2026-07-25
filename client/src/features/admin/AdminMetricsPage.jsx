@@ -1,9 +1,9 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 
 const fetchMetrics = async () => {
-  const { data } = await axios.get('/api/v1/admin/metrics');
+  const { data } = await apiClient.get('/admin/metrics');
   return data.data;
 };
 

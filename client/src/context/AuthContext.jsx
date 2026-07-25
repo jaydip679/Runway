@@ -80,9 +80,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserSession = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
+      setUser: updateUserSession,
       login, 
       register, 
       verifyOtp, 

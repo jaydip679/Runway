@@ -2,9 +2,8 @@ const { z } = require('zod');
 
 const updateUserSchema = z.object({
   body: z.object({
-    name: z.string().min(2).max(100).optional(),
-    // We can add bio or other fields later
-  }).strict()
+    name: z.string().min(2, "Name must be at least 2 characters").max(100).optional(),
+  })
 });
 
 module.exports = {
