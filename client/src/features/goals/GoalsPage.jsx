@@ -115,10 +115,10 @@ const GoalsPage = () => {
                   </div>
                 </div>
                 
-                <div className={`p-4 rounded-lg flex items-start gap-3 ₹{goal.isAchievable ? 'bg-finance-50 dark:bg-finance-900/20 text-finance-800 dark:text-finance-300' : 'bg-brand-50 dark:bg-brand-900/20 text-brand-800 dark:text-brand-300'}`}>
-                  <TrendingUp className={`w-5 h-5 shrink-0 mt-0.5 ₹{goal.isAchievable ? 'text-finance-600 dark:text-finance-400' : 'text-brand-600 dark:text-brand-400'}`} />
+                <div className={`p-4 rounded-lg flex items-start gap-3 ${goal.isAchievable ? 'bg-finance-50 dark:bg-finance-900/20 text-finance-800 dark:text-finance-300' : 'bg-brand-50 dark:bg-brand-900/20 text-brand-800 dark:text-brand-300'}`}>
+                  <TrendingUp className={`w-5 h-5 shrink-0 mt-0.5 ${goal.isAchievable ? 'text-finance-600 dark:text-finance-400' : 'text-brand-600 dark:text-brand-400'}`} />
                   <div>
-                    <h4 className={`text-sm font-semibold mb-1 ₹{goal.isAchievable ? 'text-finance-700 dark:text-finance-400' : 'text-brand-700 dark:text-brand-400'}`}>
+                    <h4 className={`text-sm font-semibold mb-1 ${goal.isAchievable ? 'text-finance-700 dark:text-finance-400' : 'text-brand-700 dark:text-brand-400'}`}>
                       {goal.isAchievable ? 'On Track!' : 'Action Needed'}
                     </h4>
                     <p className="text-sm opacity-90 leading-relaxed">

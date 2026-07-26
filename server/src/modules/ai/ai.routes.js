@@ -58,4 +58,9 @@ router.post(
   aiController.queryAffordability
 );
 
+router.get(
+  '/history',
+  aiController.getChatHistory
+);
+
 module.exports = router;

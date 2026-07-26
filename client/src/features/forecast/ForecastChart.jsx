@@ -70,7 +70,7 @@ const ForecastChart = ({ data, isLoading }) => {
       return (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3 rounded-lg shadow-xl">
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">{label}</p>
-          <p className={`font-bold text-lg tracking-tight ₹{isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>₹{dataPoint.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className={`font-bold text-lg tracking-tight ${isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>₹{dataPoint.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       );

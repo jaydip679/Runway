@@ -1,3 +1,4 @@
+const { Prisma } = require('@prisma/client');
 const prisma = require('../../config/db');
 
 exports.getCashFlow = async (userId, { startDate, endDate, period = 'month' }) => {
@@ -14,7 +15,7 @@ exports.getCashFlow = async (userId, { startDate, endDate, period = 'month' }) =
 
   const result = await prisma.$queryRaw`
     SELECT 
-      date_trunc(${periodTrunc}, "transactionDate") as "period",
+      date_trunc(${Prisma.raw(`'${periodTrunc}'`)}, "transactionDate") as "period",
       SUM(CASE WHEN "type" = 'INCOME' THEN "amount" ELSE 0 END) as "income",
       SUM(CASE WHEN "type" = 'EXPENSE' THEN "amount" ELSE 0 END) as "expense"
     FROM "Transaction"
@@ -22,7 +23,7 @@ exports.getCashFlow = async (userId, { startDate, endDate, period = 'month' }) =
       AND "deletedAt" IS NULL
       AND "transactionDate" >= ${queryStartDate} 
       AND "transactionDate" <= ${queryEndDate}
-    GROUP BY date_trunc(${periodTrunc}, "transactionDate")
+    GROUP BY date_trunc(${Prisma.raw(`'${periodTrunc}'`)}, "transactionDate")
     ORDER BY "period" ASC;
   `;
 

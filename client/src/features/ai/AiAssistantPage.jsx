@@ -1,10 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import apiClient from '../../api/apiClient';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Button from '../../components/ui/Button';
 
 const askAiAffordability = async (question) => {
   const res = await apiClient.post('/ai/affordability', { question }, { withCredentials: true });
+  return res.data.data;
+};
+
+const fetchChatHistory = async () => {
+  const res = await apiClient.get('/ai/history', { withCredentials: true });
   return res.data.data;
 };
 
@@ -14,6 +19,28 @@ const AiAssistantPage = () => {
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [resetAt, setResetAt] = useState(null);
   const messagesEndRef = useRef(null);
+
+  const { data: historyData } = useQuery({
+    queryKey: ['aiChatHistory'],
+    queryFn: fetchChatHistory,
+  });
+
+  useEffect(() => {
+    if (historyData && messages.length === 0) {
+      const historyMessages = [];
+      historyData.forEach(item => {
+        historyMessages.push({ type: 'user', text: item.question });
+        historyMessages.push({
+          type: 'ai',
+          text: item.answer,
+          reasoning: item.reasoning,
+          confidence: item.confidence,
+          isMock: item.isMock
+        });
+      });
+      setMessages(historyMessages);
+    }
+  }, [historyData]);
 
   const mutation = useMutation({
     mutationFn: askAiAffordability,
@@ -32,7 +59,7 @@ const AiAssistantPage = () => {
         setResetAt(err.response.data?.error?.details?.resetAt);
         setMessages(prev => [...prev, {
           type: 'error',
-          text: `Daily AI quota exceeded. Please try again after ₹{new Date(err.response.data?.error?.details?.resetAt).toLocaleString()}.`
+          text: `Daily AI quota exceeded. Please try again after ${new Date(err.response.data?.error?.details?.resetAt).toLocaleString()}.`
         }]);
       } else {
         setMessages(prev => [...prev, {
@@ -90,9 +117,9 @@ const AiAssistantPage = () => {
             </div>
           ) : (
             messages.map((msg, idx) => (
-              <div key={idx} className={`flex ₹{msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div 
-                  className={`max-w-[85%] rounded-2xl p-4 ₹{
+                  className={`max-w-[85%] rounded-2xl p-4 ${
                     msg.type === 'user' 
                       ? 'bg-brand-600 text-white rounded-tr-sm' 
                       : msg.type === 'error'
@@ -112,7 +139,7 @@ const AiAssistantPage = () => {
                     <div className="mt-3 flex items-center justify-between">
                       {getConfidenceBadge(msg.confidence)}
                       {msg.isMock !== undefined && (
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ₹{msg.isMock ? 'bg-amber-900/50 text-amber-400 border border-amber-500/30' : 'bg-emerald-900/50 text-emerald-400 border border-emerald-500/30'}`} title={msg.isMock ? "Using fallback mock data because GEMINI_API_KEY is not set." : "Connected to Google Gemini API"}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${msg.isMock ? 'bg-amber-900/50 text-amber-400 border border-amber-500/30' : 'bg-emerald-900/50 text-emerald-400 border border-emerald-500/30'}`} title={msg.isMock ? "Using fallback mock data because GEMINI_API_KEY is not set." : "Connected to Google Gemini API"}>
                           {msg.isMock ? 'MOCK MODE' : 'LIVE API'}
                         </span>
                       )}

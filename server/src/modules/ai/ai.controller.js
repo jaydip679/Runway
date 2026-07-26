@@ -9,6 +9,12 @@ const queryAffordability = catchAsync(async (req, res) => {
   sendSuccess(res, result);
 });
 
+const getChatHistory = catchAsync(async (req, res) => {
+  const history = await aiService.getChatHistory(req.user.id);
+  sendSuccess(res, history);
+});
+
 module.exports = {
   queryAffordability,
+  getChatHistory,
 };

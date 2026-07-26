@@ -13,7 +13,7 @@ const SummaryCard = ({ title, amount, isLoading, timeframe }) => {
           <div className="h-10 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded mt-2"></div>
         ) : (
           <div className="flex items-baseline gap-2">
-            <span className={`text-3xl font-bold tracking-tight ₹{isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+            <span className={`text-3xl font-bold tracking-tight ${isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
               {amount !== undefined && amount !== null 
                 ? `₹${Math.abs(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
                 : '---'}

@@ -37,7 +37,7 @@ const queryAffordability = async (userId, question) => {
     
     // Add timeout handling for provider
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new AppError('AI provider timed out', 503, 'AI_PROVIDER_UNAVAILABLE')), 10000)
+      setTimeout(() => reject(new AppError('AI provider timed out', 503, 'AI_PROVIDER_UNAVAILABLE')), 45000)
     );
 
     const response = await Promise.race([
@@ -91,6 +91,32 @@ const queryAffordability = async (userId, question) => {
   }
 };
 
+const getChatHistory = async (userId) => {
+  const logs = await prisma.aiQueryLog.findMany({
+    where: { userId, succeeded: true },
+    orderBy: { createdAt: 'asc' },
+    take: 50,
+  });
+
+  return logs.map(log => {
+    try {
+      const parsed = JSON.parse(log.answer);
+      return {
+        id: log.id,
+        question: log.question,
+        answer: parsed.answer,
+        reasoning: parsed.reasoning,
+        confidence: parsed.confidence,
+        isMock: parsed.isMock,
+        createdAt: log.createdAt,
+      };
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
+};
+
 module.exports = {
   queryAffordability,
+  getChatHistory,
 };

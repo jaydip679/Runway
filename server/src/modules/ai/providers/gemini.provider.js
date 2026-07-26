@@ -8,7 +8,7 @@ class GeminiProvider {
   constructor() {
     if (env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
       this.isMock = false;
     } else {
       logger.warn('[GeminiProvider] No GEMINI_API_KEY provided. Running in MOCK mode.');
@@ -38,7 +38,7 @@ class GeminiProvider {
       
       return { raw: text, isMock: false };
     } catch (error) {
-      logger.error('[GeminiProvider] API Error:', error);
+      logger.error(`[GeminiProvider] API Error: ${error.message}`);
       throw new Error('Failed to communicate with Gemini API');
     }
   }
