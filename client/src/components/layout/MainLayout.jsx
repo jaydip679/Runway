@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
   ListOrdered, FileText, BarChart2, Target, CalendarSearch,
-  Wand2, Repeat, User
+  Wand2, Repeat, User, Bot, Bell
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -27,6 +27,8 @@ const MainLayout = () => {
     { name: 'Date Evaluation', path: '/dashboard/date-evaluation', icon: CalendarSearch },
     { name: 'Scenario Planning', path: '/dashboard/scenarios', icon: Wand2 },
     { name: 'Recurring', path: '/dashboard/recurring', icon: Repeat },
+    { name: 'Alerts', path: '/dashboard/alerts', icon: Bell },
+    { name: 'AI Assistant', path: '/dashboard/ai', icon: Bot },
   ];
 
   const adminItems = user?.role === 'ADMIN' ? [

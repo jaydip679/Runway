@@ -25,7 +25,13 @@ const markAlertRead = catchAsync(async (req, res) => {
   sendSuccess(res, { success: true });
 });
 
+const markAllAlertsRead = catchAsync(async (req, res) => {
+  const count = await alertsService.markAllAlertsRead(req.user.id);
+  sendSuccess(res, { success: true, count });
+});
+
 module.exports = {
   getAlerts,
   markAlertRead,
+  markAllAlertsRead,
 };

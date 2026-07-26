@@ -29,7 +29,16 @@ const AlertsPage = () => {
 
   const markReadMutation = useMutation({
     mutationFn: async (id) => {
-      await apiClient.patch(`/api/v1/alerts/${id}/read`, {}, { withCredentials: true });
+      await apiClient.patch(`/alerts/${id}/read`, {}, { withCredentials: true });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+    },
+  });
+
+  const markAllReadMutation = useMutation({
+    mutationFn: async () => {
+      await apiClient.patch('/alerts/all/read', {}, { withCredentials: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
@@ -40,10 +49,30 @@ const AlertsPage = () => {
 
   const getSeverityBadge = (severity) => {
     switch (severity) {
-      case 'CRITICAL': return <span className="bg-red-900/50 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Critical</span>;
-      case 'WARNING': return <span className="bg-amber-900/50 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Warning</span>;
-      case 'INFO': return <span className="bg-blue-900/50 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Info</span>;
+      case 'CRITICAL': return <span className="bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Critical</span>;
+      case 'WARNING': return <span className="bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Warning</span>;
+      case 'INFO': return <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Info</span>;
       default: return null;
+    }
+  };
+
+  const handleDownloadPdf = async (documentId) => {
+    try {
+      const res = await apiClient.get(`/export/download/${documentId}`, { 
+        withCredentials: true,
+        responseType: 'blob' // Expect a binary file instead of JSON
+      });
+      
+      // Create a blob URL and open it
+      const file = new Blob([res.data], { type: 'application/pdf' });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, '_blank');
+    } catch (err) {
+      if (err.response && err.response.status === 410) {
+        alert('This export has expired (10 minute limit). Please generate a new one from the Reports page.');
+      } else {
+        alert('Failed to load PDF document');
+      }
     }
   };
 
@@ -58,6 +87,13 @@ const AlertsPage = () => {
             Review updates about your account, detected recurring expenses, and forecast warnings.
           </p>
         </div>
+        <button
+          onClick={() => markAllReadMutation.mutate()}
+          disabled={markAllReadMutation.isPending || (alerts.length === 0)}
+          className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 whitespace-nowrap"
+        >
+          {markAllReadMutation.isPending ? 'Marking...' : 'Mark All Read'}
+        </button>
       </div>
 
       <div className="flex gap-4 mb-6">
@@ -107,14 +143,27 @@ const AlertsPage = () => {
                     {alert.relevantDate && ` • Relates to: ${new Date(alert.relevantDate).toLocaleDateString()}`}
                   </p>
                 </div>
-                {!alert.isRead && (
-                  <button 
-                    onClick={() => markReadMutation.mutate(alert.id)}
-                    className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/30 dark:hover:bg-brand-900/50 px-3 py-1.5 rounded-md transition-colors whitespace-nowrap"
-                  >
-                    Mark Read
-                  </button>
-                )}
+                <div className="flex flex-col gap-2 items-end">
+                  {!alert.isRead && (
+                    <button 
+                      onClick={() => markReadMutation.mutate(alert.id)}
+                      className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/30 dark:hover:bg-brand-900/50 px-3 py-1.5 rounded-md transition-colors whitespace-nowrap"
+                    >
+                      Mark Read
+                    </button>
+                  )}
+                  {alert.type === 'EXPORT_READY' && alert.relatedEntityId && (
+                    <button 
+                      onClick={() => handleDownloadPdf(alert.relatedEntityId)}
+                      className="text-xs font-medium text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded-md transition-colors whitespace-nowrap flex items-center gap-1"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download PDF
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

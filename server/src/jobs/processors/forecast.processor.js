@@ -83,10 +83,12 @@ async function processForecastJob(job) {
   const generatedAt = new Date();
   const lowBalanceThreshold = env.LOW_BALANCE_THRESHOLD ? new Decimal(env.LOW_BALANCE_THRESHOLD) : new Decimal('0');
 
+  let lowBalanceAlertCreated = false;
+
   await prisma.$transaction(async (tx) => {
     for (const day of days) {
-      // Check for low balance alert
-      if (day.projectedBalance.lessThan(lowBalanceThreshold)) {
+      // Check for low balance alert (limit to ONE alert per forecast run to avoid spam)
+      if (!lowBalanceAlertCreated && day.projectedBalance.lessThan(lowBalanceThreshold)) {
         await alertsService.createAlertIfNotDuplicate({
           userId,
           type: 'LOW_BALANCE_PREDICTED',
@@ -96,6 +98,7 @@ async function processForecastJob(job) {
           message: `Your balance is predicted to drop below your threshold of $${lowBalanceThreshold.toFixed(2)} on ${day.forecastDate.toLocaleDateString()}. Projected: $${day.projectedBalance.toFixed(2)}`,
           severity: 'WARNING',
         });
+        lowBalanceAlertCreated = true;
       }
 
       await tx.forecastSnapshot.upsert({

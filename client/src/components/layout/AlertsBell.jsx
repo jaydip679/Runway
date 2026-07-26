@@ -13,9 +13,12 @@ const markAsRead = async (id) => {
   return res.data;
 };
 
-const getExportUrl = async (documentId) => {
-  const res = await axios.get(`/api/v1/export/download/${documentId}`, { withCredentials: true });
-  return res.data.data.secureUrl;
+const getExportBlob = async (documentId) => {
+  const res = await axios.get(`/api/v1/export/download/${documentId}`, { 
+    withCredentials: true,
+    responseType: 'blob' 
+  });
+  return res.data;
 };
 
 const AlertsBell = () => {
@@ -52,23 +55,30 @@ const AlertsBell = () => {
     markReadMutation.mutate(alert.id);
     setIsOpen(false);
 
-    if (alert.type === 'EXPORT_READY' && alert.metadata?.documentId) {
+    if (alert.type === 'EXPORT_READY' && alert.relatedEntityId) {
       try {
-        const url = await getExportUrl(alert.metadata.documentId);
-        window.open(url, '_blank');
+        const blob = await getExportBlob(alert.relatedEntityId);
+        const file = new Blob([blob], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, '_blank');
       } catch (err) {
-        console.error('Failed to get export URL', err);
+        if (err.response && err.response.status === 410) {
+          alert('This export has expired (10 minute limit). Please generate a new one from the Reports page.');
+        } else {
+          console.error('Failed to get export URL', err);
+          alert('Failed to load PDF document');
+        }
       }
       return;
     }
 
     // Route based on related entity
     if (alert.relatedEntityType === 'RECURRING_COMMITMENT') {
-      navigate('/recurring');
+      navigate('/dashboard/recurring');
     } else if (alert.relatedEntityType === 'FORECAST') {
-      navigate('/forecast');
+      navigate('/dashboard/forecast');
     } else {
-      navigate('/alerts');
+      navigate('/dashboard/alerts');
     }
   };
 
@@ -139,7 +149,7 @@ const AlertsBell = () => {
             <button 
               onClick={() => {
                 setIsOpen(false);
-                navigate('/alerts');
+                navigate('/dashboard/alerts');
               }}
               className="w-full text-center text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 py-1.5 transition-colors"
             >

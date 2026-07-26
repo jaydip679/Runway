@@ -85,8 +85,23 @@ const markAlertRead = async (userId, alertId) => {
   return result.count > 0;
 };
 
+const markAllAlertsRead = async (userId) => {
+  const result = await prisma.alert.updateMany({
+    where: {
+      userId,
+      isRead: false,
+    },
+    data: {
+      isRead: true,
+    },
+  });
+
+  return result.count;
+};
+
 module.exports = {
   createAlertIfNotDuplicate,
   getAlerts,
   markAlertRead,
+  markAllAlertsRead,
 };

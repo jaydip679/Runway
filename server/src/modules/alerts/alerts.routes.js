@@ -21,4 +21,10 @@ router.patch(
   alertsController.markAlertRead
 );
 
+router.patch(
+  '/all/read',
+  rateLimiter({ windowMs: 60000, max: 10, keyBy: 'user' }),
+  alertsController.markAllAlertsRead
+);
+
 module.exports = router;

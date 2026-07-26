@@ -6,9 +6,15 @@ import CashFlowChart from './components/CashFlowChart';
 import CategoryBreakdown from './components/CategoryBreakdown';
 import Button from '../../components/ui/Button';
 
+const getLocalDateString = (date = new Date()) => {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+};
+
 const fetchAccounts = async () => {
   const { data } = await apiClient.get('/accounts', { withCredentials: true });
-  return data.data.accounts;
+  return data.data;
 };
 
 const requestExport = async (filters) => {
@@ -17,15 +23,36 @@ const requestExport = async (filters) => {
 };
 
 const ReportsPage = () => {
-  // Default to last 12 months
-  const defaultStart = new Date();
-  defaultStart.setMonth(defaultStart.getMonth() - 11);
-  defaultStart.setDate(1);
-
-  const [startDate, setStartDate] = useState(defaultStart.toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 11);
+    d.setDate(1);
+    return getLocalDateString(d);
+  });
+  const [endDate, setEndDate] = useState(getLocalDateString());
   const [period, setPeriod] = useState('month');
   const [accountId, setAccountId] = useState('');
+
+  const handleStartDateChange = (e) => {
+    const val = e.target.value;
+    if (val > endDate) {
+      setStartDate(endDate);
+    } else {
+      setStartDate(val);
+    }
+  };
+
+  const handleEndDateChange = (e) => {
+    const val = e.target.value;
+    const today = getLocalDateString();
+    if (val > today) {
+      setEndDate(today);
+    } else if (val < startDate) {
+      setEndDate(startDate);
+    } else {
+      setEndDate(val);
+    }
+  };
 
   const { data: accounts = [] } = useQuery({
     queryKey: ['accounts'],
@@ -74,15 +101,18 @@ const ReportsPage = () => {
 
           <input 
             type="date"
+            max={endDate}
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={handleStartDateChange}
             className="bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer"
           />
           <span className="text-gray-400">→</span>
           <input 
             type="date"
+            min={startDate}
+            max={getLocalDateString()}
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={handleEndDateChange}
             className="bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-r border-gray-200 dark:border-gray-700 pr-3"
           />
 
