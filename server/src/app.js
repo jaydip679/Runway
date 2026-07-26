@@ -46,7 +46,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
 
-// Serve uploads folder statically
+// Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Global Rate Limiter

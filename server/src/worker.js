@@ -6,7 +6,7 @@ const { csvImportWorker } = require('./jobs/queues/csvImport.queue');
 const { forecastWorker } = require('./jobs/queues/forecast.queue');
 const { recurringDetectionWorker } = require('./jobs/queues/recurringDetection.queue');
 const { notificationWorker } = require('./jobs/queues/notification.queue');
-const exportWorker = require('./jobs/queues/export.worker');
+const { exportWorker, pdfCleanupWorker } = require('./jobs/queues/export.worker');
 const { initScheduler } = require('./jobs/scheduler');
 
 logger.info('Runway background worker started');
@@ -15,6 +15,7 @@ logger.info('Forecast worker initialized');
 logger.info('Recurring Detection worker initialized');
 logger.info('Notification worker initialized');
 logger.info('Export worker initialized');
+logger.info('PDF Cleanup worker initialized');
 initScheduler();
 logger.info('Scheduler initialized for recurring cron jobs');
 
@@ -38,8 +39,9 @@ const shutdown = async () => {
   
   try {
     await exportWorker.close();
+    await pdfCleanupWorker.close();
   } catch (err) {
-    logger.error('Error closing export worker', err);
+    logger.error('Error closing export workers', err);
   }
   
   try {

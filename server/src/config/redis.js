@@ -13,6 +13,10 @@ const redis = new Redis(env.REDIS_URL, {
 });
 
 redis.on('error', (err) => {
+  if (err.message && err.message.includes('limit exceeded')) {
+    // Suppress Upstash limit spam
+    return;
+  }
   logger.error(`Redis connection error: ${err.message}`);
 });
 

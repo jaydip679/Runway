@@ -2,6 +2,7 @@ const { enqueueExportJob } = require('../../jobs/queues/export.queue');
 const prisma = require('../../config/db');
 const catchAsync = require('../../common/utils/catchAsync');
 const { sendSuccess } = require('../../common/utils/apiResponse');
+const { getTempPdfPath } = require('../storage/storage.service');
 
 const requestExport = catchAsync(async (req, res) => {
   const userId = req.user.id;
@@ -30,8 +31,21 @@ const getDocument = catchAsync(async (req, res) => {
     return res.status(403).json({ success: false, error: { message: 'Unauthorized access to document' } });
   }
 
-  // Return the secure URL to the frontend so it can open it
-  return sendSuccess(res, { secureUrl: doc.secureUrl, title: doc.title });
+  // Check if temporary file still exists
+  const filename = doc.cloudPublicId;
+  const filePath = getTempPdfPath(filename);
+
+  if (!filePath) {
+    return res.status(410).json({ 
+      success: false, 
+      error: { message: 'Export has expired (10 minutes limit). Please generate a new one.' } 
+    });
+  }
+
+  // Set appropriate headers and send the file directly
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="${doc.title}.pdf"`);
+  return res.sendFile(filePath);
 });
 
 module.exports = {

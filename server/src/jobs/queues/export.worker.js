@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const prisma = require('../../config/db');
-const { uploadPdf } = require('../../modules/storage/storage.service');
+const { uploadPdf, getTempPdfPath } = require('../../modules/storage/storage.service');
+const { enqueuePdfCleanup } = require('./export.queue');
 
 const connection = {
   url: process.env.REDIS_URL,
@@ -118,18 +119,22 @@ const exportWorker = new Worker('pdf-export', async (job) => {
     stream.on('error', reject);
   });
 
-  // Upload to Cloudinary
+  // Upload to local temp storage
   const uploadResult = await uploadPdf(tmpFilePath);
+  const filename = uploadResult.filename;
 
-  // Create ExportDocument record
+  // Create ExportDocument record (DB is source of truth, file is temp)
   const exportDoc = await prisma.exportDocument.create({
     data: {
       userId,
       title: `Statement ${new Date().toLocaleDateString()}`,
-      cloudPublicId: uploadResult.publicId,
-      secureUrl: uploadResult.secureUrl
+      cloudPublicId: filename, // Repurposing this field to store the filename
+      secureUrl: '' // Not used anymore
     }
   });
+
+  // Schedule cleanup job after 10 minutes
+  await enqueuePdfCleanup(filename);
 
   // Create Alert Notification
   await prisma.alert.create({
@@ -138,7 +143,8 @@ const exportWorker = new Worker('pdf-export', async (job) => {
       type: 'EXPORT_READY',
       message: `Your requested PDF Statement is ready for download!`,
       severity: 'INFO',
-      metadata: { documentId: exportDoc.id }
+      relatedEntityType: 'EXPORT_DOCUMENT',
+      relatedEntityId: exportDoc.id
     }
   });
 
@@ -150,4 +156,21 @@ exportWorker.on('failed', (job, err) => {
   console.error(`Export Job ${job.id} failed:`, err.message);
 });
 
-module.exports = exportWorker;
+const pdfCleanupWorker = new Worker('pdf-cleanup', async (job) => {
+  const { filename } = job.data;
+  const filePath = getTempPdfPath(filename);
+  
+  if (filePath) {
+    fs.unlinkSync(filePath);
+    console.log(`Cleaned up temporary PDF: ${filename}`);
+  }
+}, { connection });
+
+pdfCleanupWorker.on('failed', (job, err) => {
+  console.error(`PDF Cleanup Job ${job.id} failed:`, err.message);
+});
+
+module.exports = {
+  exportWorker,
+  pdfCleanupWorker
+};
