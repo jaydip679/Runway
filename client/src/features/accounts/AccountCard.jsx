@@ -32,7 +32,7 @@ const AccountCard = ({ account, onEdit, onDelete }) => {
       
       <div>
         <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Balance</div>
-        <div className={`text-2xl font-bold ₹{account.currentBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-finance-600 dark:text-finance-400'}`}>
+        <div className={`text-2xl font-bold ${account.currentBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-finance-600 dark:text-finance-400'}`}>
           {formatCurrency(account.currentBalance, account.currency)}
         </div>
       </div>
