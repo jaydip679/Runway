@@ -17,6 +17,19 @@ exports.getUsers = async (req, res, next) => {
   }
 };
 
+exports.updateUserRole = async (req, res, next) => {
+  try {
+    const adminUserId = req.user.id;
+    const targetUserId = req.params.id;
+    const { role } = req.body;
+    
+    const updatedUser = await adminService.updateUserRole(adminUserId, targetUserId, role);
+    res.status(200).json({ success: true, data: { user: updatedUser } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.deactivateUser = async (req, res, next) => {
   try {
     const adminUserId = req.user.id;

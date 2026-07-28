@@ -23,6 +23,11 @@ const reactivateUser = async (userId) => {
   return data.data;
 };
 
+const updateUserRole = async ({ userId, role }) => {
+  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/role`, { role });
+  return data.data;
+};
+
 const AdminUsersPage = () => {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
@@ -30,6 +35,9 @@ const AdminUsersPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState('all');
+  
+  const [editingUser, setEditingUser] = useState(null);
+  const [editRole, setEditRole] = useState('USER');
 
   const { data, isLoading } = useQuery({
     queryKey: ['adminUsers', { page, search, isActive: isActiveFilter }],
@@ -48,6 +56,14 @@ const AdminUsersPage = () => {
     mutationFn: reactivateUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+    }
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: updateUserRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+      setEditingUser(null);
     }
   });
 
@@ -130,23 +146,31 @@ const AdminUsersPage = () => {
                     <td className="p-4 text-gray-500 dark:text-gray-400 text-sm">{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td className="p-4">
                       {user.id !== currentUser.id && (
-                        user.isActive ? (
+                        <div className="flex gap-2">
                           <button 
-                            className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition-colors"
-                            onClick={() => handleDeactivate(user.id)}
-                            disabled={deactivateMutation.isLoading}
+                            className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            onClick={() => { setEditingUser(user); setEditRole(user.role); }}
                           >
-                            Deactivate
+                            Edit
                           </button>
-                        ) : (
-                          <button 
-                            className="px-3 py-1 text-xs font-medium bg-finance-50 text-finance-600 hover:bg-finance-100 dark:bg-finance-900/30 dark:text-finance-400 dark:hover:bg-finance-900/50 rounded-lg transition-colors"
-                            onClick={() => handleReactivate(user.id)}
-                            disabled={reactivateMutation.isLoading}
-                          >
-                            Reactivate
-                          </button>
-                        )
+                          {user.isActive ? (
+                            <button 
+                              className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                              onClick={() => handleDeactivate(user.id)}
+                              disabled={deactivateMutation.isLoading}
+                            >
+                              Deactivate
+                            </button>
+                          ) : (
+                            <button 
+                              className="px-3 py-1 text-xs font-medium bg-finance-50 text-finance-600 hover:bg-finance-100 dark:bg-finance-900/30 dark:text-finance-400 dark:hover:bg-finance-900/50 rounded-lg transition-colors"
+                              onClick={() => handleReactivate(user.id)}
+                              disabled={reactivateMutation.isLoading}
+                            >
+                              Reactivate
+                            </button>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -175,6 +199,43 @@ const AdminUsersPage = () => {
           >
             Next
           </button>
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-xl border border-gray-200 dark:border-gray-800">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Edit User Role</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Change the role for <span className="font-semibold text-gray-900 dark:text-white">{editingUser.name}</span>.
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role</label>
+              <select 
+                value={editRole} 
+                onChange={(e) => setEditRole(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setEditingUser(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => updateRoleMutation.mutate({ userId: editingUser.id, role: editRole })}
+                disabled={updateRoleMutation.isLoading}
+                className="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors disabled:opacity-50"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

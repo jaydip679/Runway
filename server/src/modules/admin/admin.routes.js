@@ -10,6 +10,7 @@ router.use(authenticate);
 router.use(authorize('ADMIN'));
 
 router.get('/users', adminController.getUsers);
+router.patch('/users/:id/role', adminController.updateUserRole);
 router.patch('/users/:id/deactivate', adminController.deactivateUser);
 router.patch('/users/:id/reactivate', adminController.reactivateUser);
 

@@ -55,6 +55,38 @@ exports.getUsers = async (filters, page = 1, limit = 50) => {
   };
 };
 
+exports.updateUserRole = async (adminUserId, targetUserId, newRole) => {
+  if (adminUserId === targetUserId) {
+    throw new AppError('Admin cannot change their own role', 422, errorCodes.VALIDATION_ERROR);
+  }
+
+  if (!['USER', 'ADMIN'].includes(newRole)) {
+    throw new AppError('Invalid role', 400, errorCodes.VALIDATION_ERROR);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!user) {
+    throw new AppError('User not found', 404, errorCodes.NOT_FOUND);
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { role: newRole },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+      isEmailVerified: true,
+      createdAt: true,
+      lastLoginAt: true
+    }
+  });
+
+  return updatedUser;
+};
+
 exports.deactivateUser = async (adminUserId, targetUserId) => {
   if (adminUserId === targetUserId) {
     throw new AppError('Admin cannot deactivate self', 422, errorCodes.VALIDATION_ERROR);
