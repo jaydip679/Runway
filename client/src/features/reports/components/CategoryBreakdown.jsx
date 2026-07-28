@@ -12,7 +12,7 @@ const CategoryBreakdown = ({ startDate, endDate, accountId }) => {
       const { data } = await apiClient.get('/analytics/categories', {
         params: { startDate, endDate, accountId }
       });
-      return data.data.breakdown.map(d => ({
+      return data?.data?.breakdown?.map(d => ({
         name: d.category.name,
         value: d.amount,
         percentage: d.percentage

@@ -94,7 +94,7 @@ const ReportsPage = () => {
             className="bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-r border-gray-200 dark:border-gray-700 pr-3"
           >
             <option value="">All Accounts</option>
-            {accounts.map(acc => (
+            {(accounts || []).map(acc => (
               <option key={acc.id} value={acc.id}>{acc.name}</option>
             ))}
           </select>

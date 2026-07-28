@@ -10,7 +10,7 @@ const CashFlowChart = ({ startDate, endDate, period }) => {
       const { data } = await apiClient.get('/analytics/cashflow', {
         params: { startDate, endDate, period }
       });
-      return data.data.cashFlow.map(d => ({
+      return data?.data?.cashFlow?.map(d => ({
         ...d,
         dateFormatted: new Date(d.period).toLocaleDateString(undefined, { 
           month: 'short', 
