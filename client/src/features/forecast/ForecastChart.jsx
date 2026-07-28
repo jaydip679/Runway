@@ -13,18 +13,18 @@ import {
 const ForecastChart = ({ data, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[400px] w-full rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-[350px] w-full">
+        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!data || !data.ready || !data.days || data.days.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] w-full rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 border-dashed text-center p-8 mt-6">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Forecast Available</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm">
-          We need more transaction history or recurring commitments to generate a reliable forecast.
+      <div className="flex flex-col items-center justify-center h-[350px] w-full rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-dashed text-center p-8 mt-4">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">No Forecast Available</h3>
+        <p className="text-gray-500 dark:text-gray-400 text-xs max-w-sm">
+          More transaction history is needed.
         </p>
       </div>
     );
@@ -68,9 +68,9 @@ const ForecastChart = ({ data, isLoading }) => {
       const isNegative = dataPoint.value < 0;
       
       return (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3 rounded-lg shadow-xl">
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">{label}</p>
-          <p className={`font-bold text-lg tracking-tight ${isNegative ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>₹{dataPoint.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div className="bg-gray-900 dark:bg-black border border-gray-700 dark:border-gray-800 p-3 rounded-lg shadow-xl">
+          <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">{label}</p>
+          <p className={`font-bold text-lg tracking-tight ${isNegative ? 'text-red-400' : 'text-white'}`}>₹{dataPoint.value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
         </div>
       );
@@ -79,9 +79,8 @@ const ForecastChart = ({ data, isLoading }) => {
   };
 
   return (
-    <div className="w-full h-[450px] p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
-      <h2 className="text-lg font-bold font-heading text-gray-900 dark:text-white mb-6">60-Day Cash Flow Projection</h2>
-      <ResponsiveContainer width="100%" height="85%">
+    <div className="w-full h-[350px]">
+      <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-200 dark:text-gray-800" vertical={false} />
           <XAxis 
@@ -109,33 +108,33 @@ const ForecastChart = ({ data, isLoading }) => {
           <Line 
             type="monotone" 
             dataKey="high" 
-            name="High Confidence (0-14 days)"
+            name="High Confidence"
             stroke="#0ea5e9" 
-            strokeWidth={3} 
+            strokeWidth={2} 
             dot={false}
-            activeDot={{ r: 6, fill: '#0ea5e9', stroke: '#fff', strokeWidth: 2 }}
+            activeDot={{ r: 5, fill: '#0ea5e9', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
           <Line 
             type="monotone" 
             dataKey="medium" 
-            name="Medium Confidence (15-30 days)"
+            name="Medium Confidence"
             stroke="#f59e0b" 
-            strokeWidth={3} 
+            strokeWidth={2} 
             strokeDasharray="6 6" 
             dot={false}
-            activeDot={{ r: 6, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
+            activeDot={{ r: 5, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
           <Line 
             type="monotone" 
             dataKey="low" 
-            name="Low Confidence (31-60 days)"
+            name="Low Confidence"
             stroke="#94a3b8" 
-            strokeWidth={3} 
+            strokeWidth={2} 
             strokeDasharray="3 4" 
             dot={false}
-            activeDot={{ r: 6, fill: '#94a3b8', stroke: '#fff', strokeWidth: 2 }}
+            activeDot={{ r: 5, fill: '#94a3b8', stroke: '#fff', strokeWidth: 2 }}
             connectNulls={false}
           />
         </LineChart>

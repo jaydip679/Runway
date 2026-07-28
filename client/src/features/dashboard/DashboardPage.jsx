@@ -8,6 +8,7 @@ import RecurringCard from '../recurring/RecurringCard';
 import ForecastInsightsPanel from '../forecast/components/ForecastInsightsPanel';
 import PendingConfirmationsWidget from '../recurring/components/PendingConfirmationsWidget';
 import { Link } from 'react-router-dom';
+import { TrendingUp, TrendingDown, Minus, ShieldCheck, AlertTriangle, AlertOctagon } from 'lucide-react';
 
 const fetchDashboard = async () => {
   const query = `
@@ -58,11 +59,61 @@ const fetchDashboard = async () => {
   return res.data.data.dashboard;
 };
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
+};
+
+const getHealthStatus = (forecastSummary, unreadAlerts, accounts) => {
+  if (!forecastSummary || !forecastSummary.ready) {
+    return { 
+      status: 'PENDING', 
+      trend: 'STABLE', 
+      message: 'Analyzing your financial data...',
+      icon: <Minus className="w-6 h-6 text-gray-500" />,
+      colorClass: 'bg-gray-50 text-gray-800 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700'
+    };
+  }
+
+  let status = 'HEALTHY';
+  let trend = 'STABLE';
+  let message = 'Cash flow is expected to remain positive for the next 60 days.';
+
+  const currentTotal = accounts.reduce((sum, acc) => sum + Number(acc.currentBalance), 0);
+  const day60 = Number(forecastSummary.day60Balance) || 0;
+  
+  if (day60 < 0) {
+    status = 'CRITICAL';
+    message = 'Forecast indicates a potential deficit in the next 60 days.';
+  } else if (Number(forecastSummary.day30Balance) < 0 || unreadAlerts.some(a => a.severity === 'CRITICAL')) {
+    status = 'WATCH';
+    message = 'Caution advised: Keep an eye on your upcoming expenses.';
+  }
+
+  if (day60 > currentTotal * 1.05) trend = 'UP';
+  else if (day60 < currentTotal * 0.95) trend = 'DOWN';
+
+  let icon = <ShieldCheck className="w-6 h-6 text-brand-600 dark:text-brand-400" />;
+  let colorClass = 'bg-brand-50 text-brand-800 border-brand-200 dark:bg-brand-900/20 dark:text-brand-300 dark:border-brand-800/50';
+
+  if (status === 'WATCH') {
+    icon = <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />;
+    colorClass = 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/50';
+  } else if (status === 'CRITICAL') {
+    icon = <AlertOctagon className="w-6 h-6 text-red-600 dark:text-red-400" />;
+    colorClass = 'bg-red-50 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/50';
+  }
+
+  return { status, trend, message, icon, colorClass };
+};
+
 const DashboardPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboard,
-    refetchOnWindowFocus: false, // Prevents random errors when switching apps
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {
@@ -70,7 +121,7 @@ const DashboardPage = () => {
       <div className="p-6 max-w-7xl mx-auto flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500 dark:text-gray-400 font-medium">Loading your runway...</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">Loading your command center...</p>
         </div>
       </div>
     );
@@ -94,119 +145,156 @@ const DashboardPage = () => {
     unreadAlerts = [] 
   } = data || {};
 
+  const greeting = getGreeting();
+  const health = getHealthStatus(forecastSummary, unreadAlerts, accounts);
+  const pendingCount = upcomingRecurringCommitments.filter(c => c.status === 'PENDING_CONFIRMATION').length;
+
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8 pb-24 md:pb-6">
+    <div className="p-6 max-w-[1400px] mx-auto space-y-8 pb-24 md:pb-6 font-sans">
       
-      {/* Header with alerts snippet */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+      {/* Dynamic Header & Health Banner */}
+      <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
-            Command Center
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+            {greeting}.
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Your unified financial overview</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 text-lg">
+            {health.message}
+            {pendingCount > 0 && ` You have ${pendingCount} commitment${pendingCount > 1 ? 's' : ''} awaiting confirmation.`}
+          </p>
         </div>
         
-        {unreadAlerts && unreadAlerts.length > 0 && (
-          <Link to="/dashboard/alerts" className="bg-white dark:bg-gray-900 p-4 rounded-2xl flex items-center gap-4 border border-amber-200 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50 transition-colors shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg">
-              🔔
+        {/* Health Status Pill */}
+        <div className={`flex items-center gap-4 px-5 py-3 rounded-2xl border shadow-sm transition-colors ${health.colorClass}`}>
+          {health.icon}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider opacity-80">Financial Health</p>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold capitalize">{health.status.toLowerCase()}</span>
+              {health.trend === 'UP' && <TrendingUp className="w-4 h-4 opacity-75" title="Trending Up" />}
+              {health.trend === 'DOWN' && <TrendingDown className="w-4 h-4 opacity-75" title="Trending Down" />}
+              {health.trend === 'STABLE' && <Minus className="w-4 h-4 opacity-75" title="Stable" />}
             </div>
-            <div>
-              <p className="text-gray-900 dark:text-white font-medium">{unreadAlerts.length} Unread Alerts</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{unreadAlerts[0].message}</p>
-            </div>
-          </Link>
-        )}
-      </div>
-
-      {/* Forecast Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="text-brand-500">📈</span> Forecast
-          </h2>
-          <Link to="/dashboard/forecast" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">View Details →</Link>
+          </div>
         </div>
+      </div>
+
+      {/* Main 60/40 Split Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
         
-        {forecastSummary.ready ? (
-          <>
-            <ForecastSummaryCards summary={forecastSummary} />
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl shadow-sm">
-              <ForecastChart days={forecastSummary.fullSeries || []} />
+        {/* Left Column: Forecast (60%) */}
+        <div className="xl:col-span-7 space-y-6 lg:space-y-8">
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                Cash Flow Projection
+              </h2>
+              <Link to="/dashboard/forecast" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">View detailed forecast →</Link>
             </div>
-          </>
-        ) : (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-8 rounded-2xl text-center shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Calculating Your Future...</h3>
-            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              We're analyzing your accounts and recurring commitments to build your 60-day forecast. This happens in the background.
-            </p>
+            
+            {forecastSummary.ready ? (
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+                <ForecastSummaryCards summary={forecastSummary} />
+                <div className="p-6 border-t border-gray-100 dark:border-gray-800">
+                  <ForecastChart data={{ ready: forecastSummary.ready, days: forecastSummary.fullSeries || [] }} />
+                </div>
+              </div>
+            ) : accounts.length === 0 ? (
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-12 rounded-2xl text-center shadow-sm flex flex-col items-center justify-center">
+                <div className="w-12 h-12 bg-brand-50 dark:bg-brand-900/30 rounded-full flex items-center justify-center mb-4">
+                  <span className="text-brand-500 font-bold text-xl">+</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Data Available</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto text-sm mb-4">
+                  Add your first account to unlock 60-day cash flow forecasting.
+                </p>
+                <Link to="/dashboard/accounts" className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors">
+                  Add Account
+                </Link>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-12 rounded-2xl text-center shadow-sm flex flex-col items-center justify-center">
+                <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-brand-500 rounded-full animate-spin"></div>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Analyzing your financial future</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto text-sm">
+                  We are aggregating your accounts and recurring commitments to build a highly accurate 60-day projection.
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+          
+          <ForecastInsightsPanel compact={true} />
+        </div>
 
-      <div className="mb-8 space-y-6">
-        <PendingConfirmationsWidget />
-        <ForecastInsightsPanel compact={true} />
-      </div>
+        {/* Right Column: Action Items & Accounts (40%) */}
+        <div className="xl:col-span-5 space-y-6 lg:space-y-8">
+          
+          <PendingConfirmationsWidget />
 
-      {/* Two Column Layout for Accounts & Recurring */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Accounts Strip */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <span className="text-finance-500">🏦</span> Active Accounts
-            </h2>
-            <Link to="/dashboard/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
-          </div>
-          {accounts?.length > 0 ? (
-            <div className="space-y-3">
-              {accounts.slice(0, 3).map(account => (
-                <AccountCard key={account.id} account={account} onEdit={() => {}} />
-              ))}
-              {accounts.length > 3 && (
-                <div className="text-center pt-2">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">+{accounts.length - 3} more accounts</span>
+          {/* Accounts Strip */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                Active Accounts
+              </h2>
+              <Link to="/dashboard/accounts" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage</Link>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+              {accounts?.length > 0 ? (
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {accounts?.slice(0, 4).map(account => (
+                    <AccountCard key={account.id} account={account} onEdit={() => {}} minimal={true} />
+                  ))}
+                  {accounts?.length > 4 && (
+                    <div className="p-3 text-center bg-gray-50 dark:bg-gray-800/30">
+                      <Link to="/dashboard/accounts" className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                        View {accounts.length - 4} more accounts
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No active accounts</p>
+                  <Link to="/dashboard/accounts" className="text-brand-600 dark:text-brand-400 font-medium text-sm mt-2 inline-block hover:underline">Add your first account</Link>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl text-center border-dashed border-2 border-gray-200 dark:border-gray-800">
-              <p className="text-gray-500 dark:text-gray-400">No active accounts</p>
-              <Link to="/dashboard/accounts" className="text-brand-600 dark:text-brand-400 font-medium text-sm mt-2 block hover:underline">Add one now</Link>
-            </div>
-          )}
-        </div>
-
-        {/* Upcoming Recurring */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <span className="text-purple-500">📅</span> Upcoming Commitments
-            </h2>
-            <Link to="/dashboard/recurring" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage →</Link>
           </div>
 
-          {upcomingRecurringCommitments?.length > 0 ? (
-            <div className="space-y-3">
-              {upcomingRecurringCommitments.map(commitment => (
-                <RecurringCard 
-                  key={commitment.id} 
-                  item={commitment} 
-                  onEdit={() => {}} 
-                  onConfirm={() => {}} 
-                  onDismiss={() => {}} 
-                />
-              ))}
+          {/* Upcoming Recurring */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                Upcoming Commitments
+              </h2>
+              <Link to="/dashboard/recurring" className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">Manage</Link>
             </div>
-          ) : (
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl text-center border-dashed border-2 border-gray-200 dark:border-gray-800">
-              <p className="text-gray-500 dark:text-gray-400">No upcoming commitments</p>
-            </div>
-          )}
-        </div>
 
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+              {upcomingRecurringCommitments?.length > 0 ? (
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {upcomingRecurringCommitments?.map(commitment => (
+                    <RecurringCard 
+                      key={commitment.id} 
+                      item={commitment} 
+                      minimal={true}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No upcoming commitments</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
 
     </div>

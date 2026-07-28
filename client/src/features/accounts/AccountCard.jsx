@@ -2,7 +2,21 @@ import React from 'react';
 import { formatCurrency } from '../../utils/format';
 import { Edit2, Trash2 } from 'lucide-react';
 
-const AccountCard = ({ account, onEdit, onDelete }) => {
+const AccountCard = ({ account, onEdit, onDelete, minimal = false }) => {
+  if (minimal) {
+    return (
+      <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{account.name}</h3>
+          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{account.type.replace('_', ' ')}</span>
+        </div>
+        <div className={`text-sm font-bold ${account.currentBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+          {formatCurrency(account.currentBalance, account.currency)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-4 transition-all hover:shadow-md">
       <div className="flex justify-between items-start">

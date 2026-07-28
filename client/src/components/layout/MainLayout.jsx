@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
   ListOrdered, FileText, BarChart2, Target, CalendarSearch,
-  Wand2, Repeat, User, Bot, Bell
+  Wand2, Repeat, User, Bot, Bell, TrendingUp
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -18,6 +18,7 @@ const MainLayout = () => {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Forecast', path: '/dashboard/forecast', icon: TrendingUp },
     { name: 'Accounts', path: '/dashboard/accounts', icon: CreditCard },
     { name: 'Categories', path: '/dashboard/categories', icon: ListOrdered },
     { name: 'Transactions', path: '/dashboard/transactions', icon: PieChart },

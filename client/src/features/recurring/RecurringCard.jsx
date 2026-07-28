@@ -11,7 +11,28 @@ const formatNextDate = (isoString) => {
   });
 };
 
-const RecurringCard = ({ item, onConfirm, onDismiss, onEdit, onDelete, isConfirming, isDismissing }) => {
+const RecurringCard = ({ item, onConfirm, onDismiss, onEdit, onDelete, isConfirming, isDismissing, minimal = false }) => {
+  if (minimal) {
+    return (
+      <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1">{item.name}</h3>
+          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
+            <CalendarClock className="w-3 h-3" /> {formatNextDate(item.nextOccurrenceDate)}
+          </div>
+        </div>
+        <div className="text-right shrink-0 ml-4">
+          <div className={`text-sm font-bold tracking-tight ${item.type === 'INCOME' ? 'text-finance-600 dark:text-finance-400' : 'text-gray-900 dark:text-white'}`}>
+            {item.type === 'INCOME' ? '+' : '-'}{formatCurrency(item.amount)}
+          </div>
+          <div className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">
+            {item.intervalUnit}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start gap-4">

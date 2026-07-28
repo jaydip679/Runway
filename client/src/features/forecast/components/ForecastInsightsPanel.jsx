@@ -37,8 +37,8 @@ const ForecastInsightsPanel = ({ compact = false }) => {
   const displayInsights = compact ? insights.slice(0, 3) : insights;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/20">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/20">
         <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Lightbulb className="w-4 h-4 text-brand-500" />
           Forecast Insights
@@ -50,7 +50,7 @@ const ForecastInsightsPanel = ({ compact = false }) => {
         )}
       </div>
       
-      <div className="divide-y divide-gray-100 dark:divide-gray-700 flex-1 overflow-y-auto">
+      <div className="divide-y divide-gray-100 dark:divide-gray-800 flex-1 overflow-y-auto">
         {displayInsights.map((insight, index) => (
           <div key={index} className="p-4 flex gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
             <div className="mt-0.5 shrink-0">
