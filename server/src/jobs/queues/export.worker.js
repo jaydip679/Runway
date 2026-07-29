@@ -46,69 +46,105 @@ const exportWorker = new Worker('pdf-export', async (job) => {
 
   // Generate PDF locally
   const tmpFilePath = path.join(os.tmpdir(), `export_${userId}_${Date.now()}.pdf`);
-  const doc = new PDFDocument({ margin: 50 });
+  const doc = new PDFDocument({ margin: 0, size: 'A4' });
   const stream = fs.createWriteStream(tmpFilePath);
   doc.pipe(stream);
 
   // --- PDF CONTENT ---
-  // Header
-  doc.fontSize(20).text('Runway Financial Statement', { align: 'center' });
-  doc.moveDown();
-  doc.fontSize(12).text(`Generated for: ${user.name} (${user.email})`);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`);
-  doc.moveDown();
+  const BRAND_COLOR = '#0ea5e9';
+  const TEXT_DARK = '#111827';
+  const TEXT_LIGHT = '#6b7280';
+  const LIGHT_BG = '#f9fafb';
 
-  // Summary
-  doc.fontSize(16).text('Summary');
-  doc.fontSize(12)
-     .text(`Total Income: $${totalIncome.toFixed(2)}`)
-     .text(`Total Expense: $${totalExpense.toFixed(2)}`);
-  doc.moveDown();
+  // Header Banner
+  doc.rect(0, 0, 595, 100).fill(BRAND_COLOR);
+  doc.fillColor('#ffffff').fontSize(24).font('Helvetica-Bold').text('Runway', 50, 35);
+  doc.fontSize(14).font('Helvetica').text('Financial Statement', 50, 65);
+  
+  doc.fontSize(10).text(`Generated for: ${user.name}`, 300, 40, { align: 'right', width: 245 });
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 300, 55, { align: 'right', width: 245 });
+  doc.text(`Email: ${user.email}`, 300, 70, { align: 'right', width: 245 });
+
+  // Reset margin and position for main content
+  doc.y = 130;
+  doc.x = 50;
+
+  // Summary Cards
+  doc.fillColor(TEXT_DARK).fontSize(16).font('Helvetica-Bold').text('Summary', 50, doc.y);
+  doc.moveDown(0.5);
+
+  const summaryY = doc.y;
+  
+  // Income Box
+  doc.rect(50, summaryY, 235, 70).fill(LIGHT_BG).stroke('#e5e7eb');
+  doc.fillColor(TEXT_LIGHT).fontSize(10).font('Helvetica').text('Total Income', 65, summaryY + 15);
+  doc.fillColor('#10b981').fontSize(18).font('Helvetica-Bold').text(`Rs. ${totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 65, summaryY + 35);
+
+  // Expense Box
+  doc.rect(310, summaryY, 235, 70).fill(LIGHT_BG).stroke('#e5e7eb');
+  doc.fillColor(TEXT_LIGHT).fontSize(10).font('Helvetica').text('Total Expense', 325, summaryY + 15);
+  doc.fillColor('#ef4444').fontSize(18).font('Helvetica-Bold').text(`Rs. ${totalExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 325, summaryY + 35);
+
+  let currentY = summaryY + 100;
 
   // Transactions Table Header
-  doc.fontSize(16).text('Transactions');
-  doc.moveDown(0.5);
-  doc.fontSize(10);
+  doc.fillColor(TEXT_DARK).fontSize(16).font('Helvetica-Bold').text('Transactions', 50, currentY);
+  currentY += 30;
   
-  const drawRow = (y, date, desc, category, account, amount, type) => {
-    doc.text(date, 50, y, { width: 70 });
-    doc.text(desc, 120, y, { width: 150 });
-    doc.text(category, 270, y, { width: 100 });
-    doc.text(account, 370, y, { width: 80 });
-    doc.text((type === 'INCOME' ? '+' : '-') + '$' + amount, 450, y, { width: 70, align: 'right' });
+  const drawHeaderRow = (y) => {
+    doc.rect(50, y - 5, 495, 25).fill(BRAND_COLOR);
+    doc.fillColor('#ffffff').fontSize(10).font('Helvetica-Bold');
+    doc.text('Date', 60, y, { width: 70 });
+    doc.text('Description', 130, y, { width: 160 });
+    doc.text('Category', 300, y, { width: 90 });
+    doc.text('Account', 400, y, { width: 70 });
+    doc.text('Amount', 470, y, { width: 65, align: 'right' });
   };
 
-  let currentY = doc.y;
-  doc.font('Helvetica-Bold');
-  drawRow(currentY, 'Date', 'Description', 'Category', 'Account', 'Amount', 'Type');
-  currentY += 15;
-  doc.moveTo(50, currentY).lineTo(520, currentY).stroke();
-  currentY += 10;
+  const drawRow = (y, date, desc, category, account, amount, type, index) => {
+    if (index % 2 === 0) {
+      doc.rect(50, y - 5, 495, 25).fill(LIGHT_BG);
+    }
+    
+    doc.fillColor(TEXT_DARK).fontSize(9).font('Helvetica');
+    doc.text(date, 60, y, { width: 70 });
+    doc.text(desc, 130, y, { width: 160 });
+    doc.text(category, 300, y, { width: 90 });
+    doc.text(account, 400, y, { width: 70 });
+    
+    if (type === 'INCOME') {
+      doc.fillColor('#10b981').font('Helvetica-Bold');
+    } else {
+      doc.fillColor('#TEXT_DARK').font('Helvetica');
+    }
+    
+    doc.text((type === 'INCOME' ? '+' : '-') + ' Rs. ' + amount, 470, y, { width: 65, align: 'right' });
+  };
+
+  drawHeaderRow(currentY);
+  currentY += 25;
   
-  doc.font('Helvetica');
-  
+  let rowIndex = 0;
   for (const tx of transactions) {
-    if (currentY > 700) {
+    if (currentY > 750) {
       doc.addPage();
       currentY = 50;
-      doc.font('Helvetica-Bold');
-      drawRow(currentY, 'Date', 'Description', 'Category', 'Account', 'Amount', 'Type');
-      currentY += 15;
-      doc.moveTo(50, currentY).lineTo(520, currentY).stroke();
-      currentY += 10;
-      doc.font('Helvetica');
+      drawHeaderRow(currentY);
+      currentY += 25;
     }
     
     drawRow(
       currentY, 
-      tx.transactionDate.toISOString().split('T')[0], 
-      tx.description.substring(0, 25), 
+      new Date(tx.transactionDate).toLocaleDateString(), 
+      tx.description.length > 25 ? tx.description.substring(0, 25) + '...' : tx.description, 
       tx.category?.name || 'Uncategorized', 
       tx.account.name, 
-      Number(tx.amount).toFixed(2), 
-      tx.type
+      Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 
+      tx.type,
+      rowIndex
     );
-    currentY += 15;
+    currentY += 25;
+    rowIndex++;
   }
 
   doc.end();
