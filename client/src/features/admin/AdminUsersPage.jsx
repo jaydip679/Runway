@@ -14,17 +14,17 @@ const fetchUsers = async ({ queryKey }) => {
 };
 
 const deactivateUser = async (userId) => {
-  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/deactivate`);
+  const { data } = await apiClient.patch(`/admin/users/${userId}/deactivate`);
   return data.data;
 };
 
 const reactivateUser = async (userId) => {
-  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/reactivate`);
+  const { data } = await apiClient.patch(`/admin/users/${userId}/reactivate`);
   return data.data;
 };
 
 const updateUserRole = async ({ userId, role }) => {
-  const { data } = await apiClient.patch(`/api/v1/admin/users/${userId}/role`, { role });
+  const { data } = await apiClient.patch(`/admin/users/${userId}/role`, { role });
   return data.data;
 };
 

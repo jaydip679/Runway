@@ -27,13 +27,25 @@ export const AuthProvider = ({ children }) => {
 
     fetchUser();
 
+    // Poll every 10 seconds to detect deactivation instantly
+    const intervalId = setInterval(() => {
+      if (localStorage.getItem('user')) {
+        apiClient.get('/users/me').catch(() => {
+          // Errors handled by apiClient interceptor (auth:logout)
+        });
+      }
+    }, 10000);
+
     const handleLogout = () => {
       setUser(null);
       localStorage.removeItem('user');
     };
     
     window.addEventListener('auth:logout', handleLogout);
-    return () => window.removeEventListener('auth:logout', handleLogout);
+    return () => {
+      window.removeEventListener('auth:logout', handleLogout);
+      clearInterval(intervalId);
+    };
   }, []);
 
   const login = async (email, password) => {

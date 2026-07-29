@@ -97,19 +97,28 @@ exports.deactivateUser = async (adminUserId, targetUserId) => {
     throw new AppError('User not found', 404, errorCodes.NOT_FOUND);
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: targetUserId },
-    data: { isActive: false },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      isActive: true,
-      isEmailVerified: true,
-      createdAt: true,
-      lastLoginAt: true
-    }
+  const updatedUser = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.update({
+      where: { id: targetUserId },
+      data: { isActive: false },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        isEmailVerified: true,
+        createdAt: true,
+        lastLoginAt: true
+      }
+    });
+
+    await tx.refreshToken.updateMany({
+      where: { userId: targetUserId, revokedAt: null },
+      data: { revokedAt: new Date() }
+    });
+
+    return user;
   });
 
   return updatedUser;
