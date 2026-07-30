@@ -65,7 +65,9 @@ const AdminCsvImportsPage = () => {
                     </td>
                     <td className="p-4 text-sm text-gray-900 dark:text-white">
                       <div>{job.user.name}</div>
-                      <div className="text-gray-500 dark:text-gray-400 text-xs">{job.user.email}</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">
+                        {job.user?.email ? `${job.user.email.split('@')[0][0]}***@${job.user.email.split('@')[1]}` : ''}
+                      </div>
                     </td>
                     <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">{job.filename}</td>
                     <td className="p-4 text-sm text-gray-600 dark:text-gray-300">

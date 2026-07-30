@@ -130,7 +130,9 @@ const AdminUsersPage = () => {
                 data?.users?.map(user => (
                   <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="p-4 font-medium text-gray-900 dark:text-white">{user.name}</td>
-                    <td className="p-4 text-gray-600 dark:text-gray-300">{user.email}</td>
+                    <td className="p-4 text-gray-600 dark:text-gray-300">
+                      {user.email ? `${user.email.split('@')[0][0]}***@${user.email.split('@')[1]}` : ''}
+                    </td>
                     <td className="p-4">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' : 'bg-brand-100 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300'}`}>
                         {user.role}

@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, CreditCard, PieChart, 
   Settings, LogOut, Menu, X, Leaf, Sun, Moon,
   ListOrdered, FileText, BarChart2, Target, CalendarSearch,
-  Wand2, Repeat, User, Bot, Bell, TrendingUp
+  Wand2, Repeat, User, Bot, Bell, TrendingUp, ArrowRightLeft
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -21,7 +21,7 @@ const MainLayout = () => {
     { name: 'Forecast', path: '/dashboard/forecast', icon: TrendingUp },
     { name: 'Accounts', path: '/dashboard/accounts', icon: CreditCard },
     { name: 'Categories', path: '/dashboard/categories', icon: ListOrdered },
-    { name: 'Transactions', path: '/dashboard/transactions', icon: PieChart },
+    { name: 'Transactions', path: '/dashboard/transactions', icon: ArrowRightLeft },
     { name: 'Budgets', path: '/dashboard/budgets', icon: PieChart },
     { name: 'Goals', path: '/dashboard/goals', icon: Target },
     { name: 'Reports', path: '/dashboard/reports', icon: BarChart2 },

@@ -196,7 +196,6 @@ exports.getMetrics = async () => {
     }
   });
 
-  // Fetch BullMQ job counts safely
   const safeGetJobCounts = async (queue, queueName) => {
     try {
       if (!queue) return { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 };

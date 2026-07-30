@@ -14,17 +14,17 @@ router.get(
   alertsController.getAlerts
 );
 
+router.patch(
+  '/all/read',
+  rateLimiter({ windowMs: 60000, max: 10, keyBy: 'user' }),
+  alertsController.markAllAlertsRead
+);
+
 // Limit mutations
 router.patch(
   '/:id/read',
   rateLimiter({ windowMs: 60000, max: 50, keyBy: 'user' }),
   alertsController.markAlertRead
-);
-
-router.patch(
-  '/all/read',
-  rateLimiter({ windowMs: 60000, max: 10, keyBy: 'user' }),
-  alertsController.markAllAlertsRead
 );
 
 module.exports = router;
