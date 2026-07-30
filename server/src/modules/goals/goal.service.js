@@ -100,9 +100,9 @@ const calculateGoalAffordability = async (userId, goal) => {
   if (remainingGoal === 0) {
     recommendation = "You have already reached this goal!";
   } else if (isAchievable) {
-    recommendation = `Based on your projected balances, this goal appears easily achievable before the target date. Your minimum balance remains above $${minProjectedBalance.toFixed(2)} throughout the saving period.`;
+    recommendation = `Based on your projected balances, this goal appears easily achievable before the target date. Your minimum balance remains above ₹${minProjectedBalance.toFixed(2)} throughout the saving period.`;
   } else {
-    recommendation = `To comfortably reach this goal, try to save approximately $${requiredMonthlySavings.toFixed(2)} per month.`;
+    recommendation = `To comfortably reach this goal, try to save approximately ₹${requiredMonthlySavings.toFixed(2)} per month.`;
   }
 
   return {

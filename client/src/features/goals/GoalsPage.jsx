@@ -12,7 +12,7 @@ const fetchGoals = async () => {
 };
 
 const deleteGoal = async (id) => {
-  await apiClient.delete(`/api/v1/goals/${id}`);
+  await apiClient.delete(`/goals/${id}`);
 };
 
 const GoalsPage = () => {

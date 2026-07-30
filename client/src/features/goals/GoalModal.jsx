@@ -8,7 +8,7 @@ import Button from '../../components/ui/Button';
 const saveGoal = async (data) => {
   if (data.id) {
     const { id, ...rest } = data;
-    const res = await apiClient.put(`/api/v1/goals/${id}`, rest);
+    const res = await apiClient.put(`/goals/${id}`, rest);
     return res.data.data.goal;
   }
   const res = await apiClient.post('/goals', data);
@@ -17,7 +17,7 @@ const saveGoal = async (data) => {
 
 const fetchAccounts = async () => {
   const { data } = await apiClient.get('/accounts');
-  return data.data.accounts;
+  return data.data;
 };
 
 const GoalModal = ({ isOpen, onClose, goal }) => {

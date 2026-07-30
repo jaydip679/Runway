@@ -26,7 +26,7 @@ const processRenewalSweep = async () => {
       relatedEntityType: 'RECURRING_COMMITMENT',
       relatedEntityId: commitment.id,
       relevantDate: commitment.nextOccurrenceDate,
-      message: `Your recurring ${commitment.type === 'EXPENSE' ? 'expense' : 'income'} "${commitment.name}" for $${commitment.amount.toFixed(2)} is coming up on ${commitment.nextOccurrenceDate.toLocaleDateString()}.`,
+      message: `Your recurring ${commitment.type === 'EXPENSE' ? 'expense' : 'income'} "${commitment.name}" for ₹${commitment.amount.toFixed(2)} is coming up on ${commitment.nextOccurrenceDate.toLocaleDateString()}.`,
       severity: 'INFO',
     });
   }

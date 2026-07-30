@@ -95,7 +95,7 @@ async function processForecastJob(job) {
           relatedEntityType: 'FORECAST',
           relatedEntityId: null,
           relevantDate: day.forecastDate,
-          message: `Your balance is predicted to drop below your threshold of $${lowBalanceThreshold.toFixed(2)} on ${day.forecastDate.toLocaleDateString()}. Projected: $${day.projectedBalance.toFixed(2)}`,
+          message: `Your balance is predicted to drop below your threshold of ₹${lowBalanceThreshold.toFixed(2)} on ${day.forecastDate.toLocaleDateString()}. Projected: ₹${day.projectedBalance.toFixed(2)}`,
           severity: 'WARNING',
         });
         lowBalanceAlertCreated = true;
