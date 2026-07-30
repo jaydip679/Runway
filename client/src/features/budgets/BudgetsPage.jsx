@@ -11,7 +11,7 @@ const fetchBudgets = async () => {
 };
 
 const deleteBudget = async (id) => {
-  await apiClient.delete(`/api/v1/budgets/${id}`);
+  await apiClient.delete(`/budgets/${id}`);
 };
 
 const BudgetsPage = () => {

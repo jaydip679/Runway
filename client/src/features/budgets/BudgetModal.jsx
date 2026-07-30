@@ -8,7 +8,7 @@ import Button from '../../components/ui/Button';
 const saveBudget = async (data) => {
   if (data.id) {
     const { id, ...rest } = data;
-    const res = await apiClient.put(`/api/v1/budgets/${id}`, rest);
+    const res = await apiClient.put(`/budgets/${id}`, rest);
     return res.data.data.budget;
   }
   const res = await apiClient.post('/budgets', data);
