@@ -31,10 +31,20 @@ const CashFlowChart = ({ startDate, endDate, period }) => {
   return (
     <div className="h-72 w-full mt-4">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
           <XAxis dataKey="dateFormatted" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(val) => `₹${val}`} />
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            width={60}
+            tick={{ fontSize: 12, fill: '#6b7280' }} 
+            tickFormatter={(val) => {
+              if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+              if (val >= 1000) return `₹${(val / 1000).toFixed(0)}k`;
+              return `₹${val}`;
+            }} 
+          />
           <Tooltip 
             contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#fff', borderRadius: '8px' }}
             itemStyle={{ color: '#e5e7eb' }}

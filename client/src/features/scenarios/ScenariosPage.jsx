@@ -160,7 +160,7 @@ const ScenariosPage = () => {
                   <Plus className="w-4 h-4 text-brand-500" /> One-Time Expense
                 </button>
                 <button onClick={() => handleAddEvent('NEW_RECURRING')} className="flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium transition-colors">
-                  <Plus className="w-4 h-4 text-brand-500" /> Subscription
+                  <Plus className="w-4 h-4 text-brand-500" /> Recurring Event
                 </button>
               </div>
             </div>
@@ -183,7 +183,7 @@ const ScenariosPage = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Impact (30 Days)</p>
                       <h3 className={`text-2xl font-bold mt-1 ${summary.day30Diff >= 0 ? 'text-finance-600 dark:text-finance-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {summary.day30Diff >= 0 ? '+' : ''}${summary.day30Diff.toFixed(2)}
+                        {summary.day30Diff >= 0 ? '+' : ''}₹{summary.day30Diff.toFixed(2)}
                       </h3>
                     </div>
                   </div>
@@ -191,7 +191,7 @@ const ScenariosPage = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Impact (60 Days)</p>
                       <h3 className={`text-2xl font-bold mt-1 ${summary.day60Diff >= 0 ? 'text-finance-600 dark:text-finance-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {summary.day60Diff >= 0 ? '+' : ''}${summary.day60Diff.toFixed(2)}
+                        {summary.day60Diff >= 0 ? '+' : ''}₹{summary.day60Diff.toFixed(2)}
                       </h3>
                     </div>
                   </div>

@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, payload, label }) => {
             <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-6">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Impact</span>
               <span className={`text-sm font-bold ${difference > 0 ? 'text-finance-500' : 'text-red-500'}`}>
-                {difference > 0 ? '+' : ''}${difference.toFixed(2)}
+                {difference > 0 ? '+' : ''}₹{difference.toFixed(2)}
               </span>
             </div>
           )}
