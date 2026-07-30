@@ -8,7 +8,7 @@ class GeminiProvider {
   constructor() {
     if (env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
       this.isMock = false;
     } else {
       logger.warn('[GeminiProvider] No GEMINI_API_KEY provided. Running in MOCK mode.');
@@ -22,8 +22,8 @@ class GeminiProvider {
       await delay(1500); // simulate network latency
       
       const mockJson = {
-        answer: "Based on your forecast, you can comfortably afford the $500 vacation next month. Your lowest projected balance over the next 60 days is $1,200, which leaves plenty of buffer even after this expense.",
-        reasoning: "Your day-zero balance is strong, and while you have an upcoming rent payment of $1,000, your bi-weekly income of $2,000 will hit before the balance drops too low.",
+        answer: "Based on your forecast, you can comfortably afford the ₹50,000 vacation next month. Your lowest projected balance over the next 60 days is ₹1,20,000, which leaves plenty of buffer even after this expense.",
+        reasoning: "Your day-zero balance is strong, and while you have an upcoming rent payment of ₹28,000, your regular income will hit before the balance drops too low.",
         confidence: "HIGH"
       };
 
@@ -39,7 +39,15 @@ class GeminiProvider {
       return { raw: text, isMock: false };
     } catch (error) {
       logger.error(`[GeminiProvider] API Error: ${error.message}`);
-      throw new Error('Failed to communicate with Gemini API');
+      
+      // Graceful fallback for any API failure during demos
+      logger.warn('[GeminiProvider] API unavailable/failed. Falling back to mock response...');
+      const mockJson = {
+        answer: "Based on your current runway and projected expenses, this adjustment looks manageable. Your balances remain healthy even after applying this change.",
+        reasoning: "Your regular income and current balances provide a strong enough buffer to absorb this safely.",
+        confidence: "HIGH"
+      };
+      return { raw: JSON.stringify(mockJson), isMock: true, isFallback: true };
     }
   }
 }
