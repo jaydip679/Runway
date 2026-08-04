@@ -7,9 +7,13 @@ const processNotificationJob = async (job) => {
   const { userId, type, metadata = {}, message } = job.data;
   
   let targetEmail = metadata.email;
-  if (!targetEmail) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user) targetEmail = user.email;
+  if (!targetEmail && userId) {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (user) targetEmail = user.email;
+    } catch (err) {
+      logger.error(`[NOTIFICATION] Failed to fetch user for id ${userId}: ${err.message}`);
+    }
   }
   
   let logMessage = message || '';
@@ -49,6 +53,7 @@ const processNotificationJob = async (job) => {
     logger.error(`[NOTIFICATION] Failed to send email to ${targetEmail || userId}:`);
     logger.error(`[NOTIFICATION] Code: ${error.code}`);
     logger.error(`[NOTIFICATION] Message: ${error.message}`);
+    throw error; // Let BullMQ handle retries and failure states
   }
 };
 
