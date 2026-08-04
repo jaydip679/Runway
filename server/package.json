@@ -4,7 +4,7 @@
   "description": "Runway backend",
   "main": "src/server.js",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   },
   "scripts": {
     "start": "node src/server.js",
@@ -27,6 +27,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "graphql": "^16.8.1",
@@ -39,6 +40,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "pdfkit": "^0.19.1",
+    "prisma": "^5.14.0",
     "rate-limit-redis": "^4.2.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
@@ -46,11 +48,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "jest-mock-extended": "^4.0.1",
-    "prisma": "^5.14.0",
     "supertest": "^7.0.0"
   }
 }
