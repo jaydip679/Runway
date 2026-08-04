@@ -1,7 +1,6 @@
 const logger = require('./config/logger');
 const prisma = require('./config/db');
 const { redis } = require('./config/redis');
-const { verifySmtpConnection } = require('./config/email');
 
 logger.info(`Runway background worker started in ${process.env.NODE_ENV} mode`);
 
@@ -9,10 +8,7 @@ let csvImportWorker, forecastWorker, recurringDetectionWorker, notificationWorke
 
 (async () => {
   try {
-    // 1. Verify SMTP connection BEFORE starting job consumers
-    await verifySmtpConnection();
-
-    // 2. Initialize workers dynamically only after successful (or attempted) verification
+    // Initialize workers dynamically
     const csvModule = require('./jobs/queues/csvImport.worker');
     csvImportWorker = csvModule.csvImportWorker;
     logger.info('CSV Import worker initialized');

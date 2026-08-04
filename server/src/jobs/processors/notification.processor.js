@@ -1,7 +1,6 @@
 const logger = require('../../config/logger');
 const prisma = require('../../config/db');
-const { transporter } = require('../../config/email');
-const env = require('../../config/env');
+const emailService = require('../../services/email/email.service');
 
 const processNotificationJob = async (job) => {
   const { userId, type, metadata = {}, message } = job.data;
@@ -40,18 +39,17 @@ const processNotificationJob = async (job) => {
   try {
     logger.info(`[NOTIFICATION] Attempting to send email to ${targetEmail || userId} for ${type}`);
 
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM || '"Runway" <noreply@runway.com>',
+    const info = await emailService.sendMail({
       to: targetEmail || userId,
       subject: `Runway Alert: ${type.replace(/_/g, ' ').toUpperCase()}`,
       text: logMessage,
       html: htmlMessage || logMessage,
     });
     
-    logger.info(`[NOTIFICATION] Successfully delivered email to ${targetEmail || userId} (Message ID: ${info.messageId})`);
+    logger.info(`[NOTIFICATION] Successfully delivered email to ${targetEmail || userId} (Message ID: ${info.id})`);
   } catch (error) {
     logger.error(`[NOTIFICATION] Failed to send email to ${targetEmail || userId}:`);
-    logger.error(`[NOTIFICATION] Code: ${error.code}`);
+    logger.error(`[NOTIFICATION] Code: ${error.code || 'UNKNOWN'}`);
     logger.error(`[NOTIFICATION] Message: ${error.message}`);
     throw error; // Let BullMQ handle retries and failure states
   }
