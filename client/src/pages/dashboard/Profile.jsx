@@ -70,8 +70,8 @@ const Profile = () => {
   };
 
   const avatarUrl = user?.avatarUrl 
-    ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}${user.avatarUrl}`) 
-    : null;
+    ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${import.meta.env.VITE_API_URL || ''}${user.avatarUrl}`) 
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=0ea5e9&color=fff`;
 
   return (
     <div className="w-full max-w-3xl mx-auto pb-12">
