@@ -1,6 +1,6 @@
 const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis').default;
-const redis = require('../../config/redis');
+const { redis } = require();
 
 const createRateLimiter = (options = {}) => {
   // Bypass rate limiting entirely during tests to avoid 429 errors and DOUBLE_COUNT warnings

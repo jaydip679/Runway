@@ -1,5 +1,5 @@
 const prisma = require('../../config/db');
-const redis = require('../../config/redis');
+const { redis } = require();
 const AppError = require('../../common/errors/AppError');
 const errorCodes = require('../../common/errors/errorCodes');
 const { hashPassword, comparePassword } = require('./auth.utils');

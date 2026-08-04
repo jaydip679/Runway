@@ -24,4 +24,24 @@ redis.on('ready', () => {
   logger.info('Redis connected and ready');
 });
 
-module.exports = redis;
+const createRedisConnection = () => {
+  const connection = new Redis(env.REDIS_URL, {
+    retryStrategy: (times) => {
+      if (times >= 10) return null;
+      return Math.min(times * 1000, 5000);
+    },
+    maxRetriesPerRequest: null,
+  });
+
+  connection.on('error', (err) => {
+    if (err.message && err.message.includes('limit exceeded')) return;
+    logger.error(`Worker Redis connection error: ${err.message}`);
+  });
+
+  return connection;
+};
+
+module.exports = {
+  redis,
+  createRedisConnection,
+};

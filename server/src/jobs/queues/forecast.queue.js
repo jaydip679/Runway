@@ -1,7 +1,6 @@
-const { Queue, Worker } = require('bullmq');
-const redis = require('../../config/redis');
+const { Queue } = require('bullmq');
+const { redis } = require('../../config/redis');
 const logger = require('../../config/logger');
-const { processForecastJob } = require('../processors/forecast.processor');
 
 const QUEUE_NAME = 'forecastQueue';
 
@@ -15,18 +14,6 @@ const forecastQueue = new Queue(QUEUE_NAME, {
   },
 });
 
-const forecastWorker = new Worker(QUEUE_NAME, processForecastJob, {
-  connection: redis,
-  concurrency: 5,
-});
-
-forecastWorker.on('failed', (job, err) => {
-  logger.error(`Forecast job ${job?.id} failed: ${err.message}`, { error: err });
-});
-
-forecastWorker.on('completed', (job) => {
-  logger.info(`Forecast job ${job.id} completed successfully.`);
-});
 
 /**
  * Debounced enqueue function.
@@ -52,6 +39,5 @@ const enqueueForecastRecompute = async (userId) => {
 
 module.exports = {
   forecastQueue,
-  forecastWorker,
   enqueueForecastRecompute,
 };

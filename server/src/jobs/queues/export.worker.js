@@ -6,10 +6,7 @@ const os = require('os');
 const prisma = require('../../config/db');
 const { uploadPdf, getTempPdfPath } = require('../../modules/storage/storage.service');
 const { enqueuePdfCleanup } = require('./export.queue');
-
-const connection = {
-  url: process.env.REDIS_URL,
-};
+const { createRedisConnection } = require('../../config/redis');
 
 const exportWorker = new Worker('pdf-export', async (job) => {
   const { userId, filters } = job.data;
@@ -186,7 +183,7 @@ const exportWorker = new Worker('pdf-export', async (job) => {
 
   // Note: I will update schema.prisma AlertType to include EXPORT_READY.
 
-}, { connection });
+}, { connection: createRedisConnection() });
 
 exportWorker.on('failed', (job, err) => {
   console.error(`Export Job ${job.id} failed:`, err.message);
@@ -200,7 +197,7 @@ const pdfCleanupWorker = new Worker('pdf-cleanup', async (job) => {
     fs.unlinkSync(filePath);
     console.log(`Cleaned up temporary PDF: ${filename}`);
   }
-}, { connection });
+}, { connection: createRedisConnection() });
 
 pdfCleanupWorker.on('failed', (job, err) => {
   console.error(`PDF Cleanup Job ${job.id} failed:`, err.message);

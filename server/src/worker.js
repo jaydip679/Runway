@@ -1,11 +1,11 @@
 const logger = require('./config/logger');
 const prisma = require('./config/db');
-const redis = require('./config/redis');
+const { redis } = require('./config/redis');
 
-const { csvImportWorker } = require('./jobs/queues/csvImport.queue');
-const { forecastWorker } = require('./jobs/queues/forecast.queue');
-const { recurringDetectionWorker } = require('./jobs/queues/recurringDetection.queue');
-const { notificationWorker } = require('./jobs/queues/notification.queue');
+const { csvImportWorker } = require('./jobs/queues/csvImport.worker');
+const { forecastWorker } = require('./jobs/queues/forecast.worker');
+const { recurringDetectionWorker } = require('./jobs/queues/recurringDetection.worker');
+const { notificationWorker } = require('./jobs/queues/notification.worker');
 const { exportWorker, pdfCleanupWorker } = require('./jobs/queues/export.worker');
 const { initScheduler } = require('./jobs/scheduler');
 

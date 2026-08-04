@@ -1,6 +1,6 @@
 const logger = require('../../config/logger');
 const prisma = require('../../config/db');
-const redis = require('../../config/redis');
+const { redis } = require();
 const { computeForecast } = require('../../modules/forecast/forecastEngine');
 const { computeSignature } = require('../../modules/recurring/detectionAlgorithm');
 const { Decimal } = require('@prisma/client/runtime/library');

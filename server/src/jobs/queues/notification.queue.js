@@ -1,12 +1,8 @@
-const { Queue, Worker } = require('bullmq');
-const env = require('../../config/env');
-
-const connection = {
-  url: env.REDIS_URL,
-};
+const { Queue } = require('bullmq');
+const { redis } = require('../../config/redis');
 
 const notificationQueue = new Queue('notificationQueue', {
-  connection,
+  connection: redis,
   defaultJobOptions: {
     attempts: 3,
     backoff: { type: 'exponential', delay: 5000 },
@@ -15,15 +11,6 @@ const notificationQueue = new Queue('notificationQueue', {
   },
 });
 
-const { processNotificationJob } = require('../processors/notification.processor');
-
-const notificationWorker = new Worker('notificationQueue', processNotificationJob, { connection });
-
-notificationWorker.on('failed', (job, err) => {
-  console.error(`[notificationWorker] Job ${job.id} failed:`, err);
-});
-
 module.exports = {
   notificationQueue,
-  notificationWorker,
 };

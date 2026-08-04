@@ -1,11 +1,8 @@
 const { Queue } = require('bullmq');
-
-const connection = {
-  url: process.env.REDIS_URL,
-};
+const { redis } = require('../../config/redis');
 
 const exportQueue = new Queue('pdf-export', {
-  connection,
+  connection: redis,
   defaultJobOptions: {
     attempts: 3,
     backoff: {
@@ -18,7 +15,7 @@ const exportQueue = new Queue('pdf-export', {
 });
 
 const pdfCleanupQueue = new Queue('pdf-cleanup', {
-  connection,
+  connection: redis,
   defaultJobOptions: {
     attempts: 3,
     removeOnComplete: true,
