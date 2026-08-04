@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../../app');
 const prisma = require('../../../config/db');
-const { redis } = require();
+const { redis } = require('../../../config/redis');
 const { generateAccessToken } = require('../../auth/auth.utils');
 
 describe('Category Integration', () => {

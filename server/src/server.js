@@ -1,7 +1,7 @@
 const env = require('./config/env');
 const logger = require('./config/logger');
 const prisma = require('./config/db');
-const { redis } = require();
+const { redis } = require('./config/redis');
 const app = require('./app');
 
 const server = app.listen(env.PORT, () => {

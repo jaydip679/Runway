@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../../app');
 const prisma = require('../../../config/db');
-const { redis } = require();
+const { redis } = require('../../../config/redis');
 
 describe('Auth Integration (T1.3 & T1.4)', () => {
   const testEmail = `test_${Date.now()}@example.com`;
