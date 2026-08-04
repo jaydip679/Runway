@@ -8,15 +8,22 @@ const { recurringDetectionWorker } = require('./jobs/queues/recurringDetection.w
 const { notificationWorker } = require('./jobs/queues/notification.worker');
 const { exportWorker, pdfCleanupWorker } = require('./jobs/queues/export.worker');
 const { initScheduler } = require('./jobs/scheduler');
+const { verifySmtpConnection } = require('./config/email');
 
-logger.info('Runway background worker started');
+logger.info(`Runway background worker started in ${process.env.NODE_ENV} mode`);
+
+verifySmtpConnection().then(() => {
+  initScheduler();
+}).catch((err) => {
+  logger.error('Worker startup error:', err);
+});
+
 logger.info('CSV Import worker initialized');
 logger.info('Forecast worker initialized');
 logger.info('Recurring Detection worker initialized');
 logger.info('Notification worker initialized');
 logger.info('Export worker initialized');
 logger.info('PDF Cleanup worker initialized');
-initScheduler();
 logger.info('Scheduler initialized for recurring cron jobs');
 
 const shutdown = async () => {

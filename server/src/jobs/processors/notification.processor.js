@@ -1,6 +1,7 @@
 const logger = require('../../config/logger');
 const prisma = require('../../config/db');
-const nodemailer = require('nodemailer');
+const { transporter } = require('../../config/email');
+const env = require('../../config/env');
 
 const processNotificationJob = async (job) => {
   const { userId, type, metadata = {}, message } = job.data;
@@ -33,27 +34,21 @@ const processNotificationJob = async (job) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    logger.info(`[NOTIFICATION] Attempting to send email to ${targetEmail || userId} for ${type}`);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"Runway" <noreply@runway.com>',
+    const info = await transporter.sendMail({
+      from: env.EMAIL_FROM || '"Runway" <noreply@runway.com>',
       to: targetEmail || userId,
       subject: `Runway Alert: ${type.replace(/_/g, ' ').toUpperCase()}`,
       text: logMessage,
       html: htmlMessage || logMessage,
     });
     
-    logger.info(`[NOTIFICATION] Successfully delivered email to ${targetEmail || userId}`);
+    logger.info(`[NOTIFICATION] Successfully delivered email to ${targetEmail || userId} (Message ID: ${info.messageId})`);
   } catch (error) {
-    logger.error(`[NOTIFICATION] Failed to send email to ${targetEmail || userId}:`, error);
+    logger.error(`[NOTIFICATION] Failed to send email to ${targetEmail || userId}:`);
+    logger.error(`[NOTIFICATION] Code: ${error.code}`);
+    logger.error(`[NOTIFICATION] Message: ${error.message}`);
   }
 };
 
