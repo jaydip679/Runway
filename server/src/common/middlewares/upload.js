@@ -1,38 +1,10 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
-const env = require('../../config/env');
 const AppError = require('../errors/AppError');
 const errorCodes = require('../errors/errorCodes');
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: env.CLOUDINARY_CLOUD_NAME,
-  api_key: env.CLOUDINARY_API_KEY,
-  api_secret: env.CLOUDINARY_API_SECRET
-});
-
-// Cloudinary Storage for images
-const cloudinaryStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    let folder = 'runway/avatars';
-    if (file.fieldname === 'receipt') folder = 'runway/receipts';
-    
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    let prefix = 'avatar';
-    if (file.fieldname === 'receipt') prefix = 'receipt';
-    
-    return {
-      folder: folder,
-      public_id: `${prefix}-${req.user.sub || req.user.id}-${uniqueSuffix}`,
-    };
-  }
-});
-
-// Local Disk Storage for CSV imports (or dev mode images)
+// Local Disk Storage for all uploads
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder = 'avatars';
@@ -72,19 +44,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage: (req, file, cb) => {
-    // CSV imports always go to local disk (temporary worker processing)
-    if (file.fieldname === 'file') {
-      diskStorage._handleFile(req, file, cb);
-    } 
-    // In production, images go to Cloudinary. Locally, they stay on disk.
-    else if (env.NODE_ENV === 'production') {
-      cloudinaryStorage._handleFile(req, file, cb);
-    } 
-    else {
-      diskStorage._handleFile(req, file, cb);
-    }
-  },
+  storage: diskStorage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },

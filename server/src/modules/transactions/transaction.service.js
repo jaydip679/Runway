@@ -5,6 +5,9 @@ const { encodeCursor, decodeCursor } = require('../../common/utils/pagination');
 const { enqueueForecastRecompute } = require('../../jobs/queues/forecast.queue');
 const { checkBudgetAlerts } = require('../budgets/budget.service');
 const logger = require('../../config/logger');
+const path = require('path');
+const env = require('../../config/env');
+const { uploadImage, deleteImage } = require('../../common/utils/cloudinary');
 
 const validateAccountAndCategory = async (userId, accountId, categoryId, transactionType) => {
   if (accountId) {
@@ -247,13 +250,35 @@ const aggregateTransactions = async (userId, { startDate, endDate, groupBy = 'ca
   return results;
 };
 
-const uploadReceipt = async (userId, id, receiptImageUrl) => {
+const uploadReceipt = async (userId, id, file) => {
   const existing = await prisma.transaction.findFirst({
     where: { id, userId, deletedAt: null }
   });
   
   if (!existing) {
+    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
     throw new AppError('Transaction not found', 404, errorCodes.RESOURCE_NOT_FOUND);
+  }
+
+  // Clean up old receipt
+  if (existing.receiptImageUrl) {
+    if (existing.receiptImageUrl.includes('cloudinary.com')) {
+      const matches = existing.receiptImageUrl.match(/\/v\d+\/(.+)$/);
+      if (matches && matches[1]) {
+        const publicId = matches[1].replace(/\.[^/.]+$/, "");
+        await deleteImage(publicId).catch(() => {});
+      }
+    } else if (existing.receiptImageUrl.startsWith('/uploads')) {
+      const oldPath = path.join(__dirname, '../../../', existing.receiptImageUrl);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+  }
+
+  let receiptImageUrl = `/uploads/receipts/${file.filename}`;
+
+  if (env.NODE_ENV === 'production') {
+    const result = await uploadImage(file.path, 'runway/receipts');
+    receiptImageUrl = result.secure_url;
   }
 
   const transaction = await prisma.transaction.update({

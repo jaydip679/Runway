@@ -30,8 +30,7 @@ const uploadReceipt = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'No file uploaded' } });
   }
-  const receiptUrl = `/uploads/receipts/${req.file.filename}`;
-  const transaction = await transactionService.uploadReceipt(req.user.id, req.params.id, receiptUrl);
+  const transaction = await transactionService.uploadReceipt(req.user.id, req.params.id, req.file);
   sendSuccess(res, transaction);
 };
 

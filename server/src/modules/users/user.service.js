@@ -3,6 +3,8 @@ const AppError = require('../../common/errors/AppError');
 const errorCodes = require('../../common/errors/errorCodes');
 const path = require('path');
 const fs = require('fs');
+const env = require('../../config/env');
+const { uploadImage, deleteImage } = require('../../common/utils/cloudinary');
 
 const getMe = async (userId) => {
   const user = await prisma.user.findUnique({
@@ -61,9 +63,24 @@ const uploadAvatar = async (userId, file) => {
         fs.unlinkSync(oldPath);
       }
     }
+    // Delete from Cloudinary if it's a Cloudinary URL
+    else if (currentUser.avatarUrl.includes('cloudinary.com')) {
+      // Extract public_id from Cloudinary URL (assuming runway/avatars/...)
+      const matches = currentUser.avatarUrl.match(/\/v\d+\/(.+)$/);
+      if (matches && matches[1]) {
+        // Remove file extension
+        const publicId = matches[1].replace(/\.[^/.]+$/, "");
+        await deleteImage(publicId).catch(() => {});
+      }
+    }
   }
 
-  const avatarUrl = `/uploads/avatars/${file.filename}`;
+  let avatarUrl = `/uploads/avatars/${file.filename}`;
+
+  if (env.NODE_ENV === 'production') {
+    const result = await uploadImage(file.path, 'runway/avatars');
+    avatarUrl = result.secure_url;
+  }
   
   const user = await prisma.user.update({
     where: { id: userId },
