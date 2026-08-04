@@ -12,16 +12,17 @@ const register = catchAsync(async (req, res) => {
 });
 
 const setTokenCookies = (res, accessToken, refreshToken) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 15 * 60 * 1000 // 15 min
   });
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   });
 };

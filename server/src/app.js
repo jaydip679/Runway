@@ -33,6 +33,9 @@ const exportRoutes = require('./modules/export/export.routes');
 
 const app = express();
 
+// Trust proxy for Render load balancers (required for rate limiting)
+app.set('trust proxy', 1);
+
 // Swagger API Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
