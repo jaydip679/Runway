@@ -11,7 +11,7 @@ router.use(authenticate);
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const aiRateLimiter = rateLimiter({
   windowMs: ONE_DAY_MS,
-  max: 10000,
+  max: process.env.NODE_ENV === 'test' ? 10 : 10000,
   keyBy: 'user',
   handler: (req, res) => {
     res.status(429).json({

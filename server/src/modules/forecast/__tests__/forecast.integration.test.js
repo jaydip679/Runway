@@ -47,6 +47,7 @@ describe('Forecast Integration Tests', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    prisma.user.findUnique.mockResolvedValue({ id: userId, role: 'USER', isActive: true });
   });
 
   describe('GET /api/v1/forecast', () => {

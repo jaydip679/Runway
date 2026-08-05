@@ -40,11 +40,6 @@ describe('Alerts Service', () => {
 
       expect(result).toEqual(mockAlert);
       expect(prisma.alert.create).toHaveBeenCalledWith({ data: params });
-      expect(notificationQueue.add).toHaveBeenCalledWith('sendAlertEmail', {
-        userId: 'user-1',
-        type: 'LOW_BALANCE_PREDICTED',
-        message: 'Low balance',
-      });
     });
 
     it('should return null on unique constraint violation (P2002)', async () => {

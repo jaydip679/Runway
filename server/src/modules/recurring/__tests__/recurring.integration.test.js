@@ -21,8 +21,8 @@ const { enqueueForecastRecompute } = require('../../../jobs/queues/forecast.queu
 
 describe('Recurring Commitments API', () => {
   let token;
-  const userId = 'user-1';
-  const accountId = 'account-1';
+  const userId = '11111111-1111-1111-1111-111111111111';
+  const accountId = '22222222-2222-2222-2222-222222222222';
 
   beforeAll(() => {
     token = jwt.sign({ sub: userId, role: 'USER' }, env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
@@ -30,12 +30,13 @@ describe('Recurring Commitments API', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    prisma.user.findUnique.mockResolvedValue({ id: userId, role: 'USER', isActive: true });
   });
 
   describe('GET /api/v1/recurring', () => {
     it('returns a list of recurring commitments', async () => {
       prisma.recurringCommitment.findMany.mockResolvedValue([
-        { id: 'rec-1', name: 'Netflix', status: 'CONFIRMED', account: { id: accountId, name: 'Bank' } }
+        { id: '33333333-3333-3333-3333-333333333333', name: 'Netflix', status: 'CONFIRMED', account: { id: accountId, name: 'Bank' } }
       ]);
 
       const res = await request(app)
@@ -57,7 +58,7 @@ describe('Recurring Commitments API', () => {
   describe('POST /api/v1/recurring', () => {
     it('creates a manual recurring commitment and returns 201', async () => {
       prisma.account.findUnique.mockResolvedValue({ id: accountId, userId, deletedAt: null });
-      prisma.recurringCommitment.create.mockResolvedValue({ id: 'rec-2', name: 'Gym', status: 'CONFIRMED' });
+      prisma.recurringCommitment.create.mockResolvedValue({ id: '44444444-4444-4444-4444-444444444444', name: 'Gym', status: 'CONFIRMED' });
 
       const res = await request(app)
         .post('/api/v1/recurring')
@@ -101,11 +102,11 @@ describe('Recurring Commitments API', () => {
 
   describe('PATCH /api/v1/recurring/:id', () => {
     it('updates a commitment without confirming it if it was pending', async () => {
-      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: 'rec-1', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
-      prisma.recurringCommitment.update.mockResolvedValue({ id: 'rec-1', name: 'Updated Gym', status: 'PENDING_CONFIRMATION' });
+      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
+      prisma.recurringCommitment.update.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', name: 'Updated Gym', status: 'PENDING_CONFIRMATION' });
 
       const res = await request(app)
-        .patch('/api/v1/recurring/rec-1')
+        .patch('/api/v1/recurring/33333333-3333-3333-3333-333333333333')
         .set('Cookie', [`accessToken=${token}`])
         .send({ name: 'Updated Gym' });
 
@@ -117,11 +118,11 @@ describe('Recurring Commitments API', () => {
 
   describe('POST /api/v1/recurring/:id/confirm', () => {
     it('confirms a pending commitment', async () => {
-      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: 'rec-1', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
-      prisma.recurringCommitment.update.mockResolvedValue({ id: 'rec-1', status: 'CONFIRMED' });
+      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
+      prisma.recurringCommitment.update.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', status: 'CONFIRMED' });
 
       const res = await request(app)
-        .post('/api/v1/recurring/rec-1/confirm')
+        .post('/api/v1/recurring/33333333-3333-3333-3333-333333333333/confirm')
         .set('Cookie', [`accessToken=${token}`]);
 
       expect(res.status).toBe(200);
@@ -130,10 +131,10 @@ describe('Recurring Commitments API', () => {
     });
 
     it('returns 422 if already confirmed', async () => {
-      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: 'rec-1', userId, deletedAt: null, status: 'CONFIRMED' });
+      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', userId, deletedAt: null, status: 'CONFIRMED' });
 
       const res = await request(app)
-        .post('/api/v1/recurring/rec-1/confirm')
+        .post('/api/v1/recurring/33333333-3333-3333-3333-333333333333/confirm')
         .set('Cookie', [`accessToken=${token}`]);
 
       expect(res.status).toBe(422);
@@ -143,11 +144,11 @@ describe('Recurring Commitments API', () => {
 
   describe('POST /api/v1/recurring/:id/dismiss', () => {
     it('dismisses a pending commitment', async () => {
-      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: 'rec-1', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
-      prisma.recurringCommitment.update.mockResolvedValue({ id: 'rec-1', status: 'DISMISSED' });
+      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', userId, deletedAt: null, status: 'PENDING_CONFIRMATION' });
+      prisma.recurringCommitment.update.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', status: 'DISMISSED' });
 
       const res = await request(app)
-        .post('/api/v1/recurring/rec-1/dismiss')
+        .post('/api/v1/recurring/33333333-3333-3333-3333-333333333333/dismiss')
         .set('Cookie', [`accessToken=${token}`]);
 
       expect(res.status).toBe(200);
@@ -157,11 +158,11 @@ describe('Recurring Commitments API', () => {
 
   describe('DELETE /api/v1/recurring/:id', () => {
     it('soft deletes a commitment', async () => {
-      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: 'rec-1', userId, deletedAt: null });
-      prisma.recurringCommitment.update.mockResolvedValue({ id: 'rec-1', deletedAt: new Date() });
+      prisma.recurringCommitment.findUnique.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', userId, deletedAt: null });
+      prisma.recurringCommitment.update.mockResolvedValue({ id: '33333333-3333-3333-3333-333333333333', deletedAt: new Date() });
 
       const res = await request(app)
-        .delete('/api/v1/recurring/rec-1')
+        .delete('/api/v1/recurring/33333333-3333-3333-3333-333333333333')
         .set('Cookie', [`accessToken=${token}`]);
 
       expect(res.status).toBe(204);

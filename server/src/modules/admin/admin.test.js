@@ -38,6 +38,10 @@ describe('Admin API (Phase 9)', () => {
 
   beforeAll(async () => {
     await prisma.csvImportJob.deleteMany();
+    await prisma.account.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.auditLog.deleteMany();
+    await prisma.aiQueryLog.deleteMany();
     await prisma.user.deleteMany();
 
     const passwordHash = await bcrypt.hash('password123', 10);
@@ -48,7 +52,8 @@ describe('Admin API (Phase 9)', () => {
         name: 'Admin User',
         passwordHash,
         role: 'ADMIN',
-        isEmailVerified: true
+        isEmailVerified: true,
+        authProvider: 'LOCAL'
       }
     });
 
@@ -58,7 +63,8 @@ describe('Admin API (Phase 9)', () => {
         name: 'Normal User',
         passwordHash,
         role: 'USER',
-        isEmailVerified: true
+        isEmailVerified: true,
+        authProvider: 'LOCAL'
       }
     });
 
@@ -68,6 +74,10 @@ describe('Admin API (Phase 9)', () => {
 
   afterAll(async () => {
     await prisma.csvImportJob.deleteMany();
+    await prisma.account.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.auditLog.deleteMany();
+    await prisma.aiQueryLog.deleteMany();
     await prisma.user.deleteMany();
     await prisma.$disconnect();
   });
@@ -76,21 +86,21 @@ describe('Admin API (Phase 9)', () => {
     it('should block normal users from GET /admin/users with 403', async () => {
       const res = await request(app)
         .get('/api/v1/admin/users')
-        .set('Authorization', `Bearer ${userToken}`);
+        .set('Cookie', [`accessToken=${userToken}`]);
       expect(res.status).toBe(403);
     });
 
     it('should block normal users from GET /admin/csv-imports with 403', async () => {
       const res = await request(app)
         .get('/api/v1/admin/csv-imports')
-        .set('Authorization', `Bearer ${userToken}`);
+        .set('Cookie', [`accessToken=${userToken}`]);
       expect(res.status).toBe(403);
     });
 
     it('should block normal users from GET /admin/metrics with 403', async () => {
       const res = await request(app)
         .get('/api/v1/admin/metrics')
-        .set('Authorization', `Bearer ${userToken}`);
+        .set('Cookie', [`accessToken=${userToken}`]);
       expect(res.status).toBe(403);
     });
   });
@@ -99,7 +109,7 @@ describe('Admin API (Phase 9)', () => {
     it('should allow admin and return strict payload shape without passwordHash', async () => {
       const res = await request(app)
         .get('/api/v1/admin/users')
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', [`accessToken=${adminToken}`]);
       
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -122,7 +132,7 @@ describe('Admin API (Phase 9)', () => {
     it('should block self-deactivation with 422', async () => {
       const res = await request(app)
         .patch(`/api/v1/admin/users/${adminUser.id}/deactivate`)
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', [`accessToken=${adminToken}`]);
       
       expect(res.status).toBe(422);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -131,7 +141,7 @@ describe('Admin API (Phase 9)', () => {
     it('should deactivate another user successfully', async () => {
       const res = await request(app)
         .patch(`/api/v1/admin/users/${normalUser.id}/deactivate`)
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', [`accessToken=${adminToken}`]);
       
       expect(res.status).toBe(200);
       expect(res.body.data.user.isActive).toBe(false);
@@ -147,18 +157,19 @@ describe('Admin API (Phase 9)', () => {
       await prisma.csvImportJob.create({
         data: {
           id: 'test-job',
-          userId: normalUser.id,
+          user: { connect: { id: normalUser.id } },
+          account: { create: { userId: normalUser.id, name: 'Test Account', currency: 'USD', type: 'BANK', currentBalance: 0 } },
           status: 'FAILED',
-          filename: 'test.csv',
           totalRows: 10,
-          processedRows: 5,
-          error: 'Test error'
+          successRows: 5,
+          failedRows: 5,
+          errorLog: { error: 'Test error' }
         }
       });
 
       const res = await request(app)
         .get('/api/v1/admin/csv-imports')
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', [`accessToken=${adminToken}`]);
       
       expect(res.status).toBe(200);
       expect(res.body.data.imports).toHaveLength(1);
@@ -171,7 +182,7 @@ describe('Admin API (Phase 9)', () => {
     it('should return metrics dashboard data', async () => {
       const res = await request(app)
         .get('/api/v1/admin/metrics')
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', [`accessToken=${adminToken}`]);
       
       expect(res.status).toBe(200);
       expect(res.body.data.users.total).toBeGreaterThanOrEqual(2);

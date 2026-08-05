@@ -1,10 +1,10 @@
-const { processRecurringDetection } = require('../recurringDetection.queue');
+const { processRecurringDetection } = require('../recurringDetection.worker');
 const prisma = require('../../../config/db');
 const { detect } = require('../../../modules/recurring/detectionAlgorithm');
 
 jest.mock('../../../config/db', () => require('../../../config/__mocks__/db'));
 jest.mock('bullmq');
-jest.mock('../../../config/redis', () => ({}));
+jest.mock('../../../config/redis', () => ({ createRedisConnection: jest.fn() }));
 jest.mock('../../../modules/recurring/detectionAlgorithm');
 
 describe('recurringDetection.queue', () => {
@@ -49,6 +49,8 @@ describe('recurringDetection.queue', () => {
     prisma.recurringCommitment.findFirst.mockResolvedValueOnce(null);
     // existing pending check -> returns null
     prisma.recurringCommitment.findFirst.mockResolvedValueOnce(null);
+
+    prisma.recurringCommitment.create.mockResolvedValue({ id: 'new-id', name: 'n', nextOccurrenceDate: new Date() });
 
     await processRecurringDetection(job);
 

@@ -27,29 +27,40 @@ describe('Auth Integration (T1.3 & T1.4)', () => {
       
     expect(res.statusCode).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.userId).toBeDefined();
-    
-    userId = res.body.data.userId;
+    expect(res.body.data.message).toBeDefined();
     
     // Redis key should exist
-    const redisKey = `otp:verify:${userId}`;
+    const redisKey = `otp:register:${testEmail.toLowerCase()}`;
     const otpData = await redis.get(redisKey);
     expect(otpData).toBeDefined();
   });
 
   it('should prevent duplicate registration', async () => {
+    await prisma.user.create({
+      data: {
+        email: testEmail,
+        name: 'Test User',
+        passwordHash: 'hashed',
+        authProvider: 'LOCAL'
+      }
+    });
+
     const res = await request(app)
       .post('/api/v1/auth/register')
       .send({ email: testEmail, password: 'Password123!', name: 'Test User' });
       
     expect(res.statusCode).toBe(409);
     expect(res.body.error.code).toBe('AUTH_EMAIL_EXISTS');
+
+    await prisma.user.delete({ where: { email: testEmail } });
   });
 
   it('should resend OTP', async () => {
+    await request(app).post('/api/v1/auth/register').send({ email: testEmail, password: 'Password123!', name: 'Test User' });
+
     const res = await request(app)
       .post('/api/v1/auth/resend-otp')
-      .send({ userId });
+      .send({ email: testEmail });
       
     expect(res.statusCode).toBe(200);
     expect(res.body.data.message).toBe('A new OTP has been sent.');
@@ -57,18 +68,18 @@ describe('Auth Integration (T1.3 & T1.4)', () => {
     // Cooldown should be active
     const cdRes = await request(app)
       .post('/api/v1/auth/resend-otp')
-      .send({ userId });
+      .send({ email: testEmail });
     expect(cdRes.statusCode).toBe(429);
   });
 
   it('should verify OTP', async () => {
-    const redisKey = `otp:verify:${userId}`;
+    const redisKey = `otp:register:${testEmail.toLowerCase()}`;
     const raw = await redis.get(redisKey);
     const { otp } = JSON.parse(raw);
     
     const res = await request(app)
       .post('/api/v1/auth/verify-otp')
-      .send({ userId, otp });
+      .send({ email: testEmail, otp });
       
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -138,11 +149,15 @@ describe('Auth Integration (T1.3 & T1.4)', () => {
       .post('/api/v1/auth/login')
       .send({ email: testEmail, password: 'Password123!' });
       
+    expect(loginRes.statusCode).toBe(200);
+      
     let accessCookie, refreshCookie;
-    loginRes.headers['set-cookie'].forEach(cookie => {
-      if (cookie.startsWith('accessToken=')) accessCookie = cookie.split(';')[0];
-      if (cookie.startsWith('refreshToken=')) refreshCookie = cookie.split(';')[0];
-    });
+    if (loginRes.headers['set-cookie']) {
+      loginRes.headers['set-cookie'].forEach(cookie => {
+        if (cookie.startsWith('accessToken=')) accessCookie = cookie.split(';')[0];
+        if (cookie.startsWith('refreshToken=')) refreshCookie = cookie.split(';')[0];
+      });
+    }
 
     const res = await request(app)
       .post('/api/v1/auth/logout')

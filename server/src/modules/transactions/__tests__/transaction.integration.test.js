@@ -13,6 +13,7 @@ describe('Transactions Service', () => {
   
   beforeEach(() => {
     jest.clearAllMocks();
+    prisma.$transaction.mockImplementation(async (cb) => cb(prisma));
   });
 
   it('should create a new transaction successfully', async () => {

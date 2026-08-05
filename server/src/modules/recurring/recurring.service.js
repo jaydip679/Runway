@@ -12,7 +12,7 @@ const checkAccountOwnership = async (userId, accountId) => {
     where: { id: accountId }
   });
   if (!account || account.userId !== userId || account.deletedAt !== null) {
-    throw new AppError('Account not found', 404, errorCodes.ACCOUNTS.ACCOUNT_NOT_FOUND);
+    throw new AppError('Account not found', 404, 'ACCOUNT_NOT_FOUND');
   }
 };
 
@@ -22,7 +22,7 @@ const getCommitment = async (userId, id) => {
     include: { account: true }
   });
   if (!commitment || commitment.userId !== userId || commitment.deletedAt !== null) {
-    throw new AppError('Recurring commitment not found', 404, errorCodes.RECURRING?.COMMITMENT_NOT_FOUND || 'RECURRING_NOT_FOUND');
+    throw new AppError('Recurring commitment not found', 404, 'RECURRING_NOT_FOUND');
   }
   return commitment;
 };
