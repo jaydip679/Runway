@@ -31,6 +31,7 @@ const analyticsRoutes = require('./modules/analytics/analytics.routes');
 const exportRoutes = require('./modules/export/export.routes');
 
 const app = express();
+const { Sentry } = require('./config/sentry');
 
 // Trust proxy for Render load balancers (required for rate limiting)
 app.set('trust proxy', 1);
@@ -94,6 +95,10 @@ app.get('/health/ready', async (req, res) => {
 });
 
 // Global error handler
+if (Sentry && typeof Sentry.setupExpressErrorHandler === 'function') {
+  Sentry.setupExpressErrorHandler(app);
+}
+
 app.use(errorHandler);
 
 module.exports = app;

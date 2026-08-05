@@ -1,6 +1,37 @@
 const logger = require('./config/logger');
 const prisma = require('./config/db');
 const { redis } = require('./config/redis');
+const { initSentry, Sentry } = require('./config/sentry');
+
+// Initialize Sentry early
+initSentry('worker');
+
+const os = require('os');
+
+const attachSentryToWorker = (worker) => {
+  if (!Sentry || typeof Sentry.captureException !== 'function' || !worker) return;
+  
+  worker.on('failed', (job, err) => {
+    Sentry.withScope((scope) => {
+      scope.setTag('queue', worker.name);
+      scope.setTag('worker_hostname', os.hostname());
+      
+      if (job) {
+        scope.setContext('Job Details', {
+          id: job.id,
+          name: job.name,
+          attemptsMade: job.attemptsMade,
+          totalAttemptsConfigured: job.opts?.attempts || 1,
+          // Only log payload keys to avoid leaking sensitive data
+          payloadKeys: job.data ? Object.keys(job.data) : [],
+        });
+      }
+      
+      Sentry.captureException(err);
+    });
+  });
+};
+
 
 logger.info(`Runway background worker started in ${process.env.NODE_ENV} mode`);
 
@@ -11,23 +42,29 @@ let csvImportWorker, forecastWorker, recurringDetectionWorker, notificationWorke
     // Initialize workers dynamically
     const csvModule = require('./jobs/queues/csvImport.worker');
     csvImportWorker = csvModule.csvImportWorker;
+    attachSentryToWorker(csvImportWorker);
     logger.info('CSV Import worker initialized');
 
     const forecastModule = require('./jobs/queues/forecast.worker');
     forecastWorker = forecastModule.forecastWorker;
+    attachSentryToWorker(forecastWorker);
     logger.info('Forecast worker initialized');
 
     const recurringModule = require('./jobs/queues/recurringDetection.worker');
     recurringDetectionWorker = recurringModule.recurringDetectionWorker;
+    attachSentryToWorker(recurringDetectionWorker);
     logger.info('Recurring Detection worker initialized');
 
     const notificationModule = require('./jobs/queues/notification.worker');
     notificationWorker = notificationModule.notificationWorker;
+    attachSentryToWorker(notificationWorker);
     logger.info('Notification worker initialized');
 
     const exportModule = require('./jobs/queues/export.worker');
     exportWorker = exportModule.exportWorker;
     pdfCleanupWorker = exportModule.pdfCleanupWorker;
+    attachSentryToWorker(exportWorker);
+    attachSentryToWorker(pdfCleanupWorker);
     logger.info('Export worker initialized');
     logger.info('PDF Cleanup worker initialized');
 

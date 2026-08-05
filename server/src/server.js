@@ -1,5 +1,10 @@
 const env = require('./config/env');
 const logger = require('./config/logger');
+
+// Initialize Sentry BEFORE importing app to ensure all modules are wrapped if necessary
+const { initSentry } = require('./config/sentry');
+initSentry('api');
+
 const prisma = require('./config/db');
 const { redis } = require('./config/redis');
 const app = require('./app');

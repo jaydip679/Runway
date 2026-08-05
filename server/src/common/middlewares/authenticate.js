@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const AppError = require('../errors/AppError');
 const errorCodes = require('../errors/errorCodes');
 const prisma = require('../../config/db');
+const { Sentry } = require('../../config/sentry');
 
 const authenticate = async (req, res, next) => {
   const token = req.cookies.accessToken;
@@ -29,6 +30,12 @@ const authenticate = async (req, res, next) => {
     }
 
     req.user = { id: user.id, role: user.role };
+    
+    // Attach to Sentry if initialized
+    if (Sentry && typeof Sentry.setUser === 'function') {
+      Sentry.setUser({ id: user.id, role: user.role });
+    }
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

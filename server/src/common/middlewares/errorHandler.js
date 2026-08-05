@@ -33,12 +33,29 @@ const errorHandler = (err, req, res, next) => {
 
   // Log error
   if (!error.isOperational || error.statusCode >= 500) {
-    logger.error('Unexpected Error:', {
+    const logData = {
       message: err.message,
       stack: err.stack,
       path: req.path,
       method: req.method,
-    });
+    };
+    
+    let sentryId = res.sentry;
+    if (!sentryId) {
+      try {
+        const { Sentry } = require('../../config/sentry');
+        if (Sentry && typeof Sentry.lastEventId === 'function') {
+          sentryId = Sentry.lastEventId();
+        }
+      } catch (err) {
+        // ignore if Sentry is not initialized or lastEventId fails
+      }
+    }
+
+    if (sentryId) {
+      logData.sentryId = sentryId; // Attach Sentry ID for cross-referencing
+    }
+    logger.error('Unexpected Error:', logData);
   } else {
     logger.warn('Operational Error:', {
       message: error.message,
