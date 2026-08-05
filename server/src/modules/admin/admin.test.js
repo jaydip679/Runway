@@ -79,7 +79,7 @@ describe('Admin API (Phase 9)', () => {
     await prisma.auditLog.deleteMany();
     await prisma.aiQueryLog.deleteMany();
     await prisma.user.deleteMany();
-    await prisma.$disconnect();
+
   });
 
   describe('RBAC Enforcement', () => {

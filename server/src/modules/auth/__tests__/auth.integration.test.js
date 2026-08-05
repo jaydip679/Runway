@@ -16,8 +16,7 @@ describe('Auth Integration (T1.3 & T1.4)', () => {
       await prisma.refreshToken.deleteMany({ where: { userId } }).catch(() => {});
       await prisma.user.delete({ where: { email: testEmail } }).catch(() => {});
     }
-    await prisma.$disconnect();
-    await redis.quit();
+
   });
 
   it('should register a new user successfully', async () => {

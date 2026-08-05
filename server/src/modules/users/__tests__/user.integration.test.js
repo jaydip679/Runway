@@ -27,7 +27,7 @@ describe('User Routes Integration', () => {
 
   afterAll(async () => {
     await prisma.user.delete({ where: { email: 'user-test@example.com' } });
-    await prisma.$disconnect();
+
   });
 
   it('GET /api/v1/users/me should return user profile', async () => {

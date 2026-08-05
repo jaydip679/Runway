@@ -1,7 +1,6 @@
 const request = require('supertest');
 const app = require('../../../app');
 const prisma = require('../../../config/db');
-const { redis } = require('../../../config/redis');
 const { generateAccessToken } = require('../../auth/auth.utils');
 
 describe('Category Integration', () => {
@@ -57,8 +56,7 @@ describe('Category Integration', () => {
     await prisma.category.deleteMany({ where: { userId: { in: [userId, otherUserId] } } }).catch(() => {});
     await prisma.user.deleteMany({ where: { id: { in: [userId, otherUserId] } } }).catch(() => {});
     
-    await prisma.$disconnect();
-    await redis.quit();
+
   });
 
   it('should create a custom category', async () => {
