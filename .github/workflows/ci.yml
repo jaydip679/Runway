@@ -11,6 +11,25 @@ jobs:
     name: Backend CI
     runs-on: ubuntu-latest
     
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
+      REDIS_URL: redis://localhost:6379
+      CLIENT_URL: http://localhost:3000
+      JWT_ACCESS_SECRET: test_secret_123456789012345678901234567890
+      REFRESH_TOKEN_HASH_SECRET: test_hash_secret_1234567890123456789012
+      GOOGLE_CLIENT_ID: test_google_id
+      GOOGLE_CLIENT_SECRET: test_google_secret
+      GOOGLE_CALLBACK_URL: http://localhost:4000/api/v1/auth/google/callback
+      CLOUDINARY_CLOUD_NAME: test_cloud
+      CLOUDINARY_API_KEY: test_key
+      CLOUDINARY_API_SECRET: test_secret
+      AI_PROVIDER: gemini
+      EMAIL_PROVIDER: mock
+      EMAIL_FROM: test@runway.local
+      ADMIN_SEED_EMAIL: admin@runway.local
+      ADMIN_SEED_PASSWORD: password123
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -65,8 +84,6 @@ jobs:
         
       - name: Push DB Schema
         working-directory: ./server
-        env:
-          DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
         run: npx prisma db push
         
       - name: Run Linter (ESLint)
@@ -75,11 +92,6 @@ jobs:
         
       - name: Run Tests (Jest)
         working-directory: ./server
-        env:
-          DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
-          REDIS_URL: redis://localhost:6379
-          JWT_ACCESS_SECRET: test_secret_123456789012345678901234567890
-          REFRESH_TOKEN_HASH_SECRET: test_hash_secret_1234567890123456789012
         run: npm test
 
   frontend-ci:
