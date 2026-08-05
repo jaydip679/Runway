@@ -1,6 +1,4 @@
 const prisma = require('../../config/db');
-const { getSoftDeleteFilter } = require('../../common/utils/softDelete');
-const { notificationQueue } = require('../../jobs/queues/notification.queue');
 
 /**
  * Creates an alert if it does not already exist.

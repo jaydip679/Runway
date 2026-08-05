@@ -12,7 +12,6 @@ describe('Account Integration', () => {
   let accessTokenCookie;
   let otherAccessTokenCookie;
   let accountId;
-  let otherAccountId;
 
   beforeAll(async () => {
     const user = await prisma.user.create({

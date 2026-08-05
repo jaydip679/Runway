@@ -3,7 +3,7 @@ const AppError = require('../../common/errors/AppError');
 const errorCodes = require('../../common/errors/errorCodes');
 const { enqueueForecastRecompute } = require('../../jobs/queues/forecast.queue');
 const { getSoftDeleteFilter } = require('../../common/utils/softDelete');
-const { addDays, subDays } = require('date-fns');
+const { subDays } = require('date-fns');
 
 const GRACE_PERIOD_DAYS = 7;
 
@@ -71,7 +71,7 @@ const createRecurring = async (userId, data) => {
 };
 
 const updateRecurring = async (userId, id, data) => {
-  const existing = await getCommitment(userId, id);
+  await getCommitment(userId, id);
 
   if (data.accountId) {
     await checkAccountOwnership(userId, data.accountId);
@@ -154,7 +154,7 @@ const dismissRecurring = async (userId, id) => {
 };
 
 const deleteRecurring = async (userId, id) => {
-  const existing = await getCommitment(userId, id);
+  await getCommitment(userId, id);
 
   await prisma.recurringCommitment.update({
     where: { id },

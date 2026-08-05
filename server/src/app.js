@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const env = require('./config/env');

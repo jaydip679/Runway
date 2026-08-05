@@ -1,4 +1,3 @@
-const prisma = require('../../config/db');
 const { sendSuccess } = require('../../common/utils/apiResponse');
 const catchAsync = require('../../common/utils/catchAsync');
 

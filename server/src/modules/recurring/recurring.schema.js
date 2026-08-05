@@ -1,5 +1,4 @@
 const { z } = require('zod');
-const { startOfDay } = require('date-fns');
 
 const createRecurringSchema = z.object({
   body: z.object({

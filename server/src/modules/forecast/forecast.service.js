@@ -1,7 +1,7 @@
 const prisma = require('../../config/db');
 const { computeForecast, isOccurrenceDay } = require('./forecastEngine');
 const { computeSignature } = require('../recurring/detectionAlgorithm');
-const { differenceInDays, isSameDay, addDays } = require('date-fns');
+const { differenceInDays, addDays } = require('date-fns');
 const { Decimal } = require('@prisma/client/runtime/library');
 
 const getForecast = async (userId) => {

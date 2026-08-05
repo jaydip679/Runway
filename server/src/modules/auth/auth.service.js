@@ -6,7 +6,7 @@ const { hashPassword, comparePassword } = require('./auth.utils');
 const { notificationQueue } = require('../../jobs/queues/notification.queue');
 const crypto = require('crypto');
 
-const register = async ({ email, password, name, ipAddress }) => {
+const register = async ({ email, password, name }) => {
   const emailLower = email.toLowerCase();
   
   const existing = await prisma.user.findUnique({
@@ -207,7 +207,8 @@ const login = async ({ email, password, ipAddress }) => {
     })
   ]);
 
-  const { passwordHash, ...publicUser } = user;
+  const publicUser = { ...user };
+  delete publicUser.passwordHash;
 
   return { user: publicUser, accessToken, refreshToken };
 };

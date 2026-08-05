@@ -1,6 +1,5 @@
 const recurringService = require('./recurring.service');
 const prisma = require('../../config/db');
-const { subDays } = require('date-fns');
 
 jest.mock('../../config/db', () => ({
   recurringCommitment: {

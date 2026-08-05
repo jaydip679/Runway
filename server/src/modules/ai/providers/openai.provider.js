@@ -1,7 +1,7 @@
 const logger = require('../../../config/logger');
 
 class OpenAIProvider {
-  async query(prompt) {
+  async query() {
     logger.info('[OpenAIProvider] Mocking response');
     
     throw new Error('OpenAI Provider not yet fully implemented. Please use GEMINI.');

@@ -1,4 +1,4 @@
-const { detect, normalize, computeSignature } = require('../detectionAlgorithm');
+const { detect, normalize } = require('../detectionAlgorithm');
 
 describe('Detection Algorithm', () => {
   describe('normalize', () => {

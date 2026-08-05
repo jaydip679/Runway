@@ -1,6 +1,5 @@
 const forecastService = require('./forecast.service');
 const prisma = require('../../config/db');
-const { computeForecast, isOccurrenceDay } = require('./forecastEngine');
 
 jest.mock('../../config/db', () => ({
   forecastSnapshot: { findMany: jest.fn(), findFirst: jest.fn() },

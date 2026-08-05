@@ -11,7 +11,7 @@ const getProvider = () => {
 };
 
 const queryAffordability = async (userId, question) => {
-  let logRecord;
+
   try {
     // 1. Gather context
     const forecast = await prisma.forecastSnapshot.findMany({
@@ -65,7 +65,7 @@ const queryAffordability = async (userId, question) => {
     }
 
     // 5. Log success
-    logRecord = await prisma.aiQueryLog.create({
+    await prisma.aiQueryLog.create({
       data: {
         userId,
         question,
