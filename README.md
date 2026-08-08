@@ -1,113 +1,335 @@
-# Runway
+# 🚀 Runway — AI-Powered Financial Forecasting Platform
 
-Runway — A production-grade personal finance forecasting platform that predicts future cash flow, detects recurring commitments, and helps users make proactive financial decisions with AI-powered insights.
+Runway is a production-grade personal finance platform that goes beyond traditional expense tracking by forecasting your future cash flow. It combines **AI-powered financial insights**, **recurring subscription detection**, **scenario planning**, and **predictive analytics** to help users make smarter financial decisions before they spend.
 
-## Project Status
+Built with **React, Node.js, Express, PostgreSQL, Prisma, Redis, BullMQ, Google Gemini AI, Docker, GitHub Actions, and Sentry**, Runway emphasizes scalable architecture, asynchronous processing, security, and production-grade engineering practices.
 
-**Current Phase Completed:** Phase 10 (True AI Integration) - ALL PHASES COMPLETED
+### 🔗 Links
 
-### Features Implemented & Phase Progress
+- 🌐 **Live Demo:** https://runwayfinance.vercel.app
+- 📖 **API Documentation (Swagger):** https://runway-api-ovev.onrender.com/api/docs
+- 🐙 **GitHub Repository:** https://github.com/jaydip679/Runway
 
-#### [x] Phase 0: Setup & Infrastructure
-- **Monorepo Structure**: Node.js/Express backend (`server/`) and React/Vite/Tailwind frontend (`client/`).
-- **Core Infrastructure**: Prisma ORM, Redis for caching, Winston logger for structured logging, and Zod environment validation.
-- **Error Handling**: Global standardized API error envelope ensuring consistent client responses.
-- **Docker Integration**: Configured `docker-compose` for local orchestration of the `app`, `worker`, `postgres`, `redis`, and an `nginx` reverse proxy.
-- **Frontend Backbone**: Initialized Vite, React Router, React Query, and Axios API client with interceptors.
-- **Health Checks**: Robust `/health` and deep `/health/ready` endpoints to track dependency status.
+<img
+  src="https://github.com/user-attachments/assets/3149dbbc-cc79-4e02-bd05-6770e9be6b98"
+  alt="Runway Dashboard"
+  width="100%"
+/>
 
-#### [x] Phase 1: Authentication & Users
-- **Secure Authentication Flow**: Fully implemented JWT access tokens combined with secure HttpOnly refresh token cookies.
-- **OTP-Based Registration**: Registration uses 6-digit OTP verification via email with Redis-backed rate limiting and expiry.
-- **Security Features**: Token rotation, Refresh token reuse detection, and strict Rate limiting per endpoint.
-- **User Management**: RBAC (Role-Based Access Control), profile viewing and modification, and secure Cloudinary-backed avatar uploads.
+<br>
 
-#### [x] Phase 2: Accounts & Categories
-- **Accounts System**: Robust backend APIs for CRUD operations on Accounts, including complex logic for handling negative credit card balances and tracking account status.
-- **Categories Structure**: Full CRUD implementation for user-defined Income and Expense categories, combined with read-only system-level default categories.
-- **Seed Script Data**: An idempotent Prisma seed script to initialize essential System Categories and an initial admin account.
-- **Frontend UI Interfaces**: Polished dynamic React form modals for both `Accounts` and `Categories`, fully integrated with `react-hook-form` and `zod` client-side validation.
-- **Integration Tests**: Supertest integration suites verifying core backend security and logic constraints for Accounts and Categories.
-- **API Documentation**: Detailed Swagger/OpenAPI documentation configured dynamically via JSDoc annotations.
+## 🛠️ Technology Stack
 
-#### [x] Phase 3: Transactions & Imports
-- **Transaction Engine**: Built a highly efficient CRUD system optimized with compound cursor pagination (`transactionDate`, `id`) for robust infinite-scrolling. 
-- **Type Validation**: Enforced strict financial rules to prevent future-dated transactions and matching category types.
-- **Receipts**: Added image upload integration for individual receipts via `multer`.
-- **CSV Import System**: Constructed an asynchronous ingestion pipeline utilizing `BullMQ` and `Redis`. Users can upload large CSV files, and the background worker chunks and persists data while providing real-time polling updates.
-- **Frontend UI Interfaces**: Implemented `@tanstack/react-query` powered data tables and form modals for robust UX.
+| Category | Technology |
+|:---------|:-----------|
+| 🎨 **Frontend** | React 18, Vite, Tailwind CSS, Recharts, React Router |
+| ⚙️ **Backend** | Node.js 20, Express.js |
+| 🔌 **API Layer** | REST, GraphQL |
+| 🗄️ **Database** | PostgreSQL |
+| 🔗 **ORM** | Prisma |
+| 🔐 **Authentication** | JWT, Google OAuth 2.0 |
+| 🚀 **Cache & Queue** | Redis, BullMQ |
+| 🤖 **AI** | Google Gemini API |
+| ☁️ **Storage** | Cloudinary |
+| 📧 **Email** | Gmail SMTP |
+| 📊 **Monitoring** | Sentry, Winston |
+| 🐳 **DevOps** | Docker, Docker Compose, GitHub Actions |
+| 🌍 **Deployment** | Vercel (Frontend), Render (Backend & Workers) |
+| 🧪 **Testing** | Jest, Supertest |
+| 📖 **API Documentation** | Swagger / OpenAPI |
 
-#### [x] Phase 4: Recurring Commitments & Detection Engine
-- **Detection Algorithm**: A powerful pure-function algorithm that analyzes trailing 90 days of transaction history to automatically spot recurring trends.
-- **Background Scanner**: A daily `BullMQ` scheduled worker that evaluates groups and suppresses historically dismissed items.
-- **Optimistic UI**: A React Query-powered frontend hub allowing users to confidently Confirm, Edit, or Dismiss predicted recurring expenses instantly.
+<br>
 
-#### [x] Phase 5: Forecast Engine
-- **Projection Algorithm**: Developed a pure-function engine that calculates future cash flow trajectories based on confirmed transactions and detected recurring commitments.
-- **Confidence Modeling**: Implemented high/medium/low confidence bracketing to help users visualize projection uncertainty.
-- **Event Debouncing**: Integrated `BullMQ` debounce triggers to ensure forecasts recalculate only when relevant financial data changes, optimizing system resources.
-- **Visualization**: Built interactive dashboards using `Recharts` to display 60-day cash flow predictions and balance trend lines.
+## 🏗️ System Architecture
 
-#### [x] Phase 6: Alerts & Notifications
-- **Notification Infrastructure**: Built an event-driven system to push alerts based on forecast anomalies and recurring schedule events.
-- **Smart Alert Engine**: Logic to monitor for low balance thresholds, upcoming recurring renewals (3-day notice), and subscription price shifts.
-- **Notification Hub**: Integrated a centralized read/unread UI notification center.
-- **Idempotency**: Implemented unique alert keys to ensure the system does not spam users with duplicate notifications for the same event.
+Runway follows a modular architecture that separates **client interaction**, **business logic**, **data persistence**, and **asynchronous processing**. The frontend communicates with the Node.js API through REST and a dedicated GraphQL endpoint used by the Dashboard, while Redis and BullMQ handle background workloads independently from the request-response cycle.
 
-#### [x] Phase 7: AI Affordability Feature
-- **Context-Aware Prompting**: Inject real-time 30-day forecast and recurring commitment data into a strict LLM prompt.
-- **Provider Abstractions**: Interchangeable support for OpenAI and Gemini models, currently running on a mock instance for local testing.
-- **Robust Guardrails**: Detailed tracking of all queries via `AiQueryLog` and strict 24-hour rate limiters (10/day) preventing abuse.
-- **Chat UI**: Interactive assistant page to ask natural-language questions about financial health and view structured reasoning with confidence intervals.
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                         CLIENT LAYER                                │
+│                                                                     │
+│                    React + Vite + Tailwind                          │
+│                                                                     │
+│       Dashboard • Accounts • Transactions • Forecast • AI           │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                    REST API / GraphQL
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         API LAYER                                   │
+│                                                                     │
+│                       Node.js + Express                             │
+│                                                                     │
+│   Authentication • Validation • Controllers • Services • RBAC       │
+│                                                                     │
+│                 ┌──────────────────────────┐                        │
+│                 │ GraphQL Dashboard Layer  │                        │
+│                 │ Aggregates existing      │                        │
+│                 │ service-layer operations │                        │
+│                 └──────────────────────────┘                        │
+└───────────────┬───────────────────────┬─────────────────────────────┘
+                │                       │
+                │                       │
+                ▼                       ▼
+┌─────────────────────────┐   ┌───────────────────────────────────────┐
+│     DATA LAYER          │   │        ASYNC PROCESSING               │
+│                         │   │                                       │
+│ Prisma ORM              │   │ Redis                                 │
+│         │               │   │         │                             │
+│         ▼               │   │         ▼                             │
+│ PostgreSQL              │   │ BullMQ Queues                         │
+│                         │   │         │                             │
+└─────────────────────────┘   │         ▼                             │
+                              │ BullMQ Worker                         │
+                              │                                       │
+                              │ CSV • Forecast • PDF • Recurring      │
+                              │ Email • Notifications • Scheduled Jobs│
+                              └──────────────┬────────────────────────┘
+                                             │
+                         ┌───────────────────┼───────────────────┐
+                         │                   │                   │
+                         ▼                   ▼                   ▼
+                  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+                  │ Cloudinary  │     │ Gmail SMTP  │     │   Gemini    │
+                  │   Storage   │     │   Email     │     │     AI      │
+                  └─────────────┘     └─────────────┘     └─────────────┘
 
-#### [x] Phase 8: GraphQL Dashboard API
-- **Unified Graph**: Mounted `graphql-http` at `/api/v1/graphql` combining Accounts, Forecasts, Alerts, and Recurring Commitments into a single schema.
-- **Strict Composition**: The `dashboard` resolver delegates 100% of its data-fetching directly to existing REST service layers, ensuring zero duplicated business logic.
-- **React Query & Axios**: The Dashboard UI consumes the entire graph in a single network request using standard `axios`, maintaining a tiny client footprint without Apollo.
-- **Component Reuse**: Dashboard seamlessly embeds the existing `ForecastChart` and `AccountCard` UI elements, proving the GraphQL shape parity with REST.
 
-#### [x] Phase 9: Admin Module
-- **Admin Seed & Roles**: Implemented secure seed scripts for initial platform administrator provisioning and robust server-side RBAC using middleware.
-- **User Moderation**: Backend APIs and Frontend dashboards to view users securely (stripping financial/password hashes) and the capability to deactivate abusive users. Self-deactivation safeguards included.
-- **System CSV Monitoring**: Global operational view of all bulk asynchronous data imports defaulting to failures, ensuring rapid triage.
-- **Live Metrics Engine**: A lightweight custom sliding-window counter tracking trailing-hour API error rates tied to BullMQ queue introspection (active, waiting, failed, delayed counts).
-- **Secure Frontend Routing**: Protected UI routes that instantly reject unauthorized clients, complete with glowing, real-time operational dashboard interfaces.
+┌─────────────────────────────────────────────────────────────────────┐
+│                     OBSERVABILITY LAYER                             │
+│                                                                     │
+│              Sentry  +  Winston Structured Logging                  │
+│                                                                     │
+│          Frontend • API • Background Workers • Errors               │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-#### [x] Phase 10: True AI Integration (Google Gemini)
-- **Gemini SDK**: Replaced mock stubs with the official `@google/generative-ai` SDK, securely communicating with the `gemini-1.5-flash` model.
-- **Graceful Mock Fallback**: Added robust startup detection. If `GEMINI_API_KEY` is not present, the system automatically and safely falls back to local Mock Mode to prevent crashes during local development.
-- **UI Transparency Badges**: Implemented interactive chat badges in the frontend indicating whether the assistant is running via the **LIVE API** or **MOCK MODE**, providing immediate environment clarity.
+<br>
 
-## Local Development
+## ✨ Project Highlights
+
+- 🤖 **AI Financial Assistant:** Context-aware financial assistant powered by Google Gemini for personalized financial insights.
+
+- 📈 **Predictive Forecast Engine:** Deterministic 60-day cash-flow forecasting with future balance projections.
+
+- 🎯 **Scenario Planning:** Simulate hypothetical financial decisions and evaluate their long-term impact before spending.
+
+- 📅 **Exact Date Evaluation:** Calculate projected balances for specific future dates to support important financial decisions.
+
+- 🔄 **Smart Recurring Detection:** Automatically identifies recurring income and expenses from historical transaction patterns.
+
+- ⚙️ **Background Processing:** BullMQ-powered workers handle resource-intensive operations asynchronously without blocking the API.
+
+- 📄 **Reports & Data Export:** Asynchronous CSV ingestion and PDF report generation for financial data.
+
+- 🔐 **Authentication & Security:** JWT authentication, Google OAuth, HttpOnly cookies, token rotation, RBAC, and Redis-backed rate limiting.
+
+- 🔌 **Unified Dashboard API:** GraphQL aggregates accounts, forecasts, alerts, and recurring commitments into a single dashboard request.
+
+- 🛰️ **Monitoring & Observability:** Full-stack error tracking through Sentry combined with structured Winston logging.
+
+- 🐳 **Production-Ready Infrastructure:** Dockerized development environment with GitHub Actions CI/CD, Render, and Vercel.
+
+- 📚 **Developer Experience:** Swagger/OpenAPI documentation, Prisma ORM, REST APIs, GraphQL, automated testing, and maintainable modular architecture.
+
+<br>
+
+## 🧭 Application Overview
+
+Runway is organized into purpose-built modules, each designed to handle a specific aspect of personal finance management.
+
+- **📊 Dashboard**  
+  The central command center providing account balances, cash-flow forecasts, financial insights, recurring commitments, alerts, and recent activity.
+
+- **🏦 Accounts**  
+  Manage bank accounts, credit cards, wallets, and other financial accounts while tracking overall balances and net worth.
+
+- **💸 Transactions**  
+  Record, categorize, search, and manage financial transactions with support for receipt uploads and bulk CSV imports.
+
+- **🗂️ Categories**  
+  Organize income and expenses using system defaults and custom categories for structured financial tracking.
+
+- **📈 Forecast**  
+  Visualize projected cash flow over the next 60 days based on financial activity and recurring transactions.
+
+- **📅 Exact Date Evaluation**  
+  Estimate the projected balance on a specific future date to help plan upcoming financial commitments.
+
+- **🎯 Scenario Planning**  
+  Simulate future transactions and compare different financial scenarios before making real commitments.
+
+- **📑 Reports**  
+  Generate and download detailed PDF and CSV financial reports asynchronously.
+
+- **🤖 AI Assistant**  
+  Interact with a context-aware Google Gemini-powered assistant for personalized financial guidance.
+
+- **🔔 Notifications**  
+  Receive important alerts such as low-balance warnings, recurring payment reminders, and system notifications.
+
+- **⚙️ Settings & Profile**  
+  Manage profile information, preferences, security settings, avatars, and application configuration.
+
+- **🛡️ Admin Dashboard**  
+  A role-based operational dashboard for platform administrators to monitor users and oversee application operations.
+
+<br>
+
+## ⚙️ Engineering Deep Dives
+
+Runway was built with a production-first mindset, emphasizing **scalability**, **maintainability**, and **operational reliability**. Every major component—from forecasting and AI to background workers and monitoring—was designed to solve real-world problems while keeping the application responsive, secure, and easy to operate in production.
+
+---
+
+### 📊 Dashboard Experience
+
+The **Dashboard** serves as the central command center of Runway, bringing together **account balances**, **cash-flow forecasts**, **AI insights**, **recurring commitments**, and recent financial activity into a single actionable view. Instead of making multiple requests for each dashboard component, the frontend uses a dedicated **GraphQL aggregation endpoint** to retrieve the required data in a single request while reusing the existing backend service layer.
+
+
+---
+
+### 📈 Forecast Engine
+
+The **Forecast Engine** is the core of Runway, continuously analyzing **confirmed transactions** together with **automatically detected recurring income and expenses** to generate a deterministic **60-day cash-flow forecast**. Forecast calculations are refreshed when underlying financial data changes, allowing users to see up-to-date projections while avoiding unnecessary repeated computation.
+
+---
+
+### 📅 Exact Date Evaluation
+
+**Exact Date Evaluation** leverages the **Forecast Engine** to calculate the projected account balance on any future date, helping users confidently prepare for **tax payments**, **EMIs**, vacations, or other upcoming financial commitments. Instead of manually interpreting an entire forecast timeline, users can directly evaluate the financial position expected on the date that matters to them.
+
+<img
+  src="https://github.com/user-attachments/assets/971f7add-de52-4c94-9cb4-45091b6bda1b"
+  alt="Exact Date Evaluation"
+  width="100%"
+/>
+
+---
+
+### 🎯 Scenario Planning
+
+The **Scenario Planning** module allows users to simulate **future income or expenses** without modifying real financial data by temporarily injecting hypothetical transactions into the forecasting engine. This enables users to compare different financial scenarios and understand the long-term impact of major decisions before committing to them.
+
+<img
+  src="https://github.com/user-attachments/assets/d55105c6-d950-40e1-8f49-e789d440d844"
+  alt="Scenario Planning"
+  width="100%"
+/>
+
+---
+
+### 🤖 Context-Aware AI Assistant
+
+The **AI Assistant** combines **recent transactions**, **account balances**, **recurring commitments**, and **forecast data** with **Google Gemini** to generate personalized financial guidance instead of generic responses. Intelligent **rate limiting**, **query logging**, and a built-in **development mock mode** help keep the feature reliable, secure, and cost-efficient.
+
+<img
+  src="https://github.com/user-attachments/assets/d37ecb70-bd5d-430a-968a-8b154d0dd3a5"
+  alt="AI Assistant"
+  width="100%"
+/>
+
+---
+
+### ⚙️ Background Processing
+
+Resource-intensive operations are handled by dedicated **BullMQ background workers**, allowing **CSV imports**, **forecast generation**, **PDF reports**, **email delivery**, and **recurring transaction detection** to execute asynchronously. This architecture keeps the API responsive while allowing long-running tasks to be processed independently from the request-response lifecycle.
+
+---
+
+### 📄 Reports & Data Export
+
+The **Reports** module generates professional **PDF** and **CSV** exports asynchronously, allowing users to download detailed financial summaries without blocking API requests. Generated reports are securely delivered to users and automatically cleaned up after a configurable retention period to optimize server resources.
+
+<img
+  src="https://github.com/user-attachments/assets/02f9e44d-f4f5-45ec-b9df-7b989edad204"
+  alt="Reports"
+  width="100%"
+/>
+
+---
+
+### 🔐 Authentication & Security
+
+Runway follows modern security practices by combining **JWT authentication**, **Google OAuth**, **HttpOnly secure cookies**, **Role-Based Access Control (RBAC)**, **Redis-backed rate limiting**, **Helmet security headers**, **OTP verification**, and **token rotation** to provide a secure authentication experience while protecting application resources.
+
+---
+
+### 📊 Monitoring & Observability
+
+The platform includes comprehensive observability through **Sentry** and **Winston**, enabling **real-time error tracking**, **structured logging**, and **cross-service debugging** across the frontend, backend, and background workers. Sensitive information is sanitized before transmission so production diagnostics can remain useful without exposing credentials or authentication data.
+
+---
+
+### 🚀 CI/CD & Deployment
+
+Runway is deployed through an automated **GitHub Actions CI/CD pipeline** with **Render** and **Vercel**, where every deployment validates the application, runs the test suite, synchronizes **Prisma database migrations**, and provisions the latest production release. Infrastructure is additionally defined through `render.yaml` to keep backend deployment configuration consistent and reproducible.
+
+<br>
+
+## 💻 Local Development
+
+Runway can be started locally using **Docker Compose** for a complete environment, or individual Node.js processes for development without Docker.
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+
 
-### Running the Infrastructure
-Start the entire stack (Database, Redis, API, Worker, Nginx proxy):
+- **Docker** & **Docker Compose**
+- **Node.js 20+**
+
+### 🐳 Docker Setup
+
+The recommended approach starts the complete application stack, including **PostgreSQL**, **Redis**, **Express API**, **BullMQ Worker**, and **Nginx**.
+
 ```bash
 docker-compose up -d
 ```
 
-### Running the Backend (Development)
+Once the containers are running, the application and its supporting services are available through the configured local ports.
+
+### 🛠️ Manual Setup
+
+For development without Docker, run the backend and frontend separately.
+
+**Backend**
+
 ```bash
 cd server
 npm install
-npm run dev
+npx prisma migrate dev
+npm run start:prod
 ```
 
-### Running the Frontend (Development)
+The backend command starts the **Express API** and **BullMQ worker** processes.
+
+**Frontend**
+
+Open a new terminal:
+
 ```bash
 cd client
 npm install
 npm run dev
 ```
 
-### Available Endpoints
-- `GET /health` - API liveness
-- `GET /health/ready` - Deep dependency health check (Postgres + Redis)
-- `/api/docs` - Swagger UI
+### 📖 API & Health Endpoints
 
-## License
-Internal Engineering Project
+Runway provides interactive API documentation and dedicated health endpoints for development and operational checks.
+
+| Endpoint | Purpose |
+|:---------|:--------|
+| `GET /health` | Basic API liveness check |
+| `GET /health/ready` | Verifies PostgreSQL and Redis availability |
+| `/api/docs` | Interactive Swagger / OpenAPI documentation |
+
+<br>
+
+## 📄 License
+
+Runway is distributed under the **MIT License**. See the [`LICENSE`](LICENSE) file for the complete license terms.
+
+## 👨‍💻 Author
+
+**Jaydip Chaudhari**
+
+[GitHub](https://github.com/jaydip679) · [LinkedIn](https://linkedin.com/in/jaydip679)
