@@ -29,7 +29,13 @@ class GmailProvider {
 
     const data = await response.json();
     if (!response.ok || data.error) {
-      const errorMsg = data.error_description || data.error || 'Failed to get access token';
+      if (data.error === 'invalid_grant' || (data.error_description && data.error_description.includes('revoked'))) {
+        const error = new Error('Gmail refresh token has been expired or revoked. Please re-authenticate the application.');
+        error.code = 'gmail_auth_revoked';
+        throw error;
+      }
+      
+      const errorMsg = typeof data.error_description === 'string' ? data.error_description : 'Failed to get Gmail access token';
       const error = new Error(errorMsg);
       error.code = 'oauth_error';
       throw error;
