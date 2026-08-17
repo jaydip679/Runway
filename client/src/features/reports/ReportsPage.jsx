@@ -14,6 +14,9 @@ const getLocalDateString = (date = new Date()) => {
 
 const fetchAccounts = async () => {
   const { data } = await apiClient.get('/accounts', { withCredentials: true });
+  if (!data || !Array.isArray(data.data)) {
+    throw new Error('Invalid accounts response from server');
+  }
   return data.data;
 };
 
@@ -54,7 +57,7 @@ const ReportsPage = () => {
     }
   };
 
-  const { data: accounts = [] } = useQuery({
+  const { data: accounts = [], isLoading: isLoadingAccounts, isError: isErrorAccounts } = useQuery({
     queryKey: ['accounts'],
     queryFn: fetchAccounts
   });
@@ -92,11 +95,18 @@ const ReportsPage = () => {
             value={accountId}
             onChange={(e) => setAccountId(e.target.value)}
             className="bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-r border-gray-200 dark:border-gray-700 pr-3"
+            disabled={isLoadingAccounts || isErrorAccounts}
           >
             <option value="">All Accounts</option>
-            {(accounts || []).map(acc => (
-              <option key={acc.id} value={acc.id}>{acc.name}</option>
-            ))}
+            {isLoadingAccounts ? (
+              <option disabled>Loading accounts...</option>
+            ) : isErrorAccounts ? (
+              <option disabled>Failed to load accounts</option>
+            ) : (
+              (Array.isArray(accounts) ? accounts : []).map(acc => (
+                <option key={acc.id} value={acc.id}>{acc.name}</option>
+              ))
+            )}
           </select>
 
           <input 
