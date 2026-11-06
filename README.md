@@ -7,7 +7,7 @@ Built with **React, Node.js, Express, PostgreSQL, Prisma, Redis, BullMQ, Google 
 ### 🔗 Links
 
 - 🌐 **Live Demo:** https://runwayfinance.vercel.app
-- 📖 **API Documentation (Swagger):** https://runway-api-ovev.onrender.com/api/docs
+- 📖 **API Documentation (Swagger):** https://runway-backend-7mri.onrender.com/api/docs
 - 🐙 **GitHub Repository:** https://github.com/jaydip679/Runway
 
 <img
