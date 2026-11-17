@@ -5,10 +5,11 @@
 useDefault = true
 
 [allowlist]
-description = "Allowlist for test fixtures and example environment templates"
+description = "Allowlist for test fixtures, configs, and example templates"
 paths = [
   '''(?i)\.env\.example$''',
   '''(?i).*\.test\.js$''',
   '''(?i).*/__tests__/.*''',
   '''(?i).*/tests/.*''',
+  '''(?i)sonar-project\.properties$''',
 ]
