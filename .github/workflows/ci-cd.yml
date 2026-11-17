@@ -1,0 +1,50 @@
+name: Runway CI/CD
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  # ========================================================
+  # Phase 0: Path Filtering & Change Detection
+  # ========================================================
+  changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend == 'true' || github.event_name == 'workflow_dispatch' || github.ref_name == 'main' }}
+      frontend: ${{ steps.filter.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' || github.ref_name == 'main' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Detect Changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'server/**'
+              - 'Dockerfile'
+              - 'docker/**'
+              - '.github/workflows/ci-cd.yml'
+              - '.github/workflows/code-quality.yml'
+            frontend:
+              - 'client/**'
+              - '.github/workflows/ci-cd.yml'
+              - '.github/workflows/code-quality.yml'
+
+  # ========================================================
+  # Phase 1: Code Quality & Linting
+  # ========================================================
+  code-quality:
+    name: Code Quality
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/code-quality.yml
+    with:
+      run_backend: ${{ needs.changes.outputs.backend == 'true' }}
+      run_frontend: ${{ needs.changes.outputs.frontend == 'true' }}
