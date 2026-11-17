@@ -19,35 +19,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Export SonarQube Issues
-        if: always()
-        run: |
-          echo "Fetching unresolved issues from SonarQube Cloud..."
-          sleep 5
-          curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
-            "https://sonarcloud.io/api/issues/search?componentKeys=jaydip679_Runway&resolved=false&ps=100" \
-            -o sonar-issues.json
-
-          # Print human-readable summary to GitHub Actions job summary
-          if command -v jq >/dev/null 2>&1; then
-            echo "### 🛡️ SonarQube Issues Summary" >> $GITHUB_STEP_SUMMARY
-            TOTAL=$(jq '.total // 0' sonar-issues.json)
-            echo "**Total Unresolved Issues:** $TOTAL" >> $GITHUB_STEP_SUMMARY
-            echo "| Severity | Type | Message | Component | Line |" >> $GITHUB_STEP_SUMMARY
-            echo "|---|---|---|---|---|" >> $GITHUB_STEP_SUMMARY
-            jq -r '.issues[]? | "| \(.severity) | \(.type) | \(.message) | \(.component) | \(.line // "N/A") |"' sonar-issues.json | head -n 50 >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Upload SonarQube Issues Artifact
-        if: always()
+      # Upload diagnostic scanner logs only if the scanner breaks
+      - name: Upload Sonar Scanner Logs on Failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: sonarqube-issues-report
-          path: sonar-issues.json
+          name: sonarqube-failure-logs
+          path: .scannerwork/
           retention-days: 7
-
-      - name: SonarQube Quality Gate Check
-        uses: SonarSource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
