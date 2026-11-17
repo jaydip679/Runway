@@ -1,0 +1,14 @@
+# Gitleaks Configuration
+# Extends default rules and whitelists test fixtures and example files
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for test fixtures and example environment templates"
+paths = [
+  '''(?i)\.env\.example$''',
+  '''(?i).*\.test\.js$''',
+  '''(?i).*/__tests__/.*''',
+  '''(?i).*/tests/.*''',
+]

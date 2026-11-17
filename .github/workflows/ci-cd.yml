@@ -48,3 +48,11 @@ jobs:
     with:
       run_backend: ${{ needs.changes.outputs.backend == 'true' }}
       run_frontend: ${{ needs.changes.outputs.frontend == 'true' }}
+
+  # ========================================================
+  # Phase 2: Secret Scanning (Gitleaks)
+  # ========================================================
+  secret-scanning:
+    name: Secret Scanning
+    uses: ./.github/workflows/secret-scanning.yml
+    secrets: inherit
