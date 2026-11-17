@@ -12,4 +12,5 @@ paths = [
   '''(?i).*/__tests__/.*''',
   '''(?i).*/tests/.*''',
   '''(?i)sonar-project\.properties$''',
+  '''(?i)\.github/workflows/code-tests\.yml$''',
 ]

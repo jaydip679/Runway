@@ -17,25 +17,6 @@ jobs:
     name: Backend Tests (Jest)
     if: inputs.run_backend
     runs-on: ubuntu-latest
-    
-    env:
-      NODE_ENV: test
-      DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
-      REDIS_URL: redis://localhost:6379
-      CLIENT_URL: http://localhost:3000
-      JWT_ACCESS_SECRET: test_secret_123456789012345678901234567890
-      REFRESH_TOKEN_HASH_SECRET: test_hash_secret_1234567890123456789012
-      GOOGLE_CLIENT_ID: test_google_id
-      GOOGLE_CLIENT_SECRET: test_google_secret
-      GOOGLE_CALLBACK_URL: http://localhost:4000/api/v1/auth/google/callback
-      CLOUDINARY_CLOUD_NAME: test_cloud
-      CLOUDINARY_API_KEY: test_key
-      CLOUDINARY_API_SECRET: test_secret
-      AI_PROVIDER: gemini
-      EMAIL_PROVIDER: mock
-      EMAIL_FROM: test@runway.local
-      ADMIN_SEED_EMAIL: admin@runway.local
-      ADMIN_SEED_PASSWORD: password123
 
     services:
       postgres:
@@ -75,6 +56,17 @@ jobs:
       - name: Install Dependencies
         working-directory: ./server
         run: npm ci
+
+      - name: Setup Test Environment Variables
+        working-directory: ./server
+        run: |
+          cp .env.example .env.test
+          sed -i 's|DATABASE_URL=.*|DATABASE_URL=postgresql://runway:runway@localhost:5432/runway_test|g' .env.test
+          sed -i 's|REDIS_URL=.*|REDIS_URL=redis://localhost:6379|g' .env.test
+          sed -i 's|NODE_ENV=.*|NODE_ENV=test|g' .env.test
+          sed -i 's|EMAIL_PROVIDER=.*|EMAIL_PROVIDER=mock|g' .env.test
+          sed -i 's|AI_PROVIDER=.*|AI_PROVIDER=gemini|g' .env.test
+          cp .env.test .env
 
       - name: Validate Prisma Schema
         working-directory: ./server
