@@ -86,3 +86,15 @@ jobs:
     name: SonarQube SAST
     uses: ./.github/workflows/sonar-scan.yml
     secrets: inherit
+
+  # ========================================================
+  # Phase 6: Automated Testing & Build Verification
+  # ========================================================
+  code-tests:
+    name: Automated Tests
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/code-tests.yml
+    with:
+      run_backend: ${{ needs.changes.outputs.backend == 'true' }}
+      run_frontend: ${{ needs.changes.outputs.frontend == 'true' }}

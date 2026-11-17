@@ -1,0 +1,124 @@
+name: Automated Tests & Builds
+
+on:
+  workflow_call:
+    inputs:
+      run_backend:
+        description: 'Run backend tests'
+        type: boolean
+        default: true
+      run_frontend:
+        description: 'Build and verify frontend'
+        type: boolean
+        default: true
+
+jobs:
+  test-backend:
+    name: Backend Tests (Jest)
+    if: inputs.run_backend
+    runs-on: ubuntu-latest
+    
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://runway:runway@localhost:5432/runway_test
+      REDIS_URL: redis://localhost:6379
+      CLIENT_URL: http://localhost:3000
+      JWT_ACCESS_SECRET: test_secret_123456789012345678901234567890
+      REFRESH_TOKEN_HASH_SECRET: test_hash_secret_1234567890123456789012
+      GOOGLE_CLIENT_ID: test_google_id
+      GOOGLE_CLIENT_SECRET: test_google_secret
+      GOOGLE_CALLBACK_URL: http://localhost:4000/api/v1/auth/google/callback
+      CLOUDINARY_CLOUD_NAME: test_cloud
+      CLOUDINARY_API_KEY: test_key
+      CLOUDINARY_API_SECRET: test_secret
+      AI_PROVIDER: gemini
+      EMAIL_PROVIDER: mock
+      EMAIL_FROM: test@runway.local
+      ADMIN_SEED_EMAIL: admin@runway.local
+      ADMIN_SEED_PASSWORD: password123
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: runway_test
+          POSTGRES_USER: runway
+          POSTGRES_PASSWORD: runway
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'server/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Validate Prisma Schema
+        working-directory: ./server
+        run: npm run prisma:validate
+
+      - name: Generate Prisma Client
+        working-directory: ./server
+        run: npx prisma generate
+
+      - name: Push DB Schema
+        working-directory: ./server
+        run: npx prisma db push
+
+      - name: Run Tests with Coverage
+        working-directory: ./server
+        run: npm test -- --coverage
+
+      - name: Upload Test Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-coverage
+          path: server/coverage/
+          retention-days: 7
+
+  build-frontend:
+    name: Frontend Build (Vite)
+    if: inputs.run_frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'client/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build Application
+        working-directory: ./client
+        run: npm run build
