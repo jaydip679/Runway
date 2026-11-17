@@ -1,0 +1,41 @@
+name: Docker Security Scans
+
+on:
+  workflow_call:
+
+jobs:
+  hadolint:
+    name: Hadolint (Dockerfile Linter)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: server/Dockerfile
+          failure-threshold: error
+          ignore: DL3018
+
+  trivy-image:
+    name: Trivy Container Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Image for Scan
+        run: |
+          docker build -t runway-backend:scan ./server
+
+      - name: Scan Image with Aqua Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'runway-backend:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'

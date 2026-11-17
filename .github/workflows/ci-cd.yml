@@ -68,3 +68,13 @@ jobs:
     with:
       run_backend: ${{ needs.changes.outputs.backend == 'true' }}
       run_frontend: ${{ needs.changes.outputs.frontend == 'true' }}
+
+  # ========================================================
+  # Phase 4: Container Security & Docker Scans
+  # ========================================================
+  docker-scans:
+    name: Docker Scans
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/docker-scans.yml
+    secrets: inherit
