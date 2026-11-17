@@ -78,3 +78,11 @@ jobs:
     if: needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/docker-scans.yml
     secrets: inherit
+
+  # ========================================================
+  # Phase 5: SAST & Static Code Analysis (SonarQube Cloud)
+  # ========================================================
+  sonar-qube:
+    name: SonarQube SAST
+    uses: ./.github/workflows/sonar-scan.yml
+    secrets: inherit
