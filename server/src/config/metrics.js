@@ -42,27 +42,30 @@ const normalizeRoute = (rawPath) => {
 };
 
 /**
- * Verifies if request originates from localhost / loopback or carries an internal auth token
+ * Verifies if request originates from localhost / loopback or carries an internal auth token.
+ * Note: Hostname-based checks (e.g. req.hostname === 'localhost') are strictly avoided
+ * to prevent Host header spoofing attacks.
  */
 const isInternalRequest = (req) => {
-  const ip = req.ip || req.connection?.remoteAddress || '';
-  const isLoopback = 
-    ip === '127.0.0.1' || 
-    ip === '::1' || 
-    ip === '::ffff:127.0.0.1' || 
-    req.hostname === 'localhost';
+  const rawIp = req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || '';
+  const ip = rawIp.replace(/^::ffff:/, ''); // Normalize IPv4-mapped IPv6 addresses
 
-  if (isLoopback) return true;
+  const isLoopbackIp =
+    ip === '127.0.0.1' ||
+    ip === '::1' ||
+    ip.startsWith('127.');
 
-  // Optional bearer/header token for authenticated scrapers
+  if (isLoopbackIp) return true;
+
+  // Optional bearer/header token for authenticated internal scrapers (e.g. Grafana Alloy)
   const configuredToken = process.env.METRICS_TOKEN;
   if (configuredToken && req.headers['x-metrics-token'] === configuredToken) {
     return true;
   }
 
-  // In test environment, allow test invocations
+  // In test environment, allow test invocations only if explicitly mocked
   if (process.env.NODE_ENV === 'test') {
-    return true;
+    return false;
   }
 
   return false;

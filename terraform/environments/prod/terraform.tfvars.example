@@ -1,0 +1,14 @@
+# ==============================================================================
+# PROD DISPOSABLE RUNTIME CONFIGURATION TEMPLATE
+# Copy to terraform.tfvars to override default settings.
+# terraform.tfvars is ignored by .gitignore and will not be pushed to Git.
+# ==============================================================================
+
+aws_region        = "ap-south-1"
+environment       = "prod"
+project_name      = "runway"
+use_fargate_spot  = false   # Set to true for ~70% compute savings via Fargate Spot
+desired_count     = 1
+task_cpu          = 512     # 0.5 vCPU
+task_memory       = 1024    # 1.0 GiB
+client_url        = "https://runwayfinance.vercel.app"

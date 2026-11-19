@@ -18,19 +18,32 @@ describe('Prometheus Metrics Module', () => {
     expect(normalizeRoute(pathWithQuery)).toBe('/api/v1/categories');
   });
 
-  it('allows internal loopback requests and denies unauthorized external requests', () => {
+  it('allows internal loopback requests and denies unauthorized external requests without trusting hostname', () => {
     const loopbackIpv4 = { ip: '127.0.0.1' };
     const loopbackIpv6 = { ip: '::1' };
+    const loopbackMapped = { ip: '::ffff:127.0.0.1' };
     const externalIp = { ip: '203.0.113.195', headers: {} };
+    // Host header spoofing attempt
+    const spoofedHostReq = { ip: '203.0.113.195', hostname: 'localhost', headers: {} };
 
-    // Test helper logic directly
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
 
     expect(isInternalRequest(loopbackIpv4)).toBe(true);
     expect(isInternalRequest(loopbackIpv6)).toBe(true);
+    expect(isInternalRequest(loopbackMapped)).toBe(true);
     expect(isInternalRequest(externalIp)).toBe(false);
+    expect(isInternalRequest(spoofedHostReq)).toBe(false); // Host header spoofing rejected
 
+    // Test token header
+    process.env.METRICS_TOKEN = 'secret-test-token';
+    const authenticatedScraper = { ip: '10.0.1.50', headers: { 'x-metrics-token': 'secret-test-token' } };
+    const wrongTokenScraper = { ip: '10.0.1.50', headers: { 'x-metrics-token': 'wrong-token' } };
+
+    expect(isInternalRequest(authenticatedScraper)).toBe(true);
+    expect(isInternalRequest(wrongTokenScraper)).toBe(false);
+
+    delete process.env.METRICS_TOKEN;
     process.env.NODE_ENV = originalEnv;
   });
 

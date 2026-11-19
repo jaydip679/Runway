@@ -1,0 +1,124 @@
+name: Deploy to AWS ECS
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          LATEST_URI="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+          echo "Building multi-stage Docker image..."
+          docker build \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            -t "$IMAGE_URI" \
+            -t "$LATEST_URI" \
+            ./server
+
+          echo "Pushing image to Amazon ECR..."
+          docker push "$IMAGE_URI"
+          docker push "$LATEST_URI"
+
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+
+  deploy-ecs:
+    name: Deploy to Amazon ECS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Check if ECS Service Exists
+        id: check-ecs
+        run: |
+          SERVICE_STATUS=$(aws ecs describe-services \
+            --cluster runway-prod-cluster \
+            --services runway-prod-service \
+            --region ${{ vars.AWS_REGION }} \
+            --query "services[?status=='ACTIVE'].status" \
+            --output text 2>/dev/null || echo "")
+
+          if [ "$SERVICE_STATUS" = "ACTIVE" ]; then
+            echo "ecs_active=true" >> $GITHUB_OUTPUT
+            echo "ECS Service runway-prod-service is ACTIVE. Proceeding with rolling deployment."
+          else
+            echo "ecs_active=false" >> $GITHUB_OUTPUT
+            echo "ECS Service not yet provisioned via Terraform. Skipping ECS service update."
+          fi
+
+      - name: Download Active Task Definition
+        if: steps.check-ecs.outputs.ecs_active == 'true'
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition runway-prod-task \
+            --region ${{ vars.AWS_REGION }} \
+            --query taskDefinition > task-def.json
+
+      - name: Render Task Definition for API Container
+        if: steps.check-ecs.outputs.ecs_active == 'true'
+        id: render-api
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def.json
+          container-name: runway-api
+          image: ${{ needs.build-and-push.outputs.image }}
+
+      - name: Render Task Definition for Worker Container
+        if: steps.check-ecs.outputs.ecs_active == 'true'
+        id: render-worker
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-api.outputs.task-definition }}
+          container-name: runway-worker
+          image: ${{ needs.build-and-push.outputs.image }}
+
+      - name: Deploy Updated Task Definition to ECS
+        if: steps.check-ecs.outputs.ecs_active == 'true'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-worker.outputs.task-definition }}
+          service: runway-prod-service
+          cluster: runway-prod-cluster
+          wait-for-service-stability: true

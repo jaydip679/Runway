@@ -98,3 +98,14 @@ jobs:
     with:
       run_backend: ${{ needs.changes.outputs.backend == 'true' }}
       run_frontend: ${{ needs.changes.outputs.frontend == 'true' }}
+
+  # ========================================================
+  # Phase 7: Automated Container Build & Deployment to AWS ECS
+  # ========================================================
+  deploy-ecs:
+    name: Deploy to AWS ECS
+    needs: [changes, code-tests, docker-scans]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/deploy-ecs.yml
+    secrets: inherit
+
