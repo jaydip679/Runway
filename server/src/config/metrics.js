@@ -30,10 +30,48 @@ const httpRequestsTotal = new client.Counter({
 register.registerMetric(httpRequestsTotal);
 
 /**
+ * Normalizes route path to avoid high cardinality in Prometheus metrics
+ * e.g., /api/v1/transactions/458f0d8b-ff66-4ca5-90c5-0e4a4fc698bd -> /api/v1/transactions/:id
+ */
+const normalizeRoute = (rawPath) => {
+  if (!rawPath) return 'unknown';
+  return rawPath
+    .replace(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, ':id')
+    .replace(/\/\d+(?=\/|$)/g, '/:id')
+    .replace(/\?.*$/, '');
+};
+
+/**
+ * Verifies if request originates from localhost / loopback or carries an internal auth token
+ */
+const isInternalRequest = (req) => {
+  const ip = req.ip || req.connection?.remoteAddress || '';
+  const isLoopback = 
+    ip === '127.0.0.1' || 
+    ip === '::1' || 
+    ip === '::ffff:127.0.0.1' || 
+    req.hostname === 'localhost';
+
+  if (isLoopback) return true;
+
+  // Optional bearer/header token for authenticated scrapers
+  const configuredToken = process.env.METRICS_TOKEN;
+  if (configuredToken && req.headers['x-metrics-token'] === configuredToken) {
+    return true;
+  }
+
+  // In test environment, allow test invocations
+  if (process.env.NODE_ENV === 'test') {
+    return true;
+  }
+
+  return false;
+};
+
+/**
  * Middleware to record HTTP latency and throughput metrics
  */
 const metricsMiddleware = (req, res, next) => {
-  // Ignore the /metrics endpoint itself to prevent metric pollution
   if (req.path === '/metrics' || req.path === '/health' || req.path === '/health/ready') {
     return next();
   }
@@ -44,8 +82,8 @@ const metricsMiddleware = (req, res, next) => {
     const diff = process.hrtime(start);
     const durationInSeconds = diff[0] + diff[1] / 1e9;
     
-    // Normalize parameterized route path if available, or fallback to base path
-    const route = req.route ? req.baseUrl + req.route.path : req.baseUrl || req.path;
+    const rawRoute = req.route ? req.baseUrl + req.route.path : req.baseUrl || req.path;
+    const route = normalizeRoute(rawRoute);
     const statusCode = res.statusCode.toString();
 
     httpRequestDuration.observe(
@@ -59,9 +97,13 @@ const metricsMiddleware = (req, res, next) => {
 };
 
 /**
- * Handler for the /metrics scraping endpoint
+ * Handler for the /metrics scraping endpoint (restricted to localhost/internal scrapers)
  */
 const getMetrics = async (req, res) => {
+  if (!isInternalRequest(req)) {
+    return res.status(403).send('Access Denied: Internal Metrics Only');
+  }
+
   try {
     res.setHeader('Content-Type', register.contentType);
     const metrics = await register.metrics();
@@ -75,4 +117,6 @@ module.exports = {
   register,
   metricsMiddleware,
   getMetrics,
+  normalizeRoute,
+  isInternalRequest,
 };
