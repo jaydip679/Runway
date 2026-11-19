@@ -5,6 +5,7 @@
 
 aws_region         = "ap-south-1"
 project_name       = "runway"
-github_repository  = "your-username/your-repo"
+github_repository  = "jaydip679/Runway"
+github_branch      = "main"
 budget_alert_email = "your-email@example.com"
 budget_limit_usd   = "40.0"

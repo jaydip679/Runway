@@ -15,6 +15,12 @@ variable "github_repository" {
   type        = string
 }
 
+variable "github_branch" {
+  description = "Target GitHub branch permitted to assume deployer role (default: main)"
+  type        = string
+  default     = "main"
+}
+
 variable "budget_alert_email" {
   description = "Email address to receive AWS Budget threshold notifications"
   type        = string

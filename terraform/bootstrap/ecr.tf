@@ -18,11 +18,11 @@ resource "aws_ecr_lifecycle_policy" "runway_backend" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep last 10 tagged production images"
+        description  = "Keep last 5 tagged production images"
         selection = {
           tagStatus   = "any"
           countType   = "imageCountMoreThan"
-          countNumber = 10
+          countNumber = 5
         }
         action = {
           type = "expire"

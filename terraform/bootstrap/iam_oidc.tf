@@ -6,7 +6,7 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   thumbprint_list = ["6938fd2d98bab03faadb97b34396831e3780aea1", "1c58a3a8518e8759bf075b76b750d4f8d264fcd3"]
 }
 
-# IAM Role assumed by GitHub Actions
+# IAM Role assumed by GitHub Actions strictly on the designated branch (main)
 resource "aws_iam_role" "github_actions_role" {
   name = "${var.project_name}-github-actions-deployer"
 
@@ -22,9 +22,7 @@ resource "aws_iam_role" "github_actions_role" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          }
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:ref:refs/heads/${var.github_branch}"
           }
         }
       }
@@ -35,7 +33,7 @@ resource "aws_iam_role" "github_actions_role" {
 # Policy allowing GitHub Actions to authenticate, push images to ECR, and deploy to ECS
 resource "aws_iam_policy" "github_actions_deploy_policy" {
   name        = "${var.project_name}-github-actions-deploy-policy"
-  description = "Allows GitHub Actions CI/CD to push ECR images and update ECS service"
+  description = "Allows GitHub Actions CI/CD to push ECR images and update ECS service with least-privilege scoping"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -65,15 +63,29 @@ resource "aws_iam_policy" "github_actions_deploy_policy" {
         Resource = aws_ecr_repository.runway_backend.arn
       },
       {
-        Sid    = "ECSDeployment"
+        Sid    = "ECSServiceManagement"
         Effect = "Allow"
         Action = [
           "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition",
-          "ecs:DescribeTasks",
-          "ecs:ListTasks",
-          "ecs:RegisterTaskDefinition",
           "ecs:UpdateService"
+        ]
+        Resource = "arn:aws:ecs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:service/${var.project_name}-*/*"
+      },
+      {
+        Sid    = "ECSTasksInspection"
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTasks",
+          "ecs:ListTasks"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ECSTaskDefinitionRegistration"
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition"
         ]
         Resource = "*"
       },
@@ -83,7 +95,12 @@ resource "aws_iam_policy" "github_actions_deploy_policy" {
         Action = [
           "iam:PassRole"
         ]
-        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-*"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-*-ecs-*"
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "ecs-tasks.amazonaws.com"
+          }
+        }
       }
     ]
   })
