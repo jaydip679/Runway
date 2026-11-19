@@ -144,3 +144,34 @@ vite.config.ts.timestamp-*
 
 # Project docs
 docs/
+
+# ----------------------------------------------------------------------------
+# Terraform & Cloud Infrastructure Security
+# ----------------------------------------------------------------------------
+# Local .terraform directories containing downloaded plugins and provider binaries
+**/.terraform/*
+**/.terraform/
+
+# .tfstate files contain raw resource attributes, IDs, and potentially sensitive metadata
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Exclude sensitive Terraform variable definition files
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are typically used for local customization
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
