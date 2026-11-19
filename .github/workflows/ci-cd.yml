@@ -7,6 +7,10 @@ on:
     branches: [ main, dev ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   # ========================================================
   # Phase 0: Path Filtering & Change Detection
@@ -106,6 +110,9 @@ jobs:
     name: Deploy to AWS ECS
     needs: [changes, code-tests, docker-scans]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.changes.outputs.backend == 'true'
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/deploy-ecs.yml
     secrets: inherit
 
