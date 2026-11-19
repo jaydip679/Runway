@@ -13,6 +13,7 @@ const createRateLimiter = require('./common/middlewares/rateLimiter');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
+const { metricsMiddleware, getMetrics } = require('./config/metrics');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/user.routes');
@@ -48,6 +49,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
+app.use(metricsMiddleware);
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -81,6 +83,9 @@ app.use('/api/v1/export', exportRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
+
+// Prometheus metrics endpoint (for Grafana Alloy sidecar scraping)
+app.get('/metrics', getMetrics);
 
 // Deep health check
 app.get('/health/ready', async (req, res) => {
