@@ -11,6 +11,21 @@ resource "aws_cloudwatch_log_group" "ecs" {
 locals {
   ssm_param_prefix = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.environment}"
 
+  # Shared environment variables for API and Worker containers
+  common_environment = [
+    { name = "NODE_ENV", value = "production" },
+    { name = "PORT", value = "4000" },
+    { name = "LOG_LEVEL", value = "info" },
+    { name = "FORECAST_WINDOW_DAYS", value = "60" },
+    { name = "LOW_BALANCE_THRESHOLD", value = "0" },
+    { name = "CLIENT_URL", value = var.client_url },
+    { name = "GOOGLE_CALLBACK_URL", value = "${var.client_url}/api/v1/auth/google/callback" },
+    { name = "AI_PROVIDER", value = "openai" },
+    { name = "EMAIL_PROVIDER", value = "resend" },
+    { name = "EMAIL_FROM", value = "noreply@runwayfinance.vercel.app" },
+    { name = "ADMIN_SEED_EMAIL", value = "admin@runway.local" }
+  ]
+
   # Shared database, auth, and service credentials for API and Worker containers
   common_secrets = [
     { name = "DATABASE_URL", valueFrom = "${local.ssm_param_prefix}/DATABASE_URL" },
@@ -78,14 +93,7 @@ resource "aws_ecs_task_definition" "app" {
         }
       ]
 
-      environment = [
-        { name = "NODE_ENV", value = "production" },
-        { name = "PORT", value = "4000" },
-        { name = "LOG_LEVEL", value = "info" },
-        { name = "FORECAST_WINDOW_DAYS", value = "60" },
-        { name = "LOW_BALANCE_THRESHOLD", value = "0" },
-        { name = "CLIENT_URL", value = var.client_url }
-      ]
+      environment = local.common_environment
 
       secrets = local.common_secrets
 
@@ -109,10 +117,7 @@ resource "aws_ecs_task_definition" "app" {
       memoryReservation = 400
       command           = ["dumb-init", "node", "src/worker.js"]
 
-      environment = [
-        { name = "NODE_ENV", value = "production" },
-        { name = "LOG_LEVEL", value = "info" }
-      ]
+      environment = local.common_environment
 
       secrets = local.common_secrets
 
