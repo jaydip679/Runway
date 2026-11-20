@@ -22,3 +22,18 @@ output "vpc_id" {
   description = "VPC ID"
   value       = aws_vpc.main.id
 }
+
+output "frontend_url" {
+  description = "Public HTTPS endpoint URL for standalone AWS Runway Full-Stack deployment"
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}"
+}
+
+output "frontend_s3_bucket" {
+  description = "S3 bucket name hosting the React frontend production build"
+  value       = aws_s3_bucket.frontend.id
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront Distribution ID for cache invalidations"
+  value       = aws_cloudfront_distribution.main.id
+}

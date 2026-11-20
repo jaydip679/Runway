@@ -122,3 +122,72 @@ jobs:
           service: runway-prod-service
           cluster: runway-prod-cluster
           wait-for-service-stability: true
+
+  deploy-frontend:
+    name: Build & Deploy Frontend to S3/CloudFront
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'client/package-lock.json'
+
+      - name: Install Client Dependencies
+        run: npm --prefix client ci
+
+      - name: Build Vite Production Assets
+        run: npm --prefix client run build
+        env:
+          VITE_API_URL: '/api/v1'
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Get AWS Account ID
+        id: aws-account
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "account_id=$ACCOUNT_ID" >> $GITHUB_OUTPUT
+
+      - name: Check if Frontend S3 Bucket Exists
+        id: check-s3
+        env:
+          ACCOUNT_ID: ${{ steps.aws-account.outputs.account_id }}
+        run: |
+          BUCKET_NAME="runway-prod-frontend-$ACCOUNT_ID"
+          if aws s3 ls "s3://$BUCKET_NAME" 2>/dev/null; then
+            echo "s3_exists=true" >> $GITHUB_OUTPUT
+            echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
+            echo "Frontend bucket $BUCKET_NAME exists. Proceeding with deployment."
+          else
+            echo "s3_exists=false" >> $GITHUB_OUTPUT
+            echo "Frontend bucket $BUCKET_NAME not yet created via Terraform. Skipping frontend deployment."
+          fi
+
+      - name: Sync Production Build to S3
+        if: steps.check-s3.outputs.s3_exists == 'true'
+        run: |
+          aws s3 sync client/dist "s3://${{ steps.check-s3.outputs.bucket_name }}" --delete
+
+      - name: Invalidate CloudFront Cache
+        if: steps.check-s3.outputs.s3_exists == 'true'
+        run: |
+          DIST_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Comment=='Runway Production Full-Stack Distribution'].Id" \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$DIST_ID" ] && [ "$DIST_ID" != "None" ]; then
+            echo "Invalidating CloudFront distribution $DIST_ID..."
+            aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"
+          fi
+

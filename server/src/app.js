@@ -42,8 +42,18 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Middlewares
 app.use(helmet());
+// CORS configuration supporting both Vercel frontend and standalone AWS CloudFront domain
+const allowedOrigins = [env.CLIENT_URL].filter(Boolean);
+
 app.use(cors({
-  origin: env.CLIENT_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (such as same-origin reverse proxy calls, mobile clients, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.cloudfront.net')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
   credentials: true,
 }));
 app.use(express.json());
